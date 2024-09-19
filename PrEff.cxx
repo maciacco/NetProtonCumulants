@@ -3,7 +3,7 @@
 
 using namespace utils;
 
-void PrEff(const char* inFileName = "LHC18_var", const char* outFileName = "prEff"){
+void PrEff(const char* inFileName = "LHC180_var", const char* outFileName = "prEff"){
   gStyle->SetOptStat(0);
   TFile *fOut = TFile::Open(Form("%s/%s.root", kResDir, outFileName), "recreate");
   for (int iVar{0}; iVar < 3; ++iVar){

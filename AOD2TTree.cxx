@@ -1,7 +1,7 @@
 #include <TFile.h>
 #include "utils.h"
 
-void AOD2TTree(const char *inFile = "AO2D", const char *outFile = "newTree", const bool isMC = false){
+void AOD2TTree(const char *inFile = "AO2D_mc", const char *outFile = "newTree", const bool isMC = true){
   TFile *fout = TFile::Open(Form("%s.root", outFile), "recreate");
 
   TTree *new_tree = new TTree("newtree", "new tree");
@@ -63,7 +63,9 @@ void AOD2TTree(const char *inFile = "AO2D", const char *outFile = "newTree", con
     _tree_coll->SetBranchAddress("fNtracklets", &fNtracklets);
     _tree_coll->SetBranchAddress("fV0Multiplicity", &fV0Multiplicity);
 
+    int64_t itrk = 0;
     for (int64_t ic = 0; ic < ncoll; ++ic) {
+      if (!(ic % 1000)) std::cout << ic << std::endl;
       tracks->Clear();
       int it = 0;
 
@@ -74,7 +76,7 @@ void AOD2TTree(const char *inFile = "AO2D", const char *outFile = "newTree", con
       v0Multiplicity = fV0Multiplicity;
 
       // fill tracks array
-      for (int64_t itrk = 0; itrk < ntrk; ++itrk) {
+      for (; itrk < ntrk; ++itrk) {
         _tree_trk->GetEntry(itrk);
         if (fIndexMiniCollTables == ic) {
           new (tr[it]) miniTrack();
@@ -86,6 +88,10 @@ void AOD2TTree(const char *inFile = "AO2D", const char *outFile = "newTree", con
           trk->fGenPt = fGenPt;
           trk->fGenEtaMask = fGenEtaMask;
           trk->fIsReco = fIsReco;
+        }
+        else if (fIndexMiniCollTables > ic) {
+          itrk--;
+          break;
         }
       }
 

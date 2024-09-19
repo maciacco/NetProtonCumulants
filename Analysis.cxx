@@ -34,7 +34,7 @@ double cbwc(const double *array, const int centbin, const TH1D* hCent){
 
 void Analysis(const char* period = "18")
 {
-  TFile f(Form("out_sys_%s_finalBinning.root", period), "recreate");
+  TFile f(Form("out_sys_%s_finalBinning_mc.root", period), "recreate");
   TH1D *hSys[kNCentBins];
   TGraphErrors gk2k1;
   gk2k1.SetName("gk2k1");
@@ -61,19 +61,28 @@ void Analysis(const char* period = "18")
       TFile *fin = new TFile(Form("output_sys_%d_%d.root", sample, iVar));
       TFile *fCent = TFile::Open(Form("LHC18%d_var_%d.root", sample, iVar));
 
-      TH1D *hCent = (TH1D*)fCent->Get(Form("subsample__%d/hCent", sample + 1));
+      TH1D *hCent = (TH1D*)fCent->Get("hCent");
 
       if (!fin) {nSkip++; fin->Close(); delete fin; continue;}
 
-      TProfile *q1pp_pn = (TProfile*)fin->Get(Form("var_%d/q1_pr_pr_pn", iVar));
-      TProfile *q1pr_p = (TProfile*)fin->Get(Form("var_%d/q1_pr_p", iVar));
-      TProfile *q2pr_p = (TProfile*)fin->Get(Form("var_%d/q2_pr_p", iVar));
-      TProfile *q1pr_n = (TProfile*)fin->Get(Form("var_%d/q1_pr_n", iVar));
-      TProfile *q2pr_n = (TProfile*)fin->Get(Form("var_%d/q2_pr_n", iVar));
-      TProfile *q1squarepr_p = (TProfile*)fin->Get(Form("var_%d/q1square_pr_p", iVar));
-      TProfile *q1squarepr_n = (TProfile*)fin->Get(Form("var_%d/q1square_pr_n", iVar));
+      // TProfile *q1pp_pn = (TProfile*)fin->Get(Form("var_%d/q1_pr_pr_pn", iVar));
+      // TProfile *q1pr_p = (TProfile*)fin->Get(Form("var_%d/q1_pr_p", iVar));
+      // TProfile *q2pr_p = (TProfile*)fin->Get(Form("var_%d/q2_pr_p", iVar));
+      // TProfile *q1pr_n = (TProfile*)fin->Get(Form("var_%d/q1_pr_n", iVar));
+      // TProfile *q2pr_n = (TProfile*)fin->Get(Form("var_%d/q2_pr_n", iVar));
+      // TProfile *q1squarepr_p = (TProfile*)fin->Get(Form("var_%d/q1square_pr_p", iVar));
+      // TProfile *q1squarepr_n = (TProfile*)fin->Get(Form("var_%d/q1square_pr_n", iVar));
+
+      TH1D *q1pp_pn = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ11_Gen_%d", sample + 1, iVar));
+      TH1D *q1pr_p = (TH1D*)fCent->Get(Form("subsample__%d/hMProtonQ1_Gen_%d", sample + 1, iVar));
+      TH1D *q2pr_p = (TH1D*)fCent->Get(Form("subsample__%d/hMProtonQ1_Gen_%d", sample + 1, iVar));
+      TH1D *q1pr_n = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ1_Gen_%d", sample + 1, iVar));
+      TH1D *q2pr_n = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ1_Gen_%d", sample + 1, iVar));
+      TH1D *q1squarepr_p = (TH1D*)fCent->Get(Form("subsample__%d/hMProtonQ1Sq_Gen_%d", sample + 1, iVar));
+      TH1D *q1squarepr_n = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ1Sq_Gen_%d", sample + 1, iVar));
 
       if (!q1pp_pn || !q1pr_n || !q1pr_p || !q2pr_n || !q2pr_p || !q1squarepr_n || !q1squarepr_p){
+        std::cout << "skip..." << std::endl;
         nSkip++; fin->Close(); delete fin; continue;
       }
 
@@ -85,6 +94,7 @@ void Analysis(const char* period = "18")
         c2pr_p_small[sample][i - 1] = q1squarepr_p->GetBinContent(i) - TMath::Power(q1pr_p->GetBinContent(i), 2.0) + q1pr_p->GetBinContent(i) - q2pr_p->GetBinContent(i);
         c2pr_n_small[sample][i - 1] = q1squarepr_n->GetBinContent(i) - TMath::Power(q1pr_n->GetBinContent(i), 2.0) + q1pr_n->GetBinContent(i) - q2pr_n->GetBinContent(i);
         c2pr_pn_small[sample][i - 1] = c2pr_p_small[sample][i - 1] + c2pr_n_small[sample][i - 1] - 2 * c11_pn_pp_small[sample][i - 1];
+        // std::cout << c11_pn_pp_small[sample][i - 1] << std::endl;
       }
 
       for(int i = 1; i <= kNCentBins; i++)
@@ -126,6 +136,12 @@ void Analysis(const char* period = "18")
       g.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean);
       hSys[i - 1]->Fill(mean);
       g.SetPointError(i - 1, 0, TMath::Sqrt(rms / (( N_SAMPLE - nSkip) * (( N_SAMPLE - nSkip) - 1))));
+
+      if (iVar == 0){
+        gk2k1.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean);
+        gk2k1Sys.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean);
+        gk2k1.SetPointError(i - 1, 0, TMath::Sqrt(rms / (( N_SAMPLE - nSkip) * (( N_SAMPLE - nSkip) - 1))));
+      }
     }
 
     TCanvas c(Form("c_%d", iVar), Form("c_%d", iVar));
@@ -135,13 +151,13 @@ void Analysis(const char* period = "18")
   }
 
   for (int i{0}; i < kNCentBins - 1; ++i){
-    remove_outlier(hSys[i]);
+    // remove_outlier(hSys[i]);
     hSys[i]->Write();
     //hSys[i]->SetStats(0);
     hSys[i]->SetFillStyle(3004);
     hSys[i]->SetLineColor(kBlue);
     hSys[i]->SetFillColor(kBlue);
-    hSys[i]->GetXaxis()->SetRangeUser(hSys[i]->GetMean() - 5.*hSys[i]->GetStdDev(), hSys[i]->GetMean() + 5.*hSys[i]->GetStdDev());
+    hSys[i]->GetXaxis()->SetRangeUser(hSys[i]->GetMean() - 5.* hSys[i]->GetStdDev(), hSys[i]->GetMean() + 5.* hSys[i]->GetStdDev());
     // gk2k1Sys.SetPointError(i, 2, hSys[i]->GetStdDev());
     hSys[i]->SetTitle(Form("mult. class %d", i));
     cSys.cd(i + 1);
