@@ -168,10 +168,10 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
         double qPr_2_gen_tmp[] = {0, 0};
         Long64_t nPr_gen[] = {0, 0};
       #endif // FILL_MC
-      double qPr_1_tmp[][2] = {{0, 0}, {0, 0}};
-      double qPr_1_tmp_update[][2] = {{0, 0}, {0, 0}};
-      double qPr_1_sq_tmp[][2] = {{0, 0}, {0, 0}};
-      double qPr_2_tmp[][2] = {{0, 0}, {0, 0}};
+      double qPr_1_tmp[2] = {0, 0};
+      double qPr_1_tmp_update[2] = {0, 0};
+      double qPr_1_sq_tmp[2] = {0, 0};
+      double qPr_2_tmp[2] = {0, 0};
       Long64_t nPr[] = {0, 0};
 
       for (int itrk = 0; itrk < tracks->GetEntries(); ++itrk) {
@@ -206,12 +206,9 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
           int im = trk_tmp->fPt > 0 ? 1 : 0;
           int ie = hEtaTmp.FindBin(static_cast<float>(trk_tmp->fEtaMask) / 10.f);
           double eff = fEffPr ? hEffPr[im][ic - 1][ie - 1][iS][0]->GetBinContent(hEffPr[im][ic - 1][ie - 1][iS][iVar - iVarMin]->FindBin(std::abs(trk_tmp->fPt))) : kDummyEffPr;
-          qPr_1_tmp[im][0] += 1.;
-          qPr_1_tmp_update[im][0] += 1.;
-          qPr_2_tmp[im][0] += 1.;
-          qPr_1_tmp[im][1] += (1. / eff);
-          qPr_1_tmp_update[im][1] += (1. / eff);
-          qPr_2_tmp[im][1] += (1. / eff / eff);
+          qPr_1_tmp[im] += (1. / eff);
+          qPr_1_tmp_update[im] += (1. / eff);
+          qPr_2_tmp[im] += (1. / eff / eff);
           nPr[im] += 1;
         }
       }
@@ -222,14 +219,12 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
         qPr_1Sq_Gen[ic_sm-1][iM][iS][iVar - iVarMin] += (qPr_1_gen_tmp[iM] * qPr_1_gen_tmp[iM]);
         hGenRecProton[iM][iVar - iVarMin]->Fill(cent, nPr_gen[iM], nPr[iM]);
       #endif // FILL_MC
-        for (int iCorr = 0; iCorr < 2; ++iCorr){
-          double q1_sq = qPr_1_tmp[iM][iCorr] * qPr_1_tmp[iM][iCorr];
-          qPr_1_sq_tmp[iM][iCorr] += q1_sq;
-          qPr_1_tmp_update[iM][iCorr] = 0.;
-        }
+        double q1_sq = qPr_1_tmp[iM] * qPr_1_tmp[iM];
+        qPr_1_sq_tmp[iM] += q1_sq;
+        qPr_1_tmp_update[iM] = 0.;
       }
 
-      evtTuple[iS][iVar - iVarMin]->Fill(cent, qPr_1_tmp[1][1], qPr_1_tmp[0][1], qPr_2_tmp[1][1], qPr_2_tmp[0][1]);
+      evtTuple[iS][iVar - iVarMin]->Fill(cent, qPr_1_tmp[1], qPr_1_tmp[0], qPr_2_tmp[1], qPr_2_tmp[0]);
     }
   }
 

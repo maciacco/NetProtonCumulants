@@ -34,7 +34,7 @@ double cbwc(const double *array, const int centbin, const TH1D* hCent){
 
 void Analysis(const char* period = "18")
 {
-  TFile f(Form("out_sys_%s_finalBinning_mc.root", period), "recreate");
+  TFile f(Form("out_sys_%s_finalBinning.root", period), "recreate");
   TH1D *hSys[kNCentBins];
   TGraphErrors gk2k1;
   gk2k1.SetName("gk2k1");
@@ -65,21 +65,21 @@ void Analysis(const char* period = "18")
 
       if (!fin) {nSkip++; fin->Close(); delete fin; continue;}
 
-      // TProfile *q1pp_pn = (TProfile*)fin->Get(Form("var_%d/q1_pr_pr_pn", iVar));
-      // TProfile *q1pr_p = (TProfile*)fin->Get(Form("var_%d/q1_pr_p", iVar));
-      // TProfile *q2pr_p = (TProfile*)fin->Get(Form("var_%d/q2_pr_p", iVar));
-      // TProfile *q1pr_n = (TProfile*)fin->Get(Form("var_%d/q1_pr_n", iVar));
-      // TProfile *q2pr_n = (TProfile*)fin->Get(Form("var_%d/q2_pr_n", iVar));
-      // TProfile *q1squarepr_p = (TProfile*)fin->Get(Form("var_%d/q1square_pr_p", iVar));
-      // TProfile *q1squarepr_n = (TProfile*)fin->Get(Form("var_%d/q1square_pr_n", iVar));
+      TProfile *q1pp_pn = (TProfile*)fin->Get(Form("var_%d/q1_pr_pr_pn", iVar));
+      TProfile *q1pr_p = (TProfile*)fin->Get(Form("var_%d/q1_pr_p", iVar));
+      TProfile *q2pr_p = (TProfile*)fin->Get(Form("var_%d/q2_pr_p", iVar));
+      TProfile *q1pr_n = (TProfile*)fin->Get(Form("var_%d/q1_pr_n", iVar));
+      TProfile *q2pr_n = (TProfile*)fin->Get(Form("var_%d/q2_pr_n", iVar));
+      TProfile *q1squarepr_p = (TProfile*)fin->Get(Form("var_%d/q1square_pr_p", iVar));
+      TProfile *q1squarepr_n = (TProfile*)fin->Get(Form("var_%d/q1square_pr_n", iVar));
 
-      TH1D *q1pp_pn = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ11_Gen_%d", sample + 1, iVar));
-      TH1D *q1pr_p = (TH1D*)fCent->Get(Form("subsample__%d/hMProtonQ1_Gen_%d", sample + 1, iVar));
-      TH1D *q2pr_p = (TH1D*)fCent->Get(Form("subsample__%d/hMProtonQ1_Gen_%d", sample + 1, iVar));
-      TH1D *q1pr_n = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ1_Gen_%d", sample + 1, iVar));
-      TH1D *q2pr_n = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ1_Gen_%d", sample + 1, iVar));
-      TH1D *q1squarepr_p = (TH1D*)fCent->Get(Form("subsample__%d/hMProtonQ1Sq_Gen_%d", sample + 1, iVar));
-      TH1D *q1squarepr_n = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ1Sq_Gen_%d", sample + 1, iVar));
+      // TH1D *q1pp_pn = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ11_Gen_%d", sample + 1, iVar));
+      // TH1D *q1pr_p = (TH1D*)fCent->Get(Form("subsample__%d/hMProtonQ1_Gen_%d", sample + 1, iVar));
+      // TH1D *q2pr_p = (TH1D*)fCent->Get(Form("subsample__%d/hMProtonQ1_Gen_%d", sample + 1, iVar));
+      // TH1D *q1pr_n = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ1_Gen_%d", sample + 1, iVar));
+      // TH1D *q2pr_n = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ1_Gen_%d", sample + 1, iVar));
+      // TH1D *q1squarepr_p = (TH1D*)fCent->Get(Form("subsample__%d/hMProtonQ1Sq_Gen_%d", sample + 1, iVar));
+      // TH1D *q1squarepr_n = (TH1D*)fCent->Get(Form("subsample__%d/hAProtonQ1Sq_Gen_%d", sample + 1, iVar));
 
       if (!q1pp_pn || !q1pr_n || !q1pr_p || !q2pr_n || !q2pr_p || !q1squarepr_n || !q1squarepr_p){
         std::cout << "skip..." << std::endl;
