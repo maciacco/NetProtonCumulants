@@ -27,7 +27,7 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
   TFile *o[N_SAMPLE][nF];
   for (int iS{0}; iS < N_SAMPLE; ++iS){
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar){
-      o[iS][iVar - iVarMin] = new TFile(Form("%s%d_var_%d.root", ofname, iS, iVar), "recreate");
+      o[iS][iVar - iVarMin] = new TFile(Form("%s/%s%d_var_%d.root", kResDir, ofname, iS, iVar), "recreate");
     }
   }
 
@@ -62,9 +62,7 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
   // Init histos and tuple
   TH1D *hCent[N_SAMPLE];
   #ifdef FILL_MC
-    TH1D *hProtonQ1_Gen[2][N_SAMPLE][nF];
-    TH1D *hProtonQ11_Gen[2][N_SAMPLE][nF];
-    TH1D *hProtonQ1Sq_Gen[2][N_SAMPLE][nF];
+    TNtuple *evtTupleGen[N_SAMPLE][nF];
   #endif // FILL_MC
 
   TH1D *hEffPr[2][kNCentBins][kNEtaBins][N_SAMPLE][nF];
@@ -74,13 +72,12 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
     hCent[iS] = new TH1D(Form("hCent"), ";Centrality (%);Entries", kNCentBinsSmall, kCentBinsSmall);
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
     {
-      evtTuple[iS][iVar - iVarMin] = new TNtuple(Form("evtTuple_%d", iVar), Form("evtTuple_%d", iVar), "cent:q1pP:q1pN:q2pP:q2pN");
+      evtTuple[iS][iVar - iVarMin] = new TNtuple(Form("evtTuple_%d", iVar), Form("evtTuple_%d", iVar), "cent:q1pP:q1pN:q2pP:q2pN:q3pP:q3pN:q4pP:q4pN:q5pP:q5pN:q6pP:q6pN");
       evtTuple[iS][iVar - iVarMin]->SetDirectory(o[iS][iVar - iVarMin]);
       for (int iC = 0; iC < 2; ++iC){
       #ifdef FILL_MC
-        hProtonQ1_Gen[iC][iS][iVar - iVarMin] = new TH1D(Form("h%sProtonQ1_Gen_%d", kAntiMatterLabel[iC], iVar), ";Centrality (%);q_{1}^{K}", kNCentBinsSmall, kCentBinsSmall);
-        hProtonQ11_Gen[iC][iS][iVar - iVarMin] = new TH1D(Form("h%sProtonQ11_Gen_%d", kAntiMatterLabel[iC], iVar), ";Centrality (%);q_{1}^{K}", kNCentBinsSmall, kCentBinsSmall);
-        hProtonQ1Sq_Gen[iC][iS][iVar - iVarMin] = new TH1D(Form("h%sProtonQ1Sq_Gen_%d", kAntiMatterLabel[iC], iVar), ";Centrality (%);(q_{1}^{K})^{2}", kNCentBinsSmall, kCentBinsSmall);
+        evtTupleGen[iS][iVar - iVarMin] = new TNtuple(Form("evtTupleGen_%d", iVar), Form("evtTupleGen_%d", iVar), "cent:q1pP:q1pN");
+        evtTupleGen[iS][iVar - iVarMin]->SetDirectory(o[iS][iVar - iVarMin]);
       #endif // FILL_MC
         for (int iCent = 0; iCent < kNCentBins; ++iCent){
           for (int iEta = 0; iEta < kNEtaBins; ++iEta){
@@ -117,24 +114,6 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
   TH1D hCentSmallTmp("hCentSmallTmp", "hCentSmallTmp", kNCentBinsSmall, kCentBinsSmall);
   TH1D hEtaTmp("hEtaTmp", "hEtaTmp", kNBinsPt, kMinEta, kMinEta + kDeltaEta * kNBinsPt);
 
-  #ifdef FILL_MC
-    double qPr_1_Gen[kNCentBinsSmall][2][N_SAMPLE][nF];
-    double qPr_11_Gen[kNCentBinsSmall][2][N_SAMPLE][nF];
-    double qPr_1Sq_Gen[kNCentBinsSmall][2][N_SAMPLE][nF];
-    double qPr_2_Gen[kNCentBinsSmall][2][N_SAMPLE][nF];
-    for (int iV{iVarMin}; iV < iVarMax; ++iV){
-      for (int i = 0; i < 2; ++i){
-        for (int j = 0; j < kNCentBinsSmall; ++j){
-          for (int is = 0; is < N_SAMPLE; ++is){
-              qPr_1_Gen[j][i][is][iV - iVarMin] = 0;
-              qPr_11_Gen[j][i][is][iV - iVarMin] = 0;
-              qPr_1Sq_Gen[j][i][is][iV - iVarMin] = 0;\
-          }
-        }
-      }
-    }
-  #endif // FILL_MC
-
   // Event loop
   gRandom->SetSeed(42);
   for (Long64_t i = 0; i < nEntries; ++i){
@@ -165,13 +144,14 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
 
       #ifdef FILL_MC
         double qPr_1_gen_tmp[] = {0, 0};
-        double qPr_2_gen_tmp[] = {0, 0};
         Long64_t nPr_gen[] = {0, 0};
       #endif // FILL_MC
       double qPr_1_tmp[2] = {0, 0};
-      double qPr_1_tmp_update[2] = {0, 0};
-      double qPr_1_sq_tmp[2] = {0, 0};
       double qPr_2_tmp[2] = {0, 0};
+      double qPr_3_tmp[2] = {0, 0};
+      double qPr_4_tmp[2] = {0, 0};
+      double qPr_5_tmp[2] = {0, 0};
+      double qPr_6_tmp[2] = {0, 0};
       Long64_t nPr[] = {0, 0};
 
       for (int itrk = 0; itrk < tracks->GetEntries(); ++itrk) {
@@ -207,24 +187,22 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
           int ie = hEtaTmp.FindBin(static_cast<float>(trk_tmp->fEtaMask) / 10.f);
           double eff = fEffPr ? hEffPr[im][ic - 1][ie - 1][iS][0]->GetBinContent(hEffPr[im][ic - 1][ie - 1][iS][iVar - iVarMin]->FindBin(std::abs(trk_tmp->fPt))) : kDummyEffPr;
           qPr_1_tmp[im] += (1. / eff);
-          qPr_1_tmp_update[im] += (1. / eff);
-          qPr_2_tmp[im] += (1. / eff / eff);
+          qPr_2_tmp[im] += (1. / powI(eff, 2));
+          qPr_3_tmp[im] += (1. / powI(eff, 3));
+          qPr_4_tmp[im] += (1. / powI(eff, 4));
+          qPr_5_tmp[im] += (1. / powI(eff, 5));
+          qPr_6_tmp[im] += (1. / powI(eff, 6));
           nPr[im] += 1;
         }
       }
       for (int iM = 0; iM < 2; ++iM){
       #ifdef FILL_MC
-        qPr_1_Gen[ic_sm-1][iM][iS][iVar - iVarMin] += qPr_1_gen_tmp[iM];
-        qPr_11_Gen[ic_sm-1][iM][iS][iVar - iVarMin] += (qPr_1_gen_tmp[iM] * qPr_1_gen_tmp[1 - iM]);
-        qPr_1Sq_Gen[ic_sm-1][iM][iS][iVar - iVarMin] += (qPr_1_gen_tmp[iM] * qPr_1_gen_tmp[iM]);
         hGenRecProton[iM][iVar - iVarMin]->Fill(cent, nPr_gen[iM], nPr[iM]);
+        evtTupleGen[iS][iVar - iVarMin]->Fill(cent, qPr_1_gen_tmp[1], qPr_1_gen_tmp[0]);
       #endif // FILL_MC
-        double q1_sq = qPr_1_tmp[iM] * qPr_1_tmp[iM];
-        qPr_1_sq_tmp[iM] += q1_sq;
-        qPr_1_tmp_update[iM] = 0.;
       }
 
-      evtTuple[iS][iVar - iVarMin]->Fill(cent, qPr_1_tmp[1], qPr_1_tmp[0], qPr_2_tmp[1], qPr_2_tmp[0]);
+      evtTuple[iS][iVar - iVarMin]->Fill(cent, qPr_1_tmp[1], qPr_1_tmp[0], qPr_2_tmp[1], qPr_2_tmp[0], qPr_3_tmp[1], qPr_3_tmp[0], qPr_4_tmp[1], qPr_4_tmp[0], qPr_5_tmp[1], qPr_5_tmp[0], qPr_6_tmp[1], qPr_6_tmp[0]);
     }
   }
 
@@ -241,25 +219,16 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
         o[iS][iVar - iVarMin]->mkdir(Form("subsample_%s", ofname));
         o[iS][iVar - iVarMin]->cd(Form("subsample_%s", ofname));
       }
-      for (int iM = 0; iM < 2; ++iM){
-        for (int iC = 0; iC < kNCentBinsSmall; ++iC){
-          double ev = hCent[iS]->GetBinContent(iC+1);
-          hProtonQ1_Gen[iM][iS][iVar - iVarMin]->SetBinContent(iC + 1, ev > 0 ? qPr_1_Gen[iC][iM][iS][iVar - iVarMin] / ev : 0);
-          hProtonQ11_Gen[iM][iS][iVar - iVarMin]->SetBinContent(iC + 1, ev > 0 ? qPr_11_Gen[iC][iM][iS][iVar - iVarMin] / ev : 0);
-          hProtonQ1Sq_Gen[iM][iS][iVar - iVarMin]->SetBinContent(iC + 1, ev > 0 ? qPr_1Sq_Gen[iC][iM][iS][iVar - iVarMin] / ev : 0);
-        }
-        hProtonQ1_Gen[iM][iS][iVar - iVarMin]->Write();
-        hProtonQ11_Gen[iM][iS][iVar - iVarMin]->Write();
-        hProtonQ1Sq_Gen[iM][iS][iVar - iVarMin]->Write();
-      }
-      o[iS][iVar - iVarMin]->cd();
 
+      o[iS][iVar - iVarMin]->cd();
       for (int iM = 0; iM < 2; ++iM){
         hGenProton[iM][iVar - iVarMin]->Write();
         hRecProton[iM][iVar - iVarMin]->Write();
         hGenRecProton[iM][iVar - iVarMin]->Write();
       }
+      evtTupleGen[iS][iVar - iVarMin]->Write();
     #endif // FILL_MC
+
       o[iS][iVar - iVarMin]->cd();
       hCent[iS]->Write();
       evtTuple[iS][iVar - iVarMin]->Write();

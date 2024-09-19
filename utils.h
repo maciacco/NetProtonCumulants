@@ -14,6 +14,12 @@ struct miniTrack : public TObject{
   bool fIsReco;
 };
 
+double powI(double a, int p){
+  if (p > 1)
+    return a * powI(a, p - 1);
+  return a;
+}
+
 constexpr const char* kAntiMatterLabel[2] = {"A", "M"};
 constexpr const char* kAntiMatterLabelML[2] = {"antimatter", "matter"};
 constexpr const char* kCorrLabel[3] = {"Uncorr", "Corr", "Gen"};
@@ -30,7 +36,7 @@ constexpr const char* kSubsampleFlag = "_";
 constexpr int kLimitSample = false;
 constexpr int kLimitedSample = 10000000;
 const char *kDataDir = ".";
-const char *kResDir = ".";
+const char *kResDir = "results";
 constexpr bool kUseIndex = true;
 constexpr bool isMC = true;
 
