@@ -34,6 +34,24 @@ double cbwc(const double *array, const int centbin, const TH1D* hCent){
   return cc > 0 ? avg / cc : 0.;
 }
 
+void k2_to_k2sk(double &mean, double &rms, const double *k2sk, const double *k2, const double nSkip = 0.){
+  mean = 0.0;
+  rms = 0.0;
+  for(int sample = 0; sample < N_SAMPLE; sample++)
+  {
+    if (k2sk[sample] > 0) {
+      mean = mean + (k2[sample] / k2sk[sample]);
+    }
+  }
+  mean = mean / ( N_SAMPLE - nSkip);
+  for(int sample = 0; sample < N_SAMPLE; sample++)
+  {
+    if (k2sk[sample] > 0) {
+      rms = rms + powI(mean - (k2[sample] / k2sk[sample]), 2);
+    }
+  }
+}
+
 void Analysis(const char* period = "18")
 {
   TFile f(Form("out_sys_%s_finalBinning.root", period), "recreate");
@@ -55,16 +73,16 @@ void Analysis(const char* period = "18")
     #ifdef FILL_MC
       double k2sk_small_gen[N_SAMPLE][100];
       double k2_small_gen[N_SAMPLE][100];
-      double k2sk_gen[N_SAMPLE][10];
-      double k2_gen[N_SAMPLE][10];
+      double k2sk_gen[10][N_SAMPLE];
+      double k2_gen[10][N_SAMPLE];
     #endif
 
     double Q1_small;
     double Q2_small;
     double k2sk_small[N_SAMPLE][100];
     double k2_small[N_SAMPLE][100];
-    double k2sk[N_SAMPLE][10];
-    double k2[N_SAMPLE][10];
+    double k2sk[10][N_SAMPLE];
+    double k2[10][N_SAMPLE];
 
     for(int sample = 0; sample < N_SAMPLE; sample++)
     {
@@ -111,12 +129,12 @@ void Analysis(const char* period = "18")
 
       for(int i = 1; i <= kNCentBins; i++)
       {
-        k2sk[sample][i - 1] = cbwc(k2sk_small[sample], i - 1, hCent);
-        k2[sample][i - 1] = cbwc(k2_small[sample], i - 1, hCent);
+        k2sk[i - 1][sample] = cbwc(k2sk_small[sample], i - 1, hCent);
+        k2[i - 1][sample] = cbwc(k2_small[sample], i - 1, hCent);
 
         #ifdef FILL_MC
-          k2sk_gen[sample][i - 1] = cbwc(k2sk_small_gen[sample], i - 1, hCent);
-          k2_gen[sample][i - 1] = cbwc(k2_small_gen[sample], i - 1, hCent);
+          k2sk_gen[i - 1][sample] = cbwc(k2sk_small_gen[sample], i - 1, hCent);
+          k2_gen[i - 1][sample] = cbwc(k2_small_gen[sample], i - 1, hCent);
         #endif // FILL_MC
       }
 
@@ -137,19 +155,7 @@ void Analysis(const char* period = "18")
     {
       double mean = 0.0;
       double rms = 0.0;
-      for(int sample = 0; sample < N_SAMPLE; sample++)
-      {
-        if (k2sk[sample][i - 1] > 0) {
-          mean = mean + (k2[sample][i - 1] / k2sk[sample][i - 1]);
-        }
-      }
-      mean = mean / ( N_SAMPLE - nSkip);
-      for(int sample = 0; sample < N_SAMPLE; sample++)
-      {
-        if (k2sk[sample][i - 1] > 0) {
-          rms = rms + powI(mean - (k2[sample][i - 1] / k2sk[sample][i - 1]), 2);
-        }
-      }
+      k2_to_k2sk(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
 
       g.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean);
       hSys[i - 1]->Fill(mean);
@@ -158,19 +164,7 @@ void Analysis(const char* period = "18")
       #ifdef FILL_MC
         double mean_gen = 0.0;
         double rms_gen = 0.0;
-        for(int sample = 0; sample < N_SAMPLE; sample++)
-        {
-          if (k2sk_gen[sample][i - 1] > 0) {
-            mean_gen = mean_gen + (k2_gen[sample][i - 1] / k2sk_gen[sample][i - 1]);
-          }
-        }
-        mean_gen = mean_gen / ( N_SAMPLE - nSkip);
-        for(int sample = 0; sample < N_SAMPLE; sample++)
-        {
-          if (k2sk_gen[sample][i - 1] > 0) {
-            rms_gen = rms_gen + powI(mean_gen - (k2_gen[sample][i - 1] / k2sk_gen[sample][i - 1]), 2);
-          }
-        }
+        k2_to_k2sk(mean_gen, rms_gen, k2sk_gen[i - 1], k2_gen[i - 1], nSkip);
 
         g_gen.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean_gen);
         g_gen.SetPointError(i - 1, 0, TMath::Sqrt(rms_gen / (( N_SAMPLE - nSkip) * (( N_SAMPLE - nSkip) - 1))));

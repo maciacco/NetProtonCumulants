@@ -64,10 +64,21 @@ void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
     #endif // FILL_MC
 
     // full formula
+    // 1st order
     TProfile *q1_1_1 = new TProfile("q1_1_1", "q1_1_1", kNCentBinsSmall, kCentBinsSmall);
+
+    // 2nd order
     TProfile *q2_1_1 = new TProfile("q2_1_1", "q2_1_1", kNCentBinsSmall, kCentBinsSmall);
     TProfile *q1_2_1 = new TProfile("q1_2_1", "q1_2_1", kNCentBinsSmall, kCentBinsSmall);
     TProfile *q1_2_2 = new TProfile("q1_2_2", "q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+
+    // 3rd order
+    TProfile *q3_1_1 = new TProfile("q3_1_1", "q3_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_2_1 = new TProfile("q1_1_1_x_q1_2_1", "q1_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_2_2 = new TProfile("q1_1_1_x_q1_2_2", "q1_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_3_1 = new TProfile("q1_3_1", "q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_3_2 = new TProfile("q1_3_2", "q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_3_3 = new TProfile("q1_3_3", "q1_3_3", kNCentBinsSmall, kCentBinsSmall);
 
     int readError = 0;
     for (int j = 0; j < total_event; j++)
@@ -80,12 +91,31 @@ void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
       double qP1_n = arg[2];
       double qP2_p = arg[3];
       double qP2_n = arg[4];
+      double qP3_p = arg[5];
+      double qP3_n = arg[6];
+      double qP4_p = arg[7];
+      double qP4_n = arg[8];
+      double qP5_p = arg[9];
+      double qP5_n = arg[10];
+      double qP6_p = arg[11];
+      double qP6_n = arg[12];
 
       // full formula
+      // 1st order
       q1_1_1->Fill(centrality, qP1_p - qP1_n);
-      q2_1_1->Fill(centrality, powI(qP1_p - qP1_n, 2.));
+
+      // 2nd order
+      q2_1_1->Fill(centrality, powI(qP1_p - qP1_n, 2));
       q1_2_1->Fill(centrality, qP1_p + qP1_n);
       q1_2_2->Fill(centrality, qP2_p + qP2_n);
+
+      // 3rd order
+      q3_1_1->Fill(centrality, powI(qP1_p - qP1_n, 3));
+      q1_1_1_x_q1_2_1->Fill(centrality, (qP1_p - qP1_n) * (qP1_p + qP1_n));
+      q1_1_1_x_q1_2_2->Fill(centrality, (qP1_p - qP1_n) * (qP2_p + qP2_n));
+      q1_3_1->Fill(centrality, qP1_p - qP1_n);
+      q1_3_2->Fill(centrality, qP2_p - qP2_n);
+      q1_3_3->Fill(centrality, qP3_p - qP3_n);
     }
     if (readError < 0) {
       std::cout << "no input, skip" << std::endl;
@@ -105,7 +135,7 @@ void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
       double qP1_p = arg_gen[1];
       double qP1_n = arg_gen[2];
 
-      // full formula
+      // full formula (gen)
       N1p->Fill(centrality, qP1_p + qP1_n);
       N1->Fill(centrality, qP1_p - qP1_n);
       N2->Fill(centrality, powI(qP1_p - qP1_n, 2));
@@ -127,10 +157,21 @@ void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
     fout.cd(Form("var_%d", iVar));
 
     // full formula
+    // 1st order
     q1_1_1->Write();
+
+    // 2nd order
     q2_1_1->Write();
     q1_2_1->Write();
     q1_2_2->Write();
+
+    // 3rd order
+    q3_1_1->Write();
+    q1_1_1_x_q1_2_1->Write();
+    q1_1_1_x_q1_2_2->Write();
+    q1_3_1->Write();
+    q1_3_2->Write();
+    q1_3_3->Write();
 
     #ifdef FILL_MC
       N1p->Write();
