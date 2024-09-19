@@ -34,20 +34,20 @@ double cbwc(const double *array, const int centbin, const TH1D* hCent){
   return cc > 0 ? avg / cc : 0.;
 }
 
-void k2_to_k2sk(double &mean, double &rms, const double *k2sk, const double *k2, const double nSkip = 0.){
+void cumulant_ratio(double &mean, double &rms, const double *denom, const double *num, const double nSkip = 0.){
   mean = 0.0;
   rms = 0.0;
   for(int sample = 0; sample < N_SAMPLE; sample++)
   {
-    if (k2sk[sample] > 0) {
-      mean = mean + (k2[sample] / k2sk[sample]);
+    if (std::abs(denom[sample]) > 1.e-9) {
+      mean = mean + (num[sample] / denom[sample]);
     }
   }
   mean = mean / ( N_SAMPLE - nSkip);
   for(int sample = 0; sample < N_SAMPLE; sample++)
   {
-    if (k2sk[sample] > 0) {
-      rms = rms + powI(mean - (k2[sample] / k2sk[sample]), 2);
+    if (std::abs(denom[sample]) > 1.e-9) {
+      rms = rms + powI(mean - (num[sample] / denom[sample]), 2);
     }
   }
 }
@@ -59,7 +59,7 @@ void Analysis(const char* period = "18")
   TCanvas cSys("cSys", "cSys");
   cSys.Divide(3, 3);
   for (int i{0}; i < kNCentBins; ++i){
-    hSys[i] = new TH1D(Form("hSys_%d", i), ";#kappa_{2}/#kappa_{1};Entries", 500, .0, 2.);
+    hSys[i] = new TH1D(Form("hSys_%d", i), ";#kappa_{2}/#kappa_{1};Entries", 500, -2., 2.);
   }
 
   for(int iVar = 0; iVar < 3; ++iVar)
@@ -73,16 +73,26 @@ void Analysis(const char* period = "18")
     #ifdef FILL_MC
       double k2sk_small_gen[N_SAMPLE][100];
       double k2_small_gen[N_SAMPLE][100];
+      double k3_small_gen[N_SAMPLE][100];
+      double k4_small_gen[N_SAMPLE][100];
       double k2sk_gen[10][N_SAMPLE];
       double k2_gen[10][N_SAMPLE];
+      double k3_gen[10][N_SAMPLE];
+      double k4_gen[10][N_SAMPLE];
     #endif
 
     double Q1_small;
     double Q2_small;
+    double Q3_small;
+    double Q4_small;
     double k2sk_small[N_SAMPLE][100];
     double k2_small[N_SAMPLE][100];
+    double k3_small[N_SAMPLE][100];
+    double k4_small[N_SAMPLE][100];
     double k2sk[10][N_SAMPLE];
     double k2[10][N_SAMPLE];
+    double k3[10][N_SAMPLE];
+    double k4[10][N_SAMPLE];
 
     for(int sample = 0; sample < N_SAMPLE; sample++)
     {
@@ -93,10 +103,36 @@ void Analysis(const char* period = "18")
 
       if (!fin) {nSkip++; fin->Close(); delete fin; continue;}
 
+      // 1st order
       TProfile *q1_1_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1", iVar));
+
+      // 2nd order
       TProfile *q2_1_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1", iVar));
       TProfile *q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q1_2_1", iVar));
       TProfile *q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_2", iVar));
+
+      // 3rd order
+      TProfile *q3_1_1 = (TProfile*)fin->Get(Form("var_%d/q3_1_1", iVar));
+      TProfile *q1_1_1_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1", iVar));
+      TProfile *q1_1_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2", iVar));
+      TProfile *q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_3_1", iVar));
+      TProfile *q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_3_2", iVar));
+      TProfile *q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_3_3", iVar));
+
+      // 4th order
+      TProfile *q4_1_1 = (TProfile*)fin->Get(Form("var_%d/q4_1_1", iVar));
+      TProfile *q2_1_1_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_2_1", iVar));
+      TProfile *q2_1_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_2_2", iVar));
+      TProfile *q1_1_1_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_3_1", iVar));
+      TProfile *q2_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_2_1", iVar));
+      TProfile *q2_2_2 = (TProfile*)fin->Get(Form("var_%d/q2_2_2", iVar));
+      TProfile *q1_1_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_3_2", iVar));
+      TProfile *q1_1_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_3_3", iVar));
+      TProfile *q1_2_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_2_2", iVar));
+      TProfile *q1_4_1 = (TProfile*)fin->Get(Form("var_%d/q1_4_1", iVar));
+      TProfile *q1_4_2 = (TProfile*)fin->Get(Form("var_%d/q1_4_2", iVar));
+      TProfile *q1_4_3 = (TProfile*)fin->Get(Form("var_%d/q1_4_3", iVar));
+      TProfile *q1_4_4 = (TProfile*)fin->Get(Form("var_%d/q1_4_4", iVar));
 
       #ifdef FILL_MC
         TProfile *N1p = (TProfile*)fin->Get(Form("var_%d/N1p", iVar));
@@ -117,13 +153,22 @@ void Analysis(const char* period = "18")
       {
         Q1_small = q1_1_1->GetBinContent(i);
         Q2_small = q2_1_1->GetBinContent(i) + q1_2_1->GetBinContent(i) - q1_2_2->GetBinContent(i);
+        Q3_small = q3_1_1->GetBinContent(i) + (3. * q1_1_1_x_q1_2_1->GetBinContent(i)) - (3. * q1_1_1_x_q1_2_2->GetBinContent(i)) + q1_3_1->GetBinContent(i) - (3. * q1_3_2->GetBinContent(i)) + (2. * q1_3_3->GetBinContent(i));
+        Q4_small = q4_1_1->GetBinContent(i) + (6. * q2_1_1_x_q1_2_1->GetBinContent(i)) - (6. * q2_1_1_x_q1_2_2->GetBinContent(i)) + (4. * q1_1_1_x_q1_3_1->GetBinContent(i)) + (3. * q2_2_1->GetBinContent(i))
+                   + (3. * q2_2_2->GetBinContent(i)) - (12. * (q1_1_1_x_q1_3_2->GetBinContent(i))) + (8. * q1_1_1_x_q1_3_3->GetBinContent(i)) - (6. * q1_2_1_x_q1_2_2->GetBinContent(i))
+                   + (q1_4_1->GetBinContent(i)) - (7. * q1_4_2->GetBinContent(i)) + (12. * q1_4_3->GetBinContent(i)) - (6. * q1_4_4->GetBinContent(i));
+        // std::cout << Q3_small << std::endl;
 
         k2sk_small[sample][i - 1] = q1_2_1->GetBinContent(i);
         k2_small[sample][i - 1] = Q2_small - powI(Q1_small, 2);
+        k3_small[sample][i - 1] = Q3_small - (3. * Q2_small * Q1_small) + (2. * powI(Q1_small, 3));
+        k4_small[sample][i - 1] = Q4_small - (4. * Q3_small * Q1_small) - (3. * powI(Q2_small, 2)) + (12. * Q2_small * powI(Q1_small, 2)) - (6. * powI(Q1_small, 4));
 
         #ifdef FILL_MC
           k2sk_small_gen[sample][i - 1] = N1p->GetBinContent(i);
           k2_small_gen[sample][i - 1] = N2->GetBinContent(i) - powI(N1->GetBinContent(i), 2);
+          k3_small_gen[sample][i - 1] = N3->GetBinContent(i) - (3. * N2->GetBinContent(i) * N1->GetBinContent(i)) + (2. * powI(N1->GetBinContent(i), 3));
+          k4_small_gen[sample][i - 1] = N4->GetBinContent(i) - (4. * N3->GetBinContent(i) * N1->GetBinContent(i)) - (3. * powI(N2->GetBinContent(i), 2)) + (12. * N2->GetBinContent(i) * powI(N1->GetBinContent(i), 2)) - (6. * powI(N1->GetBinContent(i), 4));
         #endif // FILL_MC
       }
 
@@ -131,10 +176,14 @@ void Analysis(const char* period = "18")
       {
         k2sk[i - 1][sample] = cbwc(k2sk_small[sample], i - 1, hCent);
         k2[i - 1][sample] = cbwc(k2_small[sample], i - 1, hCent);
+        k3[i - 1][sample] = cbwc(k3_small[sample], i - 1, hCent);
+        k4[i - 1][sample] = cbwc(k4_small[sample], i - 1, hCent);
 
         #ifdef FILL_MC
           k2sk_gen[i - 1][sample] = cbwc(k2sk_small_gen[sample], i - 1, hCent);
           k2_gen[i - 1][sample] = cbwc(k2_small_gen[sample], i - 1, hCent);
+          k3_gen[i - 1][sample] = cbwc(k3_small_gen[sample], i - 1, hCent);
+          k4_gen[i - 1][sample] = cbwc(k4_small_gen[sample], i - 1, hCent);
         #endif // FILL_MC
       }
 
@@ -155,7 +204,8 @@ void Analysis(const char* period = "18")
     {
       double mean = 0.0;
       double rms = 0.0;
-      k2_to_k2sk(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
+      //cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
+      cumulant_ratio(mean, rms, k2[i - 1], k4[i - 1], nSkip);
 
       g.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean);
       hSys[i - 1]->Fill(mean);
@@ -164,7 +214,8 @@ void Analysis(const char* period = "18")
       #ifdef FILL_MC
         double mean_gen = 0.0;
         double rms_gen = 0.0;
-        k2_to_k2sk(mean_gen, rms_gen, k2sk_gen[i - 1], k2_gen[i - 1], nSkip);
+        // cumulant_ratio(mean_gen, rms_gen, k2sk_gen[i - 1], k2_gen[i - 1], nSkip);
+        cumulant_ratio(mean_gen, rms_gen, k2_gen[i - 1], k4_gen[i - 1], nSkip);
 
         g_gen.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean_gen);
         g_gen.SetPointError(i - 1, 0, TMath::Sqrt(rms_gen / (( N_SAMPLE - nSkip) * (( N_SAMPLE - nSkip) - 1))));

@@ -40,7 +40,7 @@ const char *kResDir = "results";
 constexpr bool kUseIndex = true;
 constexpr bool isMC = true;
 
-constexpr int N_SAMPLE = 10;
+constexpr int N_SAMPLE = 7;
 constexpr int kNCentBins = 10;
 constexpr double kCentBins[kNCentBins + 1] = {0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100.};
 

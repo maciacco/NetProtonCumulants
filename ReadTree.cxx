@@ -62,21 +62,21 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
   // Init histos and tuple
   TH1D *hCent[N_SAMPLE];
   #ifdef FILL_MC
-    TNtuple *evtTupleGen[N_SAMPLE][nF];
+    TNtupleD *evtTupleGen[N_SAMPLE][nF];
   #endif // FILL_MC
 
   TH1D *hEffPr[2][kNCentBins][kNEtaBins][N_SAMPLE][nF];
-  TNtuple *evtTuple[N_SAMPLE][nF];
+  TNtupleD *evtTuple[N_SAMPLE][nF];
 
   for (int iS = 0; iS < N_SAMPLE; ++iS){
     hCent[iS] = new TH1D(Form("hCent"), ";Centrality (%);Entries", kNCentBinsSmall, kCentBinsSmall);
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
     {
-      evtTuple[iS][iVar - iVarMin] = new TNtuple(Form("evtTuple_%d", iVar), Form("evtTuple_%d", iVar), "cent:q1pP:q1pN:q2pP:q2pN:q3pP:q3pN:q4pP:q4pN:q5pP:q5pN:q6pP:q6pN");
+      evtTuple[iS][iVar - iVarMin] = new TNtupleD(Form("evtTuple_%d", iVar), Form("evtTuple_%d", iVar), "cent:q1pP:q1pN:q2pP:q2pN:q3pP:q3pN:q4pP:q4pN:q5pP:q5pN:q6pP:q6pN");
       evtTuple[iS][iVar - iVarMin]->SetDirectory(o[iS][iVar - iVarMin]);
       for (int iC = 0; iC < 2; ++iC){
       #ifdef FILL_MC
-        evtTupleGen[iS][iVar - iVarMin] = new TNtuple(Form("evtTupleGen_%d", iVar), Form("evtTupleGen_%d", iVar), "cent:q1pP:q1pN");
+        evtTupleGen[iS][iVar - iVarMin] = new TNtupleD(Form("evtTupleGen_%d", iVar), Form("evtTupleGen_%d", iVar), "cent:q1pP:q1pN");
         evtTupleGen[iS][iVar - iVarMin]->SetDirectory(o[iS][iVar - iVarMin]);
       #endif // FILL_MC
         for (int iCent = 0; iCent < kNCentBins; ++iCent){

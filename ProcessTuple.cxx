@@ -8,7 +8,7 @@
 
 #define FILL_MC
 
-void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
+void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
 {
   TStopwatch w;
   w.Start();
@@ -28,7 +28,7 @@ void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
     }
     TFile fout(Form("%s/output_sys_%d_%d.root", kResDir, sample, iVar), "recreate");
 
-    TNtuple *tuple_qmoment = (TNtuple*)fin->Get(Form("evtTuple_%d", iVar));
+    TNtupleD *tuple_qmoment = (TNtupleD*)fin->Get(Form("evtTuple_%d", iVar));
     if (!tuple_qmoment)
     {
       std::cout << "no input, skip" << std::endl;
@@ -40,19 +40,19 @@ void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
     tuple_qmoment->SetCacheSize(0);
 
     #ifdef FILL_MC
-      TNtuple *tuple_moment_gen = (TNtuple*)fin->Get(Form("evtTupleGen_%d", iVar));
+      TNtupleD *tuple_moment_gen = (TNtupleD*)fin->Get(Form("evtTupleGen_%d", iVar));
       tuple_moment_gen->SetCacheSize(0);
     #endif // FILL_MC
 
     int evt[10] = {0};
     int centrality;
 
-    float *arg;
-    float total_event = tuple_qmoment->GetEntriesFast();
+    double *arg;
+    double total_event = tuple_qmoment->GetEntriesFast();
 
     #ifdef FILL_MC
-      float *arg_gen;
-      float total_event_gen = tuple_moment_gen->GetEntriesFast();
+      double *arg_gen;
+      double total_event_gen = tuple_moment_gen->GetEntriesFast();
       // non-central moments of generated distribution
       TProfile *N1p = new TProfile("N1p", "N1p", kNCentBinsSmall, kCentBinsSmall);
       TProfile *N1 = new TProfile("N1", "N1", kNCentBinsSmall, kCentBinsSmall);
@@ -79,6 +79,21 @@ void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
     TProfile *q1_3_1 = new TProfile("q1_3_1", "q1_3_1", kNCentBinsSmall, kCentBinsSmall);
     TProfile *q1_3_2 = new TProfile("q1_3_2", "q1_3_2", kNCentBinsSmall, kCentBinsSmall);
     TProfile *q1_3_3 = new TProfile("q1_3_3", "q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+
+    // 4th order
+    TProfile *q4_1_1 = new TProfile("q4_1_1", "q4_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q2_1_1_x_q1_2_1 = new TProfile("q2_1_1_x_q1_2_1", "q2_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q2_1_1_x_q1_2_2 = new TProfile("q2_1_1_x_q1_2_2", "q2_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_3_1 = new TProfile("q1_1_1_x_q1_3_1", "q1_1_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q2_2_1 = new TProfile("q2_2_1", "q2_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q2_2_2 = new TProfile("q2_2_2", "q2_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_3_2 = new TProfile("q1_1_1_x_q1_3_2", "q1_1_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_3_3 = new TProfile("q1_1_1_x_q1_3_3", "q1_1_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_2_1_x_q1_2_2 = new TProfile("q1_2_1_x_q1_2_2", "q1_2_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_4_1 = new TProfile("q1_4_1", "q1_4_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_4_2 = new TProfile("q1_4_2", "q1_4_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_4_3 = new TProfile("q1_4_3", "q1_4_3", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_4_4 = new TProfile("q1_4_4", "q1_4_4", kNCentBinsSmall, kCentBinsSmall);
 
     int readError = 0;
     for (int j = 0; j < total_event; j++)
@@ -116,6 +131,21 @@ void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
       q1_3_1->Fill(centrality, qP1_p - qP1_n);
       q1_3_2->Fill(centrality, qP2_p - qP2_n);
       q1_3_3->Fill(centrality, qP3_p - qP3_n);
+
+      // 4th order
+      q4_1_1->Fill(centrality, powI(qP1_p - qP1_n, 4));
+      q2_1_1_x_q1_2_1->Fill(centrality, powI(qP1_p - qP1_n, 2) * (qP1_p + qP1_n));
+      q2_1_1_x_q1_2_2->Fill(centrality, powI(qP1_p - qP1_n, 2) * (qP2_p + qP2_n));
+      q1_1_1_x_q1_3_1->Fill(centrality, (qP1_p - qP1_n) * (qP1_p - qP1_n));
+      q2_2_1->Fill(centrality, powI(qP1_p + qP1_n, 2));
+      q2_2_2->Fill(centrality, powI(qP2_p + qP2_n, 2));
+      q1_1_1_x_q1_3_2->Fill(centrality, (qP1_p - qP1_n) * (qP2_p - qP2_n));
+      q1_1_1_x_q1_3_3->Fill(centrality, (qP1_p - qP1_n) * (qP3_p - qP3_n));
+      q1_2_1_x_q1_2_2->Fill(centrality, (qP1_p + qP1_n) * (qP2_p + qP2_n));
+      q1_4_1->Fill(centrality, qP1_p + qP1_n);
+      q1_4_2->Fill(centrality, qP2_p + qP2_n);
+      q1_4_3->Fill(centrality, qP3_p + qP3_n);
+      q1_4_4->Fill(centrality, qP4_p + qP4_n);
     }
     if (readError < 0) {
       std::cout << "no input, skip" << std::endl;
@@ -172,6 +202,21 @@ void ProcessTuple(int smpl = 9, int iVarMin = 0, int iVarMax = 3)
     q1_3_1->Write();
     q1_3_2->Write();
     q1_3_3->Write();
+
+    // 4th order
+    q4_1_1->Write();
+    q2_1_1_x_q1_2_1->Write();
+    q2_1_1_x_q1_2_2->Write();
+    q1_1_1_x_q1_3_1->Write();
+    q2_2_1->Write();
+    q2_2_2->Write();
+    q1_1_1_x_q1_3_2->Write();
+    q1_1_1_x_q1_3_3->Write();
+    q1_2_1_x_q1_2_2->Write();
+    q1_4_1->Write();
+    q1_4_2->Write();
+    q1_4_3->Write();
+    q1_4_4->Write();
 
     #ifdef FILL_MC
       N1p->Write();
