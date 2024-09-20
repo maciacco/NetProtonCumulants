@@ -2,7 +2,7 @@
 
 #include <TStopwatch.h>
 #include <TFile.h>
-#include <TProfile.h>
+#include <TH1D.h>
 #include <TNtuple.h>
 #include <Riostream.h>
 
@@ -29,6 +29,8 @@ void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
     TFile fout(Form("%s/output_sys_%d_%d.root", kResDir, sample, iVar), "recreate");
 
     TNtupleD *tuple_qmoment = (TNtupleD*)fin->Get(Form("evtTuple_%d", iVar));
+    TH1D *hCent = (TH1D*)fin->Get("hCent");
+
     if (!tuple_qmoment)
     {
       std::cout << "no input, skip" << std::endl;
@@ -65,111 +67,111 @@ void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
 
     // full formula
     // 1st order
-    TProfile *q1_1_1 = new TProfile("q1_1_1", "q1_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1 = new TH1D("q1_1_1", "q1_1_1", kNCentBinsSmall, kCentBinsSmall);
 
     // 2nd order
-    TProfile *q2_1_1 = new TProfile("q2_1_1", "q2_1_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_1 = new TProfile("q1_2_1", "q1_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_2 = new TProfile("q1_2_2", "q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1 = new TH1D("q2_1_1", "q2_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_1 = new TH1D("q1_2_1", "q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_2 = new TH1D("q1_2_2", "q1_2_2", kNCentBinsSmall, kCentBinsSmall);
 
     // 3rd order
-    TProfile *q3_1_1 = new TProfile("q3_1_1", "q3_1_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_2_1 = new TProfile("q1_1_1_x_q1_2_1", "q1_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_2_2 = new TProfile("q1_1_1_x_q1_2_2", "q1_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_3_1 = new TProfile("q1_3_1", "q1_3_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_3_2 = new TProfile("q1_3_2", "q1_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_3_3 = new TProfile("q1_3_3", "q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q3_1_1 = new TH1D("q3_1_1", "q3_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_2_1 = new TH1D("q1_1_1_x_q1_2_1", "q1_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_2_2 = new TH1D("q1_1_1_x_q1_2_2", "q1_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_3_1 = new TH1D("q1_3_1", "q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_3_2 = new TH1D("q1_3_2", "q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_3_3 = new TH1D("q1_3_3", "q1_3_3", kNCentBinsSmall, kCentBinsSmall);
 
     // // 4th order
-    TProfile *q4_1_1 = new TProfile("q4_1_1", "q4_1_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_2_1 = new TProfile("q2_1_1_x_q1_2_1", "q2_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_2_2 = new TProfile("q2_1_1_x_q1_2_2", "q2_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_3_1 = new TProfile("q1_1_1_x_q1_3_1", "q1_1_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_2_1 = new TProfile("q2_2_1", "q2_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_2_2 = new TProfile("q2_2_2", "q2_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_3_2 = new TProfile("q1_1_1_x_q1_3_2", "q1_1_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_3_3 = new TProfile("q1_1_1_x_q1_3_3", "q1_1_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_1_x_q1_2_2 = new TProfile("q1_2_1_x_q1_2_2", "q1_2_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_4_1 = new TProfile("q1_4_1", "q1_4_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_4_2 = new TProfile("q1_4_2", "q1_4_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_4_3 = new TProfile("q1_4_3", "q1_4_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_4_4 = new TProfile("q1_4_4", "q1_4_4", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q4_1_1 = new TH1D("q4_1_1", "q4_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_2_1 = new TH1D("q2_1_1_x_q1_2_1", "q2_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_2_2 = new TH1D("q2_1_1_x_q1_2_2", "q2_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_3_1 = new TH1D("q1_1_1_x_q1_3_1", "q1_1_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_2_1 = new TH1D("q2_2_1", "q2_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_2_2 = new TH1D("q2_2_2", "q2_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_3_2 = new TH1D("q1_1_1_x_q1_3_2", "q1_1_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_3_3 = new TH1D("q1_1_1_x_q1_3_3", "q1_1_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_1_x_q1_2_2 = new TH1D("q1_2_1_x_q1_2_2", "q1_2_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_4_1 = new TH1D("q1_4_1", "q1_4_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_4_2 = new TH1D("q1_4_2", "q1_4_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_4_3 = new TH1D("q1_4_3", "q1_4_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_4_4 = new TH1D("q1_4_4", "q1_4_4", kNCentBinsSmall, kCentBinsSmall);
 
     // 5th order
-    TProfile *q5_1_1 = new TProfile("q5_1_1", "q5_1_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q3_1_1_x_q1_2_1 = new TProfile("q3_1_1_x_q1_2_1", "q3_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q3_1_1_x_q1_2_2 = new TProfile("q3_1_1_x_q1_2_2", "q3_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_3_1 = new TProfile("q2_1_1_x_q1_3_1", "q2_1_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_3_2 = new TProfile("q2_1_1_x_q1_3_2", "q2_1_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_3_3 = new TProfile("q2_1_1_x_q1_3_3", "q2_1_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_2_2_x_q1_1_1 = new TProfile("q2_2_2_x_q1_1_1", "q2_2_2_x_q1_1_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_2_1_x_q1_1_1 = new TProfile("q2_2_1_x_q1_1_1", "q2_2_1_x_q1_1_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_2_1_x_q1_2_2 = new TProfile("q1_1_1_x_q1_2_1_x_q1_2_2", "q1_1_1_x_q1_2_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_4_1 = new TProfile("q1_1_1_x_q1_4_1", "q1_1_1_x_q1_4_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_4_2 = new TProfile("q1_1_1_x_q1_4_2", "q1_1_1_x_q1_4_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_4_3 = new TProfile("q1_1_1_x_q1_4_3", "q1_1_1_x_q1_4_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_4_4 = new TProfile("q1_1_1_x_q1_4_4", "q1_1_1_x_q1_4_4", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_1_x_q1_3_1 = new TProfile("q1_2_1_x_q1_3_1", "q1_2_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_1_x_q1_3_2 = new TProfile("q1_2_1_x_q1_3_2", "q1_2_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_1_x_q1_3_3 = new TProfile("q1_2_1_x_q1_3_3", "q1_2_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_2_x_q1_3_1 = new TProfile("q1_2_2_x_q1_3_1", "q1_2_2_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_2_x_q1_3_2 = new TProfile("q1_2_2_x_q1_3_2", "q1_2_2_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_2_x_q1_3_3 = new TProfile("q1_2_2_x_q1_3_3", "q1_2_2_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_5_1 = new TProfile("q1_5_1", "q1_5_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_5_2 = new TProfile("q1_5_2", "q1_5_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_5_3 = new TProfile("q1_5_3", "q1_5_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_5_4 = new TProfile("q1_5_4", "q1_5_4", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_5_5 = new TProfile("q1_5_5", "q1_5_5", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q5_1_1 = new TH1D("q5_1_1", "q5_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q3_1_1_x_q1_2_1 = new TH1D("q3_1_1_x_q1_2_1", "q3_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q3_1_1_x_q1_2_2 = new TH1D("q3_1_1_x_q1_2_2", "q3_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_3_1 = new TH1D("q2_1_1_x_q1_3_1", "q2_1_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_3_2 = new TH1D("q2_1_1_x_q1_3_2", "q2_1_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_3_3 = new TH1D("q2_1_1_x_q1_3_3", "q2_1_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_2_2_x_q1_1_1 = new TH1D("q2_2_2_x_q1_1_1", "q2_2_2_x_q1_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_2_1_x_q1_1_1 = new TH1D("q2_2_1_x_q1_1_1", "q2_2_1_x_q1_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_2_1_x_q1_2_2 = new TH1D("q1_1_1_x_q1_2_1_x_q1_2_2", "q1_1_1_x_q1_2_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_4_1 = new TH1D("q1_1_1_x_q1_4_1", "q1_1_1_x_q1_4_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_4_2 = new TH1D("q1_1_1_x_q1_4_2", "q1_1_1_x_q1_4_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_4_3 = new TH1D("q1_1_1_x_q1_4_3", "q1_1_1_x_q1_4_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_4_4 = new TH1D("q1_1_1_x_q1_4_4", "q1_1_1_x_q1_4_4", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_1_x_q1_3_1 = new TH1D("q1_2_1_x_q1_3_1", "q1_2_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_1_x_q1_3_2 = new TH1D("q1_2_1_x_q1_3_2", "q1_2_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_1_x_q1_3_3 = new TH1D("q1_2_1_x_q1_3_3", "q1_2_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_2_x_q1_3_1 = new TH1D("q1_2_2_x_q1_3_1", "q1_2_2_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_2_x_q1_3_2 = new TH1D("q1_2_2_x_q1_3_2", "q1_2_2_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_2_x_q1_3_3 = new TH1D("q1_2_2_x_q1_3_3", "q1_2_2_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_5_1 = new TH1D("q1_5_1", "q1_5_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_5_2 = new TH1D("q1_5_2", "q1_5_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_5_3 = new TH1D("q1_5_3", "q1_5_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_5_4 = new TH1D("q1_5_4", "q1_5_4", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_5_5 = new TH1D("q1_5_5", "q1_5_5", kNCentBinsSmall, kCentBinsSmall);
 
     // 6th order
-    TProfile *q6_1_1 = new TProfile("q6_1_1", "q6_1_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q4_1_1_x_q1_2_1 = new TProfile("q4_1_1_x_q1_2_1", "q4_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q4_1_1_x_q1_2_2 = new TProfile("q4_1_1_x_q1_2_2", "q4_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q3_1_1_x_q1_3_1 = new TProfile("q3_1_1_x_q1_3_1", "q3_1_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q3_1_1_x_q1_3_2 = new TProfile("q3_1_1_x_q1_3_2", "q3_1_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q3_1_1_x_q1_3_3 = new TProfile("q3_1_1_x_q1_3_3", "q3_1_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_2_2_x_q1_2_1 = new TProfile("q2_1_1_x_q1_2_2_x_q1_2_1", "q2_1_1_x_q1_2_2_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q2_2_1 = new TProfile("q2_1_1_x_q2_2_1", "q2_1_1_x_q2_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q2_2_2 = new TProfile("q2_1_1_x_q2_2_2", "q2_1_1_x_q2_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q3_2_1 = new TProfile("q3_2_1", "q3_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q3_2_2 = new TProfile("q3_2_2", "q3_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_4_1 = new TProfile("q2_1_1_x_q1_4_1", "q2_1_1_x_q1_4_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_4_2 = new TProfile("q2_1_1_x_q1_4_2", "q2_1_1_x_q1_4_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_4_3 = new TProfile("q2_1_1_x_q1_4_3", "q2_1_1_x_q1_4_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_1_1_x_q1_4_4 = new TProfile("q2_1_1_x_q1_4_4", "q2_1_1_x_q1_4_4", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_2_1_x_q1_2_2 = new TProfile("q2_2_1_x_q1_2_2", "q2_2_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_2_2_x_q1_2_1 = new TProfile("q2_2_2_x_q1_2_1", "q2_2_2_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_2_1_x_q1_3_1 = new TProfile("q1_1_1_x_q1_2_1_x_q1_3_1", "q1_1_1_x_q1_2_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_2_1_x_q1_3_2 = new TProfile("q1_1_1_x_q1_2_1_x_q1_3_2", "q1_1_1_x_q1_2_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_2_1_x_q1_3_3 = new TProfile("q1_1_1_x_q1_2_1_x_q1_3_3", "q1_1_1_x_q1_2_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_2_2_x_q1_3_1 = new TProfile("q1_1_1_x_q1_2_2_x_q1_3_1", "q1_1_1_x_q1_2_2_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_2_2_x_q1_3_2 = new TProfile("q1_1_1_x_q1_2_2_x_q1_3_2", "q1_1_1_x_q1_2_2_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_2_2_x_q1_3_3 = new TProfile("q1_1_1_x_q1_2_2_x_q1_3_3", "q1_1_1_x_q1_2_2_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_5_1 = new TProfile("q1_1_1_x_q1_5_1", "q1_1_1_x_q1_5_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_5_2 = new TProfile("q1_1_1_x_q1_5_2", "q1_1_1_x_q1_5_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_5_3 = new TProfile("q1_1_1_x_q1_5_3", "q1_1_1_x_q1_5_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_5_4 = new TProfile("q1_1_1_x_q1_5_4", "q1_1_1_x_q1_5_4", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_1_1_x_q1_5_5 = new TProfile("q1_1_1_x_q1_5_5", "q1_1_1_x_q1_5_5", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_1_x_q1_4_1 = new TProfile("q1_2_1_x_q1_4_1", "q1_2_1_x_q1_4_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_1_x_q1_4_2 = new TProfile("q1_2_1_x_q1_4_2", "q1_2_1_x_q1_4_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_1_x_q1_4_3 = new TProfile("q1_2_1_x_q1_4_3", "q1_2_1_x_q1_4_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_1_x_q1_4_4 = new TProfile("q1_2_1_x_q1_4_4", "q1_2_1_x_q1_4_4", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_2_x_q1_4_1 = new TProfile("q1_2_2_x_q1_4_1", "q1_2_2_x_q1_4_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_2_x_q1_4_2 = new TProfile("q1_2_2_x_q1_4_2", "q1_2_2_x_q1_4_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_2_x_q1_4_3 = new TProfile("q1_2_2_x_q1_4_3", "q1_2_2_x_q1_4_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_2_2_x_q1_4_4 = new TProfile("q1_2_2_x_q1_4_4", "q1_2_2_x_q1_4_4", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_3_1 = new TProfile("q2_3_1", "q2_3_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_3_1_x_q1_3_2 = new TProfile("q1_3_1_x_q1_3_2", "q1_3_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_3_1_x_q1_3_3 = new TProfile("q1_3_1_x_q1_3_3", "q1_3_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_3_2 = new TProfile("q2_3_2", "q2_3_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_3_2_x_q1_3_3 = new TProfile("q1_3_2_x_q1_3_3", "q1_3_2_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q2_3_3 = new TProfile("q2_3_3", "q2_3_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_6_1 = new TProfile("q1_6_1", "q1_6_1", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_6_2 = new TProfile("q1_6_2", "q1_6_2", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_6_3 = new TProfile("q1_6_3", "q1_6_3", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_6_4 = new TProfile("q1_6_4", "q1_6_4", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_6_5 = new TProfile("q1_6_5", "q1_6_5", kNCentBinsSmall, kCentBinsSmall);
-    TProfile *q1_6_6 = new TProfile("q1_6_6", "q1_6_6", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q6_1_1 = new TH1D("q6_1_1", "q6_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q4_1_1_x_q1_2_1 = new TH1D("q4_1_1_x_q1_2_1", "q4_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q4_1_1_x_q1_2_2 = new TH1D("q4_1_1_x_q1_2_2", "q4_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q3_1_1_x_q1_3_1 = new TH1D("q3_1_1_x_q1_3_1", "q3_1_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q3_1_1_x_q1_3_2 = new TH1D("q3_1_1_x_q1_3_2", "q3_1_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q3_1_1_x_q1_3_3 = new TH1D("q3_1_1_x_q1_3_3", "q3_1_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_2_2_x_q1_2_1 = new TH1D("q2_1_1_x_q1_2_2_x_q1_2_1", "q2_1_1_x_q1_2_2_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q2_2_1 = new TH1D("q2_1_1_x_q2_2_1", "q2_1_1_x_q2_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q2_2_2 = new TH1D("q2_1_1_x_q2_2_2", "q2_1_1_x_q2_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q3_2_1 = new TH1D("q3_2_1", "q3_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q3_2_2 = new TH1D("q3_2_2", "q3_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_4_1 = new TH1D("q2_1_1_x_q1_4_1", "q2_1_1_x_q1_4_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_4_2 = new TH1D("q2_1_1_x_q1_4_2", "q2_1_1_x_q1_4_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_4_3 = new TH1D("q2_1_1_x_q1_4_3", "q2_1_1_x_q1_4_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_1_1_x_q1_4_4 = new TH1D("q2_1_1_x_q1_4_4", "q2_1_1_x_q1_4_4", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_2_1_x_q1_2_2 = new TH1D("q2_2_1_x_q1_2_2", "q2_2_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_2_2_x_q1_2_1 = new TH1D("q2_2_2_x_q1_2_1", "q2_2_2_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_2_1_x_q1_3_1 = new TH1D("q1_1_1_x_q1_2_1_x_q1_3_1", "q1_1_1_x_q1_2_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_2_1_x_q1_3_2 = new TH1D("q1_1_1_x_q1_2_1_x_q1_3_2", "q1_1_1_x_q1_2_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_2_1_x_q1_3_3 = new TH1D("q1_1_1_x_q1_2_1_x_q1_3_3", "q1_1_1_x_q1_2_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_2_2_x_q1_3_1 = new TH1D("q1_1_1_x_q1_2_2_x_q1_3_1", "q1_1_1_x_q1_2_2_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_2_2_x_q1_3_2 = new TH1D("q1_1_1_x_q1_2_2_x_q1_3_2", "q1_1_1_x_q1_2_2_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_2_2_x_q1_3_3 = new TH1D("q1_1_1_x_q1_2_2_x_q1_3_3", "q1_1_1_x_q1_2_2_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_5_1 = new TH1D("q1_1_1_x_q1_5_1", "q1_1_1_x_q1_5_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_5_2 = new TH1D("q1_1_1_x_q1_5_2", "q1_1_1_x_q1_5_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_5_3 = new TH1D("q1_1_1_x_q1_5_3", "q1_1_1_x_q1_5_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_5_4 = new TH1D("q1_1_1_x_q1_5_4", "q1_1_1_x_q1_5_4", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_1_1_x_q1_5_5 = new TH1D("q1_1_1_x_q1_5_5", "q1_1_1_x_q1_5_5", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_1_x_q1_4_1 = new TH1D("q1_2_1_x_q1_4_1", "q1_2_1_x_q1_4_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_1_x_q1_4_2 = new TH1D("q1_2_1_x_q1_4_2", "q1_2_1_x_q1_4_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_1_x_q1_4_3 = new TH1D("q1_2_1_x_q1_4_3", "q1_2_1_x_q1_4_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_1_x_q1_4_4 = new TH1D("q1_2_1_x_q1_4_4", "q1_2_1_x_q1_4_4", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_2_x_q1_4_1 = new TH1D("q1_2_2_x_q1_4_1", "q1_2_2_x_q1_4_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_2_x_q1_4_2 = new TH1D("q1_2_2_x_q1_4_2", "q1_2_2_x_q1_4_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_2_x_q1_4_3 = new TH1D("q1_2_2_x_q1_4_3", "q1_2_2_x_q1_4_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_2_2_x_q1_4_4 = new TH1D("q1_2_2_x_q1_4_4", "q1_2_2_x_q1_4_4", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_3_1 = new TH1D("q2_3_1", "q2_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_3_1_x_q1_3_2 = new TH1D("q1_3_1_x_q1_3_2", "q1_3_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_3_1_x_q1_3_3 = new TH1D("q1_3_1_x_q1_3_3", "q1_3_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_3_2 = new TH1D("q2_3_2", "q2_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_3_2_x_q1_3_3 = new TH1D("q1_3_2_x_q1_3_3", "q1_3_2_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q2_3_3 = new TH1D("q2_3_3", "q2_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_6_1 = new TH1D("q1_6_1", "q1_6_1", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_6_2 = new TH1D("q1_6_2", "q1_6_2", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_6_3 = new TH1D("q1_6_3", "q1_6_3", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_6_4 = new TH1D("q1_6_4", "q1_6_4", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_6_5 = new TH1D("q1_6_5", "q1_6_5", kNCentBinsSmall, kCentBinsSmall);
+    TH1D *q1_6_6 = new TH1D("q1_6_6", "q1_6_6", kNCentBinsSmall, kCentBinsSmall);
 
     int readError = 0;
     for (int j = 0; j < total_event; j++)
@@ -333,6 +335,114 @@ void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
 
     fout.mkdir(Form("var_%d", iVar));
     fout.cd(Form("var_%d", iVar));
+
+    // full formula
+    // 1st order
+    q1_1_1->Divide(hCent);
+
+    // 2nd order
+    q2_1_1->Divide(hCent);
+    q1_2_1->Divide(hCent);
+    q1_2_2->Divide(hCent);
+
+    // 3rd order
+    q3_1_1->Divide(hCent);
+    q1_1_1_x_q1_2_1->Divide(hCent);
+    q1_1_1_x_q1_2_2->Divide(hCent);
+    q1_3_1->Divide(hCent);
+    q1_3_2->Divide(hCent);
+    q1_3_3->Divide(hCent);
+
+    // 4th order
+    q4_1_1->Divide(hCent);
+    q2_1_1_x_q1_2_1->Divide(hCent);
+    q2_1_1_x_q1_2_2->Divide(hCent);
+    q1_1_1_x_q1_3_1->Divide(hCent);
+    q2_2_1->Divide(hCent);
+    q2_2_2->Divide(hCent);
+    q1_1_1_x_q1_3_2->Divide(hCent);
+    q1_1_1_x_q1_3_3->Divide(hCent);
+    q1_2_1_x_q1_2_2->Divide(hCent);
+    q1_4_1->Divide(hCent);
+    q1_4_2->Divide(hCent);
+    q1_4_3->Divide(hCent);
+    q1_4_4->Divide(hCent);
+
+    // 5th order
+    q5_1_1->Divide(hCent);
+    q3_1_1_x_q1_2_1->Divide(hCent);
+    q3_1_1_x_q1_2_2->Divide(hCent);
+    q2_1_1_x_q1_3_1->Divide(hCent);
+    q2_1_1_x_q1_3_2->Divide(hCent);
+    q2_1_1_x_q1_3_3->Divide(hCent);
+    q2_2_2_x_q1_1_1->Divide(hCent);
+    q2_2_1_x_q1_1_1->Divide(hCent);
+    q1_1_1_x_q1_2_1_x_q1_2_2->Divide(hCent);
+    q1_1_1_x_q1_4_1->Divide(hCent);
+    q1_1_1_x_q1_4_2->Divide(hCent);
+    q1_1_1_x_q1_4_3->Divide(hCent);
+    q1_1_1_x_q1_4_4->Divide(hCent);
+    q1_2_1_x_q1_3_1->Divide(hCent);
+    q1_2_1_x_q1_3_2->Divide(hCent);
+    q1_2_1_x_q1_3_3->Divide(hCent);
+    q1_2_2_x_q1_3_1->Divide(hCent);
+    q1_2_2_x_q1_3_2->Divide(hCent);
+    q1_2_2_x_q1_3_3->Divide(hCent);
+    q1_5_1->Divide(hCent);
+    q1_5_2->Divide(hCent);
+    q1_5_3->Divide(hCent);
+    q1_5_4->Divide(hCent);
+    q1_5_5->Divide(hCent);
+
+    // 6th order
+    q6_1_1->Divide(hCent);
+    q4_1_1_x_q1_2_1->Divide(hCent);
+    q4_1_1_x_q1_2_2->Divide(hCent);
+    q3_1_1_x_q1_3_1->Divide(hCent);
+    q3_1_1_x_q1_3_2->Divide(hCent);
+    q3_1_1_x_q1_3_3->Divide(hCent);
+    q2_1_1_x_q1_2_2_x_q1_2_1->Divide(hCent);
+    q2_1_1_x_q2_2_1->Divide(hCent);
+    q2_1_1_x_q2_2_2->Divide(hCent);
+    q3_2_1->Divide(hCent);
+    q3_2_2->Divide(hCent);
+    q2_1_1_x_q1_4_1->Divide(hCent);
+    q2_1_1_x_q1_4_2->Divide(hCent);
+    q2_1_1_x_q1_4_3->Divide(hCent);
+    q2_1_1_x_q1_4_4->Divide(hCent);
+    q2_2_1_x_q1_2_2->Divide(hCent);
+    q2_2_2_x_q1_2_1->Divide(hCent);
+    q1_1_1_x_q1_2_1_x_q1_3_1->Divide(hCent);
+    q1_1_1_x_q1_2_1_x_q1_3_2->Divide(hCent);
+    q1_1_1_x_q1_2_1_x_q1_3_3->Divide(hCent);
+    q1_1_1_x_q1_2_2_x_q1_3_1->Divide(hCent);
+    q1_1_1_x_q1_2_2_x_q1_3_2->Divide(hCent);
+    q1_1_1_x_q1_2_2_x_q1_3_3->Divide(hCent);
+    q1_1_1_x_q1_5_1->Divide(hCent);
+    q1_1_1_x_q1_5_2->Divide(hCent);
+    q1_1_1_x_q1_5_3->Divide(hCent);
+    q1_1_1_x_q1_5_4->Divide(hCent);
+    q1_1_1_x_q1_5_5->Divide(hCent);
+    q1_2_1_x_q1_4_1->Divide(hCent);
+    q1_2_1_x_q1_4_2->Divide(hCent);
+    q1_2_1_x_q1_4_3->Divide(hCent);
+    q1_2_1_x_q1_4_4->Divide(hCent);
+    q1_2_2_x_q1_4_1->Divide(hCent);
+    q1_2_2_x_q1_4_2->Divide(hCent);
+    q1_2_2_x_q1_4_3->Divide(hCent);
+    q1_2_2_x_q1_4_4->Divide(hCent);
+    q2_3_1->Divide(hCent);
+    q1_3_1_x_q1_3_2->Divide(hCent);
+    q1_3_1_x_q1_3_3->Divide(hCent);
+    q2_3_2->Divide(hCent);
+    q1_3_2_x_q1_3_3->Divide(hCent);
+    q2_3_3->Divide(hCent);
+    q1_6_1->Divide(hCent);
+    q1_6_2->Divide(hCent);
+    q1_6_3->Divide(hCent);
+    q1_6_4->Divide(hCent);
+    q1_6_5->Divide(hCent);
+    q1_6_6->Divide(hCent);
 
     // full formula
     // 1st order
