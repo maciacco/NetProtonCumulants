@@ -8,11 +8,6 @@
 
 #define FILL_MC
 
-double qa_b(double const p, double const n, int const a, int const b){
-  double sgn = (b % 2) == 0 ? 1. : -1.;
-  return powI(p + sgn * n, a);
-}
-
 void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
 {
   TStopwatch w;
@@ -183,126 +178,122 @@ void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
       arg = tuple_qmoment->GetArgs();
       centrality = arg[0];
 
-      double qP1_p = arg[1];
-      double qP1_n = arg[2];
-      double qP2_p = arg[3];
-      double qP2_n = arg[4];
-      double qP3_p = arg[5];
-      double qP3_n = arg[6];
-      double qP4_p = arg[7];
-      double qP4_n = arg[8];
-      double qP5_p = arg[9];
-      double qP5_n = arg[10];
-      double qP6_p = arg[11];
-      double qP6_n = arg[12];
+      double qPr_p[]{arg[1], arg[3], arg[5], arg[7], arg[9], arg[11]};
+      double qPr_n[]{arg[2], arg[4], arg[6], arg[8], arg[10], arg[12]};
+
+      auto qa_b_c = [&](int const a, int const b, int const c) -> double
+      {
+        double sgn = (b % 2) == 0 ? 1. : -1.;
+        return powI(qPr_p[c - 1] + sgn * qPr_n[c - 1], a);
+      };
 
       // full formula
       // 1st order
-      q1_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1));
+      q1_1_1->Fill(centrality, qa_b_c(1, 1, 1));
 
       // 2nd order
-      q2_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1));
-      q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2));
-      q1_2_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2));
+      q2_1_1->Fill(centrality, qa_b_c(2, 1, 1));
+      q1_2_1->Fill(centrality, qa_b_c(1, 2, 1));
+      q1_2_2->Fill(centrality, qa_b_c(1, 2, 2));
 
       // 3rd order
-      q3_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 1));
-      q1_1_1_x_q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 2));
-      q1_1_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 2));
-      q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 3));
-      q1_3_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 3));
-      q1_3_3->Fill(centrality, qa_b(qP3_p, qP3_n, 1, 3));
+      q3_1_1->Fill(centrality, qa_b_c(3, 1, 1));
+      q1_1_1_x_q1_2_1->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 2, 1));
+      q1_1_1_x_q1_2_2->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 2, 2));
+      q1_3_1->Fill(centrality, qa_b_c(1, 3, 1));
+      q1_3_2->Fill(centrality, qa_b_c(1, 3, 2));
+      q1_3_3->Fill(centrality, qa_b_c(1, 3, 3));
 
       // 4th order
-      q4_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 4, 1));
-      q2_1_1_x_q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP1_p, qP1_n, 1, 2));
-      q2_1_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP2_p, qP2_n, 1, 2));
-      q1_1_1_x_q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 3));
-      q2_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 2));
-      q2_2_2->Fill(centrality, qa_b(qP2_p, qP2_n, 2, 2));
-      q1_1_1_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 3));
-      q1_1_1_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP3_p, qP3_n, 1, 3));
-      q1_2_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 2));
-      q1_4_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 4));
-      q1_4_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 4));
-      q1_4_3->Fill(centrality, qa_b(qP3_p, qP3_n, 1, 4));
-      q1_4_4->Fill(centrality, qa_b(qP4_p, qP4_n, 1, 4));
+      q4_1_1->Fill(centrality, qa_b_c(4, 1, 1));
+      q2_1_1_x_q1_2_1->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 2, 1));
+      q2_1_1_x_q1_2_2->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 2, 2));
+      q1_1_1_x_q1_3_1->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 3, 1));
+      q2_2_1->Fill(centrality, qa_b_c(2, 2, 1));
+      q2_2_2->Fill(centrality, qa_b_c(2, 2, 2));
+      q1_1_1_x_q1_3_2->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 3, 2));
+      q1_1_1_x_q1_3_3->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 3, 3));
+      q1_2_1_x_q1_2_2->Fill(centrality, qa_b_c(1, 2, 1) * qa_b_c(1, 2, 2));
+      q1_4_1->Fill(centrality, qa_b_c(1, 4, 1));
+      q1_4_2->Fill(centrality, qa_b_c(1, 4, 2));
+      q1_4_3->Fill(centrality, qa_b_c(1, 4, 3));
+      q1_4_4->Fill(centrality, qa_b_c(1, 4, 4));
 
       // 5th order
-      q5_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 5, 1));
-      q3_1_1_x_q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 1) * qa_b(qP1_p, qP1_n, 1, 2));
-      q3_1_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 1) * qa_b(qP2_p, qP2_n, 1, 2));
-      q2_1_1_x_q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP1_p, qP1_n, 1, 3));
-      q2_1_1_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP2_p, qP2_n, 1, 3));
-      q2_1_1_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP3_p, qP3_n, 1, 3));
-      q2_2_2_x_q1_1_1->Fill(centrality, qa_b(qP2_p, qP2_n, 2, 2) * qa_b(qP1_p, qP1_n, 1, 1));
-      q2_2_1_x_q1_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 2) * qa_b(qP1_p, qP1_n, 1, 1));
-      q1_1_1_x_q1_2_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 2));
-      q1_1_1_x_q1_4_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 4));
-      q1_1_1_x_q1_4_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 4));
-      q1_1_1_x_q1_4_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP3_p, qP3_n, 1, 4));
-      q1_1_1_x_q1_4_4->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP4_p, qP4_n, 1, 4));
-      q1_2_1_x_q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP1_p, qP1_n, 1, 3));
-      q1_2_1_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 3));
-      q1_2_1_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP3_p, qP3_n, 1, 3));
-      q1_2_2_x_q1_3_1->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP1_p, qP1_n, 1, 3));
-      q1_2_2_x_q1_3_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 3));
-      q1_2_2_x_q1_3_3->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP3_p, qP3_n, 1, 3));
-      q1_5_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 5));
-      q1_5_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 5));
-      q1_5_3->Fill(centrality, qa_b(qP3_p, qP3_n, 1, 5));
-      q1_5_4->Fill(centrality, qa_b(qP4_p, qP4_n, 1, 5));
-      q1_5_5->Fill(centrality, qa_b(qP5_p, qP5_n, 1, 5));
+      q5_1_1->Fill(centrality, qa_b_c(5, 1, 1));
+      q3_1_1_x_q1_2_1->Fill(centrality, qa_b_c(3, 1, 1) * qa_b_c(1, 2, 1));
+      q3_1_1_x_q1_2_2->Fill(centrality, qa_b_c(3, 1, 1) * qa_b_c(1, 2, 2));
+      q2_1_1_x_q1_3_1->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 3, 1));
+      q2_1_1_x_q1_3_2->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 3, 2));
+      q2_1_1_x_q1_3_3->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 3, 3));
+      q2_2_2_x_q1_1_1->Fill(centrality, qa_b_c(2, 2, 2) * qa_b_c(1, 1, 1));
+      q2_2_1_x_q1_1_1->Fill(centrality, qa_b_c(2, 2, 1) * qa_b_c(1, 1, 1));
+      q1_1_1_x_q1_2_1_x_q1_2_2->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 2, 1) * qa_b_c(1, 2, 2));
+      q1_1_1_x_q1_4_1->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 4, 1));
+      q1_1_1_x_q1_4_2->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 4, 2));
+      q1_1_1_x_q1_4_3->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 4, 3));
+      q1_1_1_x_q1_4_4->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 4, 4));
+      q1_2_1_x_q1_3_1->Fill(centrality, qa_b_c(1, 2, 1) * qa_b_c(1, 3, 1));
+      q1_2_1_x_q1_3_2->Fill(centrality, qa_b_c(1, 2, 1) * qa_b_c(1, 3, 2));
+      q1_2_1_x_q1_3_3->Fill(centrality, qa_b_c(1, 2, 1) * qa_b_c(1, 3, 3));
+      q1_2_2_x_q1_3_1->Fill(centrality, qa_b_c(1, 2, 2) * qa_b_c(1, 3, 1));
+      q1_2_2_x_q1_3_2->Fill(centrality, qa_b_c(1, 2, 2) * qa_b_c(1, 3, 2));
+      q1_2_2_x_q1_3_3->Fill(centrality, qa_b_c(1, 2, 2) * qa_b_c(1, 3, 3));
+      q1_5_1->Fill(centrality, qa_b_c(1, 5, 1));
+      q1_5_2->Fill(centrality, qa_b_c(1, 5, 2));
+      q1_5_3->Fill(centrality, qa_b_c(1, 5, 3));
+      q1_5_4->Fill(centrality, qa_b_c(1, 5, 4));
+      q1_5_5->Fill(centrality, qa_b_c(1, 5, 5));
 
       // 6th order
-      q6_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 6, 1));
-      q4_1_1_x_q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 4, 1) * qa_b(qP1_p, qP1_n, 1, 2));
-      q4_1_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 4, 1) * qa_b(qP2_p, qP2_n, 1, 2));
-      q3_1_1_x_q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 1) * qa_b(qP1_p, qP1_n, 1, 3));
-      q3_1_1_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 1) * qa_b(qP2_p, qP2_n, 1, 3));
-      q3_1_1_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 1) * qa_b(qP3_p, qP3_n, 1, 3));
-      q2_1_1_x_q1_2_2_x_q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP1_p, qP1_n, 1, 2));
-      q2_1_1_x_q2_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP1_p, qP1_n, 2, 2));
-      q2_1_1_x_q2_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP2_p, qP2_n, 2, 2));
-      q3_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 2));
-      q3_2_2->Fill(centrality, qa_b(qP2_p, qP2_n, 3, 2));
-      q2_1_1_x_q1_4_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP1_p, qP1_n, 1, 4));
-      q2_1_1_x_q1_4_2->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP2_p, qP2_n, 1, 4));
-      q2_1_1_x_q1_4_3->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP3_p, qP3_n, 1, 4));
-      q2_1_1_x_q1_4_4->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP4_p, qP4_n, 1, 4));
-      q2_2_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 2) * qa_b(qP2_p, qP2_n, 1, 2));
-      q2_2_2_x_q1_2_1->Fill(centrality, qa_b(qP2_p, qP2_n, 2, 2) * qa_b(qP1_p, qP1_n, 1, 2));
-      q1_1_1_x_q1_2_1_x_q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP1_p, qP1_n, 1, 3));
-      q1_1_1_x_q1_2_1_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 3));
-      q1_1_1_x_q1_2_1_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP3_p, qP3_n, 1, 3));
-      q1_1_1_x_q1_2_2_x_q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP1_p, qP1_n, 1, 3));
-      q1_1_1_x_q1_2_2_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 3));
-      q1_1_1_x_q1_2_2_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP3_p, qP3_n, 1, 3));
-      q1_1_1_x_q1_5_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 5));
-      q1_1_1_x_q1_5_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 5));
-      q1_1_1_x_q1_5_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP3_p, qP3_n, 1, 5));
-      q1_1_1_x_q1_5_4->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP4_p, qP4_n, 1, 5));
-      q1_1_1_x_q1_5_5->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP5_p, qP5_n, 1, 5));
-      q1_2_1_x_q1_4_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP1_p, qP1_n, 1, 4));
-      q1_2_1_x_q1_4_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 4));
-      q1_2_1_x_q1_4_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP3_p, qP3_n, 1, 4));
-      q1_2_1_x_q1_4_4->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP4_p, qP4_n, 1, 4));
-      q1_2_2_x_q1_4_1->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP1_p, qP1_n, 1, 4));
-      q1_2_2_x_q1_4_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 4));
-      q1_2_2_x_q1_4_3->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP3_p, qP3_n, 1, 4));
-      q1_2_2_x_q1_4_4->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP4_p, qP4_n, 1, 4));
-      q2_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 3));
-      q1_3_1_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 3) * qa_b(qP2_p, qP2_n, 1, 3));
-      q1_3_1_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 3) * qa_b(qP3_p, qP3_n, 1, 3));
-      q2_3_2->Fill(centrality, qa_b(qP2_p, qP2_n, 2, 3));
-      q1_3_2_x_q1_3_3->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 3) * qa_b(qP3_p, qP3_n, 1, 3));
-      q2_3_3->Fill(centrality, qa_b(qP3_p, qP3_n, 2, 3));
-      q1_6_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 6));
-      q1_6_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 6));
-      q1_6_3->Fill(centrality, qa_b(qP3_p, qP3_n, 1, 6));
-      q1_6_4->Fill(centrality, qa_b(qP4_p, qP4_n, 1, 6));
-      q1_6_5->Fill(centrality, qa_b(qP5_p, qP5_n, 1, 6));
-      q1_6_6->Fill(centrality, qa_b(qP6_p, qP6_n, 1, 6));
+      q6_1_1->Fill(centrality, qa_b_c(6, 1, 1));
+      q4_1_1_x_q1_2_1->Fill(centrality, qa_b_c(4, 1, 1) * qa_b_c(1, 2, 1));
+      q4_1_1_x_q1_2_2->Fill(centrality, qa_b_c(4, 1, 1) * qa_b_c(1, 2, 2));
+      q3_1_1_x_q1_3_1->Fill(centrality, qa_b_c(3, 1, 1) * qa_b_c(1, 3, 1));
+      q3_1_1_x_q1_3_2->Fill(centrality, qa_b_c(3, 1, 1) * qa_b_c(1, 3, 2));
+      q3_1_1_x_q1_3_3->Fill(centrality, qa_b_c(3, 1, 1) * qa_b_c(1, 3, 3));
+      q2_1_1_x_q1_2_2_x_q1_2_1->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 2, 2) * qa_b_c(1, 2, 1));
+      q2_1_1_x_q2_2_1->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(2, 2, 1));
+      q2_1_1_x_q2_2_2->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(2, 2, 2));
+      q3_2_1->Fill(centrality, qa_b_c(3, 2, 1));
+      q3_2_2->Fill(centrality, qa_b_c(3, 2, 2));
+      q2_1_1_x_q1_4_1->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 4, 1));
+      q2_1_1_x_q1_4_2->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 4, 2));
+      q2_1_1_x_q1_4_3->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 4, 3));
+      q2_1_1_x_q1_4_4->Fill(centrality, qa_b_c(2, 1, 1) * qa_b_c(1, 4, 4));
+      q2_2_1_x_q1_2_2->Fill(centrality, qa_b_c(2, 2, 1) * qa_b_c(1, 2, 2));
+      q2_2_2_x_q1_2_1->Fill(centrality, qa_b_c(2, 2, 2) * qa_b_c(1, 2, 1));
+      q1_1_1_x_q1_2_1_x_q1_3_1->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 2, 1) * qa_b_c(1, 3, 1));
+      q1_1_1_x_q1_2_1_x_q1_3_2->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 2, 1) * qa_b_c(1, 3, 2));
+      q1_1_1_x_q1_2_1_x_q1_3_3->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 2, 1) * qa_b_c(1, 3, 3));
+      q1_1_1_x_q1_2_2_x_q1_3_1->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 2, 2) * qa_b_c(1, 3, 1));
+      q1_1_1_x_q1_2_2_x_q1_3_2->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 2, 2) * qa_b_c(1, 3, 2));
+      q1_1_1_x_q1_2_2_x_q1_3_3->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 2, 2) * qa_b_c(1, 3, 3));
+      q1_1_1_x_q1_5_1->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 5, 1));
+      q1_1_1_x_q1_5_2->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 5, 2));
+      q1_1_1_x_q1_5_3->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 5, 3));
+      q1_1_1_x_q1_5_4->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 5, 4));
+      q1_1_1_x_q1_5_5->Fill(centrality, qa_b_c(1, 1, 1) * qa_b_c(1, 5, 5));
+      q1_2_1_x_q1_4_1->Fill(centrality, qa_b_c(1, 2, 1) * qa_b_c(1, 4, 1));
+      q1_2_1_x_q1_4_2->Fill(centrality, qa_b_c(1, 2, 1) * qa_b_c(1, 4, 2));
+      q1_2_1_x_q1_4_3->Fill(centrality, qa_b_c(1, 2, 1) * qa_b_c(1, 4, 3));
+      q1_2_1_x_q1_4_4->Fill(centrality, qa_b_c(1, 2, 1) * qa_b_c(1, 4, 4));
+      q1_2_2_x_q1_4_1->Fill(centrality, qa_b_c(1, 2, 2) * qa_b_c(1, 4, 1));
+      q1_2_2_x_q1_4_2->Fill(centrality, qa_b_c(1, 2, 2) * qa_b_c(1, 4, 2));
+      q1_2_2_x_q1_4_3->Fill(centrality, qa_b_c(1, 2, 2) * qa_b_c(1, 4, 3));
+      q1_2_2_x_q1_4_4->Fill(centrality, qa_b_c(1, 2, 2) * qa_b_c(1, 4, 4));
+      q2_3_1->Fill(centrality, qa_b_c(2, 3, 1));
+      q1_3_1_x_q1_3_2->Fill(centrality, qa_b_c(1, 3, 1) * qa_b_c(1, 3, 2));
+      q1_3_1_x_q1_3_3->Fill(centrality, qa_b_c(1, 3, 1) * qa_b_c(1, 3, 3));
+      q2_3_2->Fill(centrality, qa_b_c(2, 3, 2));
+      q1_3_2_x_q1_3_3->Fill(centrality, qa_b_c(1, 3, 2) * qa_b_c(1, 3, 3));
+      q2_3_3->Fill(centrality, qa_b_c(2, 3, 3));
+      q1_6_1->Fill(centrality, qa_b_c(1, 6, 1));
+      q1_6_2->Fill(centrality, qa_b_c(1, 6, 2));
+      q1_6_3->Fill(centrality, qa_b_c(1, 6, 3));
+      q1_6_4->Fill(centrality, qa_b_c(1, 6, 4));
+      q1_6_5->Fill(centrality, qa_b_c(1, 6, 5));
+      q1_6_6->Fill(centrality, qa_b_c(1, 6, 6));
     }
     if (readError < 0) {
       std::cout << "no input, skip" << std::endl;
