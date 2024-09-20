@@ -76,11 +76,13 @@ void Analysis(const char* period = "18")
       double k3_small_gen[N_SAMPLE][100];
       double k4_small_gen[N_SAMPLE][100];
       double k5_small_gen[N_SAMPLE][100];
+      double k6_small_gen[N_SAMPLE][100];
       double k2sk_gen[10][N_SAMPLE];
       double k2_gen[10][N_SAMPLE];
       double k3_gen[10][N_SAMPLE];
       double k4_gen[10][N_SAMPLE];
       double k5_gen[10][N_SAMPLE];
+      double k6_gen[10][N_SAMPLE];
     #endif
 
     double Q1_small;
@@ -88,16 +90,19 @@ void Analysis(const char* period = "18")
     double Q3_small;
     double Q4_small;
     double Q5_small;
+    double Q6_small;
     double k2sk_small[N_SAMPLE][100];
     double k2_small[N_SAMPLE][100];
     double k3_small[N_SAMPLE][100];
     double k4_small[N_SAMPLE][100];
     double k5_small[N_SAMPLE][100];
+    double k6_small[N_SAMPLE][100];
     double k2sk[10][N_SAMPLE];
     double k2[10][N_SAMPLE];
     double k3[10][N_SAMPLE];
     double k4[10][N_SAMPLE];
     double k5[10][N_SAMPLE];
+    double k6[10][N_SAMPLE];
 
     for(int sample = 0; sample < N_SAMPLE; sample++)
     {
@@ -165,6 +170,56 @@ void Analysis(const char* period = "18")
       TProfile *q1_5_4 = (TProfile*)fin->Get(Form("var_%d/q1_5_4", iVar));
       TProfile *q1_5_5 = (TProfile*)fin->Get(Form("var_%d/q1_5_5", iVar));
 
+      // 6th order
+      TProfile *q6_1_1 = (TProfile*)fin->Get(Form("var_%d/q6_1_1", iVar));
+      TProfile *q4_1_1_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q4_1_1_x_q1_2_1", iVar));
+      TProfile *q4_1_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q4_1_1_x_q1_2_2", iVar));
+      TProfile *q3_1_1_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q3_1_1_x_q1_3_1", iVar));
+      TProfile *q3_1_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q3_1_1_x_q1_3_2", iVar));
+      TProfile *q3_1_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q3_1_1_x_q1_3_3", iVar));
+      TProfile *q2_1_1_x_q1_2_2_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_2_2_x_q1_2_1", iVar));
+      TProfile *q2_1_1_x_q2_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q2_2_1", iVar));
+      TProfile *q2_1_1_x_q2_2_2 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q2_2_2", iVar));
+      TProfile *q3_2_1 = (TProfile*)fin->Get(Form("var_%d/q3_2_1", iVar));
+      TProfile *q3_2_2 = (TProfile*)fin->Get(Form("var_%d/q3_2_2", iVar));
+      TProfile *q2_1_1_x_q1_4_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_1", iVar));
+      TProfile *q2_1_1_x_q1_4_2 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_2", iVar));
+      TProfile *q2_1_1_x_q1_4_3 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_3", iVar));
+      TProfile *q2_1_1_x_q1_4_4 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_4", iVar));
+      TProfile *q2_2_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q2_2_1_x_q1_2_2", iVar));
+      TProfile *q2_2_2_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_2_2_x_q1_2_1", iVar));
+      TProfile *q1_1_1_x_q1_2_1_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_3_1", iVar));
+      TProfile *q1_1_1_x_q1_2_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_3_2", iVar));
+      TProfile *q1_1_1_x_q1_2_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_3_3", iVar));
+      TProfile *q1_1_1_x_q1_2_2_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2_x_q1_3_1", iVar));
+      TProfile *q1_1_1_x_q1_2_2_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2_x_q1_3_2", iVar));
+      TProfile *q1_1_1_x_q1_2_2_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2_x_q1_3_3", iVar));
+      TProfile *q1_1_1_x_q1_5_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_1", iVar));
+      TProfile *q1_1_1_x_q1_5_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_2", iVar));
+      TProfile *q1_1_1_x_q1_5_3 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_3", iVar));
+      TProfile *q1_1_1_x_q1_5_4 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_4", iVar));
+      TProfile *q1_1_1_x_q1_5_5 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_5", iVar));
+      TProfile *q1_2_1_x_q1_4_1 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_1", iVar));
+      TProfile *q1_2_1_x_q1_4_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_2", iVar));
+      TProfile *q1_2_1_x_q1_4_3 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_3", iVar));
+      TProfile *q1_2_1_x_q1_4_4 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_4", iVar));
+      TProfile *q1_2_2_x_q1_4_1 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_1", iVar));
+      TProfile *q1_2_2_x_q1_4_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_2", iVar));
+      TProfile *q1_2_2_x_q1_4_3 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_3", iVar));
+      TProfile *q1_2_2_x_q1_4_4 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_4", iVar));
+      TProfile *q2_3_1 = (TProfile*)fin->Get(Form("var_%d/q2_3_1", iVar));
+      TProfile *q1_3_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_3_1_x_q1_3_2", iVar));
+      TProfile *q1_3_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_3_1_x_q1_3_3", iVar));
+      TProfile *q2_3_2 = (TProfile*)fin->Get(Form("var_%d/q2_3_2", iVar));
+      TProfile *q1_3_2_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_3_2_x_q1_3_3", iVar));
+      TProfile *q2_3_3 = (TProfile*)fin->Get(Form("var_%d/q2_3_3", iVar));
+      TProfile *q1_6_1 = (TProfile*)fin->Get(Form("var_%d/q1_6_1", iVar));
+      TProfile *q1_6_2 = (TProfile*)fin->Get(Form("var_%d/q1_6_2", iVar));
+      TProfile *q1_6_3 = (TProfile*)fin->Get(Form("var_%d/q1_6_3", iVar));
+      TProfile *q1_6_4 = (TProfile*)fin->Get(Form("var_%d/q1_6_4", iVar));
+      TProfile *q1_6_5 = (TProfile*)fin->Get(Form("var_%d/q1_6_5", iVar));
+      TProfile *q1_6_6 = (TProfile*)fin->Get(Form("var_%d/q1_6_6", iVar));
+
       #ifdef FILL_MC
         TProfile *N1p = (TProfile*)fin->Get(Form("var_%d/N1p", iVar));
         TProfile *N1 = (TProfile*)fin->Get(Form("var_%d/N1", iVar));
@@ -194,6 +249,16 @@ void Analysis(const char* period = "18")
                    + (10. * q1_2_1_x_q1_3_1->GetBinContent(i)) - (30. * q1_2_1_x_q1_3_2->GetBinContent(i)) + (20. * q1_2_1_x_q1_3_3->GetBinContent(i))
                    - (10. * q1_2_2_x_q1_3_1->GetBinContent(i)) + (30. * q1_2_2_x_q1_3_2->GetBinContent(i)) - (20. * q1_2_2_x_q1_3_3->GetBinContent(i))
                    + q1_5_1->GetBinContent(i) - (15. * q1_5_2->GetBinContent(i)) + (50. * q1_5_3->GetBinContent(i)) - (60. * q1_5_4->GetBinContent(i)) + (24. * q1_5_5->GetBinContent(i));
+        Q6_small = q6_1_1->GetBinContent(i) + (15. * q4_1_1_x_q1_2_1->GetBinContent(i)) - (15. * q4_1_1_x_q1_2_2->GetBinContent(i)) + (20. * q3_1_1_x_q1_3_1->GetBinContent(i)) - (60. * q3_1_1_x_q1_3_2->GetBinContent(i))
+                   + (40. * q3_1_1_x_q1_3_3->GetBinContent(i)) - (90. * q2_1_1_x_q1_2_2_x_q1_2_1->GetBinContent(i)) + (45. * q2_1_1_x_q2_2_1->GetBinContent(i)) + (45. * q2_1_1_x_q2_2_2->GetBinContent(i))
+                   + (15. * q3_2_1->GetBinContent(i)) - (15. * q3_2_2->GetBinContent(i)) + (15. * q2_1_1_x_q1_4_1->GetBinContent(i)) - (105. * q2_1_1_x_q1_4_2->GetBinContent(i)) + (180. * q2_1_1_x_q1_4_3->GetBinContent(i)) - (90. * q2_1_1_x_q1_4_4->GetBinContent(i))
+                   - (45. * q2_2_1_x_q1_2_2->GetBinContent(i)) + (45. * q2_2_2_x_q1_2_1->GetBinContent(i)) + (60. * q1_1_1_x_q1_2_1_x_q1_3_1->GetBinContent(i)) - (180. * q1_1_1_x_q1_2_1_x_q1_3_2->GetBinContent(i))
+                   + (120. * q1_1_1_x_q1_2_1_x_q1_3_3->GetBinContent(i)) - (60. * q1_1_1_x_q1_2_2_x_q1_3_1->GetBinContent(i)) + (180. * q1_1_1_x_q1_2_2_x_q1_3_2->GetBinContent(i)) - (120. * q1_1_1_x_q1_2_2_x_q1_3_3->GetBinContent(i))
+                   + (6. * q1_1_1_x_q1_5_1->GetBinContent(i)) - (90. * q1_1_1_x_q1_5_2->GetBinContent(i)) + (300. * q1_1_1_x_q1_5_3->GetBinContent(i)) - (360. * q1_1_1_x_q1_5_4->GetBinContent(i)) + (144. * q1_1_1_x_q1_5_5->GetBinContent(i))
+                   + (15. * q1_2_1_x_q1_4_1->GetBinContent(i)) - (105. * q1_2_1_x_q1_4_2->GetBinContent(i)) + (180. * q1_2_1_x_q1_4_3->GetBinContent(i)) - (90. * q1_2_1_x_q1_4_4->GetBinContent(i))
+                   - (15. * q1_2_2_x_q1_4_1->GetBinContent(i)) + (105. * q1_2_2_x_q1_4_2->GetBinContent(i)) - (180. * q1_2_2_x_q1_4_3->GetBinContent(i)) + (90. * q1_2_2_x_q1_4_4->GetBinContent(i))
+                   + (10. * q2_3_1->GetBinContent(i)) - (60. * q1_3_1_x_q1_3_2->GetBinContent(i)) + (40. * q1_3_1_x_q1_3_3->GetBinContent(i)) + (90. * q2_3_2->GetBinContent(i)) - (120. * q1_3_2_x_q1_3_3->GetBinContent(i)) + (40. * q2_3_3->GetBinContent(i))
+                   + q1_6_1->GetBinContent(i) - (31. * q1_6_2->GetBinContent(i)) + (180. * q1_6_3->GetBinContent(i)) - (390. * q1_6_4->GetBinContent(i)) + (360. * q1_6_5->GetBinContent(i)) - (120. * q1_6_6->GetBinContent(i));
         // std::cout << Q3_small << std::endl;
 
         k2sk_small[sample][i - 1] = q1_2_1->GetBinContent(i);
@@ -201,6 +266,8 @@ void Analysis(const char* period = "18")
         k3_small[sample][i - 1] = Q3_small - (3. * Q2_small * Q1_small) + (2. * powI(Q1_small, 3));
         k4_small[sample][i - 1] = Q4_small - (4. * Q3_small * Q1_small) - (3. * powI(Q2_small, 2)) + (12. * Q2_small * powI(Q1_small, 2)) - (6. * powI(Q1_small, 4));
         k5_small[sample][i - 1] = Q5_small - (5. * Q4_small * Q1_small) - (10. * Q3_small * Q2_small) + (20. * Q3_small * powI(Q1_small, 2)) + (30. * powI(Q2_small, 2) * Q1_small) - (60. * Q2_small * powI(Q1_small, 3)) + (24. * powI(Q1_small, 5));
+        k6_small[sample][i - 1] = Q6_small - (6. * Q5_small * Q1_small) - (15. * Q4_small * Q2_small) + (30. * Q4_small * powI(Q1_small, 2)) - (10. * powI(Q3_small, 2)) + (120. * Q3_small * Q2_small * Q1_small)
+                                  - (120. * Q3_small * powI(Q1_small, 3)) + (30. * powI(Q2_small, 3)) - (270. * powI(Q2_small, 2) * powI(Q1_small, 2)) + (360. * Q2_small * powI(Q1_small, 4)) - (120. * powI(Q1_small, 6));
 
         #ifdef FILL_MC
           k2sk_small_gen[sample][i - 1] = N1p->GetBinContent(i);
@@ -208,6 +275,9 @@ void Analysis(const char* period = "18")
           k3_small_gen[sample][i - 1] = N3->GetBinContent(i) - (3. * N2->GetBinContent(i) * N1->GetBinContent(i)) + (2. * powI(N1->GetBinContent(i), 3));
           k4_small_gen[sample][i - 1] = N4->GetBinContent(i) - (4. * N3->GetBinContent(i) * N1->GetBinContent(i)) - (3. * powI(N2->GetBinContent(i), 2)) + (12. * N2->GetBinContent(i) * powI(N1->GetBinContent(i), 2)) - (6. * powI(N1->GetBinContent(i), 4));
           k5_small_gen[sample][i - 1] = N5->GetBinContent(i) - (5. * N4->GetBinContent(i) * N1->GetBinContent(i)) - (10. * N3->GetBinContent(i) * N2->GetBinContent(i)) + (20. * N3->GetBinContent(i) * powI(N1->GetBinContent(i), 2)) + (30. * powI(N2->GetBinContent(i), 2) * N1->GetBinContent(i)) - (60. * N2->GetBinContent(i) * powI(N1->GetBinContent(i), 3)) + (24. * powI(N1->GetBinContent(i), 5));
+          k6_small_gen[sample][i - 1] = N6->GetBinContent(i) - (6. * N5->GetBinContent(i) * N1->GetBinContent(i)) - (15. * N4->GetBinContent(i) * N2->GetBinContent(i)) + (30. * N4->GetBinContent(i) * powI(N1->GetBinContent(i), 2)) - (10. * powI(N3->GetBinContent(i), 2)) + (120. * N3->GetBinContent(i) * N2->GetBinContent(i) * N1->GetBinContent(i))
+                                        - (120. * N3->GetBinContent(i) * powI(N1->GetBinContent(i), 3)) + (30. * powI(N2->GetBinContent(i), 3)) - (270. * powI(N2->GetBinContent(i), 2) * powI(N1->GetBinContent(i), 2)) + (360. * N2->GetBinContent(i) * powI(N1->GetBinContent(i), 4)) - (120. * powI(N1->GetBinContent(i), 6));
+
         #endif // FILL_MC
       }
 
@@ -218,6 +288,7 @@ void Analysis(const char* period = "18")
         k3[i - 1][sample] = cbwc(k3_small[sample], i - 1, hCent);
         k4[i - 1][sample] = cbwc(k4_small[sample], i - 1, hCent);
         k5[i - 1][sample] = cbwc(k5_small[sample], i - 1, hCent);
+        k6[i - 1][sample] = cbwc(k6_small[sample], i - 1, hCent);
 
         #ifdef FILL_MC
           k2sk_gen[i - 1][sample] = cbwc(k2sk_small_gen[sample], i - 1, hCent);
@@ -225,6 +296,7 @@ void Analysis(const char* period = "18")
           k3_gen[i - 1][sample] = cbwc(k3_small_gen[sample], i - 1, hCent);
           k4_gen[i - 1][sample] = cbwc(k4_small_gen[sample], i - 1, hCent);
           k5_gen[i - 1][sample] = cbwc(k5_small_gen[sample], i - 1, hCent);
+          k6_gen[i - 1][sample] = cbwc(k6_small_gen[sample], i - 1, hCent);
         #endif // FILL_MC
       }
 
@@ -246,7 +318,7 @@ void Analysis(const char* period = "18")
       double mean = 0.0;
       double rms = 0.0;
       //cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
-      cumulant_ratio(mean, rms, k2sk[i - 1], k5[i - 1], nSkip);
+      cumulant_ratio(mean, rms, k2[i - 1], k6[i - 1], nSkip);
 
       g.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean);
       hSys[i - 1]->Fill(mean);
@@ -256,7 +328,7 @@ void Analysis(const char* period = "18")
         double mean_gen = 0.0;
         double rms_gen = 0.0;
         // cumulant_ratio(mean_gen, rms_gen, k2sk_gen[i - 1], k2_gen[i - 1], nSkip);
-        cumulant_ratio(mean_gen, rms_gen, k2sk_gen[i - 1], k5_gen[i - 1], nSkip);
+        cumulant_ratio(mean_gen, rms_gen, k2_gen[i - 1], k6_gen[i - 1], nSkip);
 
         g_gen.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean_gen);
         g_gen.SetPointError(i - 1, 0, TMath::Sqrt(rms_gen / (( N_SAMPLE - nSkip) * (( N_SAMPLE - nSkip) - 1))));
