@@ -8,6 +8,11 @@
 
 #define FILL_MC
 
+double qa_b(double const p, double const n, int const a, int const b){
+  double sgn = (b % 2) == 0 ? 1. : -1.;
+  return powI(p + sgn * n, a);
+}
+
 void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
 {
   TStopwatch w;
@@ -80,7 +85,7 @@ void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
     TProfile *q1_3_2 = new TProfile("q1_3_2", "q1_3_2", kNCentBinsSmall, kCentBinsSmall);
     TProfile *q1_3_3 = new TProfile("q1_3_3", "q1_3_3", kNCentBinsSmall, kCentBinsSmall);
 
-    // 4th order
+    // // 4th order
     TProfile *q4_1_1 = new TProfile("q4_1_1", "q4_1_1", kNCentBinsSmall, kCentBinsSmall);
     TProfile *q2_1_1_x_q1_2_1 = new TProfile("q2_1_1_x_q1_2_1", "q2_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
     TProfile *q2_1_1_x_q1_2_2 = new TProfile("q2_1_1_x_q1_2_2", "q2_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
@@ -94,6 +99,37 @@ void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
     TProfile *q1_4_2 = new TProfile("q1_4_2", "q1_4_2", kNCentBinsSmall, kCentBinsSmall);
     TProfile *q1_4_3 = new TProfile("q1_4_3", "q1_4_3", kNCentBinsSmall, kCentBinsSmall);
     TProfile *q1_4_4 = new TProfile("q1_4_4", "q1_4_4", kNCentBinsSmall, kCentBinsSmall);
+
+    // 5th order
+    TProfile *q5_1_1 = new TProfile("q5_1_1", "q5_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q3_1_1_x_q1_2_1 = new TProfile("q3_1_1_x_q1_2_1", "q3_1_1_x_q1_2_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q3_1_1_x_q1_2_2 = new TProfile("q3_1_1_x_q1_2_2", "q3_1_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q2_1_1_x_q1_3_1 = new TProfile("q2_1_1_x_q1_3_1", "q2_1_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q2_1_1_x_q1_3_2 = new TProfile("q2_1_1_x_q1_3_2", "q2_1_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q2_1_1_x_q1_3_3 = new TProfile("q2_1_1_x_q1_3_3", "q2_1_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q2_2_2_x_q1_1_1 = new TProfile("q2_2_2_x_q1_1_1", "q2_2_2_x_q1_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q2_2_1_x_q1_1_1 = new TProfile("q2_2_1_x_q1_1_1", "q2_2_1_x_q1_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_2_1_x_q1_2_2 = new TProfile("q1_1_1_x_q1_2_1_x_q1_2_2", "q1_1_1_x_q1_2_1_x_q1_2_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_4_1 = new TProfile("q1_1_1_x_q1_4_1", "q1_1_1_x_q1_4_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_4_2 = new TProfile("q1_1_1_x_q1_4_2", "q1_1_1_x_q1_4_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_4_3 = new TProfile("q1_1_1_x_q1_4_3", "q1_1_1_x_q1_4_3", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_1_1_x_q1_4_4 = new TProfile("q1_1_1_x_q1_4_4", "q1_1_1_x_q1_4_4", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_2_1_x_q1_3_1 = new TProfile("q1_2_1_x_q1_3_1", "q1_2_1_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_2_1_x_q1_3_2 = new TProfile("q1_2_1_x_q1_3_2", "q1_2_1_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_2_1_x_q1_3_3 = new TProfile("q1_2_1_x_q1_3_3", "q1_2_1_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_2_2_x_q1_3_1 = new TProfile("q1_2_2_x_q1_3_1", "q1_2_2_x_q1_3_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_2_2_x_q1_3_2 = new TProfile("q1_2_2_x_q1_3_2", "q1_2_2_x_q1_3_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_2_2_x_q1_3_3 = new TProfile("q1_2_2_x_q1_3_3", "q1_2_2_x_q1_3_3", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_5_1 = new TProfile("q1_5_1", "q1_5_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_5_2 = new TProfile("q1_5_2", "q1_5_2", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_5_3 = new TProfile("q1_5_3", "q1_5_3", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_5_4 = new TProfile("q1_5_4", "q1_5_4", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q1_5_5 = new TProfile("q1_5_5", "q1_5_5", kNCentBinsSmall, kCentBinsSmall);
+
+    // 6th order
+    TProfile *q6_1_1 = new TProfile("q6_1_1", "q6_1_1", kNCentBinsSmall, kCentBinsSmall);
+    TProfile *q4_1_1_x_q1_2_1 = new TProfile("q4_1_1_x_q1_2_", "q4_1_1_x_q1_2_", kNCentBinsSmall, kCentBinsSmall);
+
 
     int readError = 0;
     for (int j = 0; j < total_event; j++)
@@ -117,35 +153,61 @@ void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
 
       // full formula
       // 1st order
-      q1_1_1->Fill(centrality, qP1_p - qP1_n);
+      q1_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1));
 
       // 2nd order
-      q2_1_1->Fill(centrality, powI(qP1_p - qP1_n, 2));
-      q1_2_1->Fill(centrality, qP1_p + qP1_n);
-      q1_2_2->Fill(centrality, qP2_p + qP2_n);
+      q2_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1));
+      q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2));
+      q1_2_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2));
 
       // 3rd order
-      q3_1_1->Fill(centrality, powI(qP1_p - qP1_n, 3));
-      q1_1_1_x_q1_2_1->Fill(centrality, (qP1_p - qP1_n) * (qP1_p + qP1_n));
-      q1_1_1_x_q1_2_2->Fill(centrality, (qP1_p - qP1_n) * (qP2_p + qP2_n));
-      q1_3_1->Fill(centrality, qP1_p - qP1_n);
-      q1_3_2->Fill(centrality, qP2_p - qP2_n);
-      q1_3_3->Fill(centrality, qP3_p - qP3_n);
+      q3_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 1));
+      q1_1_1_x_q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 2));
+      q1_1_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 2));
+      q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 3));
+      q1_3_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 3));
+      q1_3_3->Fill(centrality, qa_b(qP3_p, qP3_n, 1, 3));
 
       // 4th order
-      q4_1_1->Fill(centrality, powI(qP1_p - qP1_n, 4));
-      q2_1_1_x_q1_2_1->Fill(centrality, powI(qP1_p - qP1_n, 2) * (qP1_p + qP1_n));
-      q2_1_1_x_q1_2_2->Fill(centrality, powI(qP1_p - qP1_n, 2) * (qP2_p + qP2_n));
-      q1_1_1_x_q1_3_1->Fill(centrality, (qP1_p - qP1_n) * (qP1_p - qP1_n));
-      q2_2_1->Fill(centrality, powI(qP1_p + qP1_n, 2));
-      q2_2_2->Fill(centrality, powI(qP2_p + qP2_n, 2));
-      q1_1_1_x_q1_3_2->Fill(centrality, (qP1_p - qP1_n) * (qP2_p - qP2_n));
-      q1_1_1_x_q1_3_3->Fill(centrality, (qP1_p - qP1_n) * (qP3_p - qP3_n));
-      q1_2_1_x_q1_2_2->Fill(centrality, (qP1_p + qP1_n) * (qP2_p + qP2_n));
-      q1_4_1->Fill(centrality, qP1_p + qP1_n);
-      q1_4_2->Fill(centrality, qP2_p + qP2_n);
-      q1_4_3->Fill(centrality, qP3_p + qP3_n);
-      q1_4_4->Fill(centrality, qP4_p + qP4_n);
+      q4_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 4, 1));
+      q2_1_1_x_q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP1_p, qP1_n, 1, 2));
+      q2_1_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP2_p, qP2_n, 1, 2));
+      q1_1_1_x_q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 3));
+      q2_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 2));
+      q2_2_2->Fill(centrality, qa_b(qP2_p, qP2_n, 2, 2));
+      q1_1_1_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 3));
+      q1_1_1_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP3_p, qP3_n, 1, 3));
+      q1_2_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 2));
+      q1_4_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 4));
+      q1_4_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 4));
+      q1_4_3->Fill(centrality, qa_b(qP3_p, qP3_n, 1, 4));
+      q1_4_4->Fill(centrality, qa_b(qP4_p, qP4_n, 1, 4));
+
+      // 5th order
+      q5_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 5, 1));
+      q3_1_1_x_q1_2_1->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 1) * qa_b(qP1_p, qP1_n, 1, 2));
+      q3_1_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 3, 1) * qa_b(qP2_p, qP2_n, 1, 2));
+      q2_1_1_x_q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP1_p, qP1_n, 1, 3));
+      q2_1_1_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP2_p, qP2_n, 1, 3));
+      q2_1_1_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 1) * qa_b(qP3_p, qP3_n, 1, 3));
+      q2_2_2_x_q1_1_1->Fill(centrality, qa_b(qP2_p, qP2_n, 2, 2) * qa_b(qP1_p, qP1_n, 1, 1));
+      q2_2_1_x_q1_1_1->Fill(centrality, qa_b(qP1_p, qP1_n, 2, 2) * qa_b(qP1_p, qP1_n, 1, 1));
+      q1_1_1_x_q1_2_1_x_q1_2_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 2));
+      q1_1_1_x_q1_4_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP1_p, qP1_n, 1, 4));
+      q1_1_1_x_q1_4_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP2_p, qP2_n, 1, 4));
+      q1_1_1_x_q1_4_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP3_p, qP3_n, 1, 4));
+      q1_1_1_x_q1_4_4->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 1) * qa_b(qP4_p, qP4_n, 1, 4));
+      q1_2_1_x_q1_3_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP1_p, qP1_n, 1, 3));
+      q1_2_1_x_q1_3_2->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 3));
+      q1_2_1_x_q1_3_3->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 2) * qa_b(qP3_p, qP3_n, 1, 3));
+      q1_2_2_x_q1_3_1->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP1_p, qP1_n, 1, 3));
+      q1_2_2_x_q1_3_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP2_p, qP2_n, 1, 3));
+      q1_2_2_x_q1_3_3->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 2) * qa_b(qP3_p, qP3_n, 1, 3));
+      q1_5_1->Fill(centrality, qa_b(qP1_p, qP1_n, 1, 5));
+      q1_5_2->Fill(centrality, qa_b(qP2_p, qP2_n, 1, 5));
+      q1_5_3->Fill(centrality, qa_b(qP3_p, qP3_n, 1, 5));
+      q1_5_4->Fill(centrality, qa_b(qP4_p, qP4_n, 1, 5));
+      q1_5_5->Fill(centrality, qa_b(qP5_p, qP5_n, 1, 5));
     }
     if (readError < 0) {
       std::cout << "no input, skip" << std::endl;
@@ -217,6 +279,32 @@ void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
     q1_4_2->Write();
     q1_4_3->Write();
     q1_4_4->Write();
+
+    // 5th order
+    q5_1_1->Write();
+    q3_1_1_x_q1_2_1->Write();
+    q3_1_1_x_q1_2_2->Write();
+    q2_1_1_x_q1_3_1->Write();
+    q2_1_1_x_q1_3_2->Write();
+    q2_1_1_x_q1_3_3->Write();
+    q2_2_2_x_q1_1_1->Write();
+    q2_2_1_x_q1_1_1->Write();
+    q1_1_1_x_q1_2_1_x_q1_2_2->Write();
+    q1_1_1_x_q1_4_1->Write();
+    q1_1_1_x_q1_4_2->Write();
+    q1_1_1_x_q1_4_3->Write();
+    q1_1_1_x_q1_4_4->Write();
+    q1_2_1_x_q1_3_1->Write();
+    q1_2_1_x_q1_3_2->Write();
+    q1_2_1_x_q1_3_3->Write();
+    q1_2_2_x_q1_3_1->Write();
+    q1_2_2_x_q1_3_2->Write();
+    q1_2_2_x_q1_3_3->Write();
+    q1_5_1->Write();
+    q1_5_2->Write();
+    q1_5_3->Write();
+    q1_5_4->Write();
+    q1_5_5->Write();
 
     #ifdef FILL_MC
       N1p->Write();
