@@ -29,7 +29,7 @@ constexpr const char* kPartLabelExtend[1] = {"Proton"};
 
 int colors[] = {TColor::GetColor("#ff3300"), TColor::GetColor("#ec6e0a"), TColor::GetColor("#daaa14"), TColor::GetColor("#c7e51e"), TColor::GetColor("#85dd69"), TColor::GetColor("#42d6b4"), TColor::GetColor("#00ceff"), TColor::GetColor("#009adf"), TColor::GetColor("#0067c0"), TColor::GetColor("#595959"), TColor::GetColor("#0033a1")};
 
-const char *kEffPrFile = "results/prEff";
+const char *kEffPrFile = "prEff";
 constexpr float kDummyEffPr = 1.;
 constexpr const char* kSubsampleFlag = "_";
 
@@ -41,7 +41,7 @@ const char *kCalibDir = "calib";
 constexpr bool kUseIndex = true;
 constexpr bool isMC = true;
 
-constexpr int N_SAMPLE = 7;
+constexpr int N_SAMPLE = 1;
 constexpr int kNCentBins = 10;
 constexpr float kCentBins[kNCentBins + 1] = {0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100.};
 
@@ -51,7 +51,7 @@ constexpr int kNBinsPID = 32;
 constexpr float kMinEta = -0.8f;
 constexpr float kDeltaEta = 1.6f;
 constexpr float kMinPt = 0.2f;
-constexpr float kDeltaPt = 0.05f;
+constexpr float kDeltaPt = 0.01f;
 constexpr float kMinPID = -4.f;
 constexpr float kDeltaPID = 0.25f;
 
@@ -65,7 +65,7 @@ constexpr int kNTPCPID = 3;
 constexpr int kMaxCent = 100;
 
 constexpr uint8_t kEtaCut = 8;
-constexpr float kPtLowLimitPr = 0.4f;
+constexpr float kPtLowLimitPr = 0.3f;
 constexpr float kTOFptCut = 1.2f;
 
 // variations

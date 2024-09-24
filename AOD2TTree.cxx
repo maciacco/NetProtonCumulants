@@ -1,8 +1,8 @@
 #include <TFile.h>
 #include "utils.h"
 
-void AOD2TTree(const char *inFile = "AO2D_mc", const char *outFile = "newTree", const bool isMC = true){
-  TFile *fout = TFile::Open(Form("%s.root", outFile), "recreate");
+void AOD2TTree(const char *inFile = "AO2D_mc_small", const char *outFile = "newTree", const bool isMC = true){
+  TFile *fout = TFile::Open(Form("%s/%s.root", kResDir, outFile), "recreate");
 
   TTree *new_tree = new TTree("newtree", "new tree");
   TClonesArray *tracks = new TClonesArray("miniTrack");
@@ -34,7 +34,7 @@ void AOD2TTree(const char *inFile = "AO2D_mc", const char *outFile = "newTree", 
   uint8_t fNtracklets = 0u;
   uint8_t fV0Multiplicity = 0u;
 
-  TFile *_file0 = TFile::Open(Form("%s.root", inFile));
+  TFile *_file0 = TFile::Open(Form("%s/%s.root", kDataDir, inFile));
   auto _list_keys = _file0->GetListOfKeys();
   for (auto _key : *_list_keys) {
     const char* c_keyName = _key->GetName();

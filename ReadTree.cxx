@@ -13,15 +13,15 @@
 #include <TNtuple.h>
 #include <TStopwatch.h>
 
-#define FILL_MC
+//#define FILL_MC
 
 void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const int iVarMin = 0, const int iVarMax = 3)
 {
   TStopwatch w;
   w.Start();
 
-  TFile *fEffPr = TFile::Open(Form("%s/%s.root", kDataDir, kEffPrFile));
-  TFile f(Form("%s/%s.root", kDataDir, fname));
+  TFile *fEffPr = TFile::Open(Form("%s/%s.root", kResDir, kEffPrFile));
+  TFile f(Form("%s/%s.root", kResDir, fname));
 
   const int nF = iVarMax - iVarMin;
   TFile *o[N_SAMPLE][nF];

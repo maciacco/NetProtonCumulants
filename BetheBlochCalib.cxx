@@ -1,7 +1,7 @@
 #include "utils.h"
 
 // ported from o2
-constexpr double MassProton = 0.9832720894329;
+constexpr double MassProton = 0.9382721;
 Double_t alephBetheBloch(Double_t *x, Double_t *par)
 {
    Float_t bg =x[0];
@@ -13,7 +13,7 @@ Double_t alephBetheBloch(Double_t *x, Double_t *par)
    return f;
 }
 
-void BetheBlochCalib(const char *period = "LHC18_dat", const double low = 0.25, const double up = 2.){
+void BetheBlochCalib(const char *period = "LHC18_mc", const double low = 0.25, const double up = 2.){
   auto inFile = TFile::Open(Form("%s/AnalysisResults_%s.root", kDataDir, period));
   auto outFile = TFile::Open(Form("%s/out_file_%s.root", kCalibDir, period), "recreate");
   outFile->mkdir("fits");

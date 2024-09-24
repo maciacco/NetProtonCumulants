@@ -109,9 +109,9 @@ void Analysis(const char* period = "18")
       TFile *fin = new TFile(Form("%s/output_sys_%d_%d.root", kResDir, sample, iVar));
       TFile *fCent = TFile::Open(Form("%s/LHC18%d_var_%d.root", kResDir, sample, iVar));
 
-      TH1D *hCent = (TH1D*)fCent->Get(Form("hCent_%d", smpl));
+      TH1D *hCent = (TH1D*)fCent->Get(Form("hCent_%d", sample));
 
-      if (!fin) {nSkip++; fin->Close(); delete fin; continue;}
+      if (!fin || sample == 4) {nSkip++; fin->Close(); delete fin; continue;}
 
       // 1st order
       TH1D *q1_1_1 = (TH1D*)fin->Get(Form("var_%d/q1_1_1", iVar));
@@ -318,7 +318,7 @@ void Analysis(const char* period = "18")
       double mean = 0.0;
       double rms = 0.0;
       //cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
-      cumulant_ratio(mean, rms, k2[i - 1], k6[i - 1], nSkip);
+      cumulant_ratio(mean, rms, k2[i - 1], k4[i - 1], nSkip);
 
       g.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean);
       hSys[i - 1]->Fill(mean);
@@ -328,7 +328,7 @@ void Analysis(const char* period = "18")
         double mean_gen = 0.0;
         double rms_gen = 0.0;
         // cumulant_ratio(mean_gen, rms_gen, k2sk_gen[i - 1], k2_gen[i - 1], nSkip);
-        cumulant_ratio(mean_gen, rms_gen, k2_gen[i - 1], k6_gen[i - 1], nSkip);
+        cumulant_ratio(mean_gen, rms_gen, k2_gen[i - 1], k4_gen[i - 1], nSkip);
 
         g_gen.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean_gen);
         g_gen.SetPointError(i - 1, 0, TMath::Sqrt(rms_gen / (( N_SAMPLE - nSkip) * (( N_SAMPLE - nSkip) - 1))));
