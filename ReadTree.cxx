@@ -61,6 +61,7 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
 
   // Init histos and tuple
   TH1D *hCent[N_SAMPLE];
+  TH3D *outerPID[N_SAMPLE][2];
   #ifdef FILL_MC
     TNtupleD *evtTupleGen[N_SAMPLE][nF];
   #endif // FILL_MC
@@ -69,7 +70,7 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
   TNtupleD *evtTuple[N_SAMPLE][nF];
 
   for (int iS = 0; iS < N_SAMPLE; ++iS){
-    hCent[iS] = new TH1D(Form("hCent"), ";Centrality (%);Entries", kNCentBinsSmall, kCentBinsSmall);
+    hCent[iS] = new TH1D(Form("hCent_%d", iS), ";Centrality (%);Entries", kNCentBinsSmall, kCentBinsSmall);
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
     {
       evtTuple[iS][iVar - iVarMin] = new TNtupleD(Form("evtTuple_%d", iVar), Form("evtTuple_%d", iVar), "cent:q1pP:q1pN:q2pP:q2pN:q3pP:q3pN:q4pP:q4pN:q5pP:q5pN:q6pP:q6pN");
@@ -90,14 +91,24 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
     }
   }
 
+
+  float ptBins[kNBinsPt + 1];
+  for (int iB = 0; iB < kNBinsPt + 1; ++iB){
+    ptBins[iB] = kMinPt + kDeltaPt * iB;
+  }
+  float pidBins[kNBinsPID + 1];
+  for (int iB = 0; iB < kNBinsPID + 1; ++iB){
+    pidBins[iB] = kMinPID + kDeltaPID * iB;
+  }
+  for (int iS = 0; iS < N_SAMPLE; ++iS){
+    for (int iC = 0; iC < 2; ++iC){
+      outerPID[iS][iC] = new TH3D(Form("h%sOuterPID_%d", kAntiMatterLabel[iC], iS), ";Centrality (%);#it{p}_{T} (GeV/#it{c});n#sigma (a.u.)", kNCentBins, kCentBins, kNBinsPt, ptBins, kNBinsPID, pidBins);
+    }
+  }
   #ifdef FILL_MC
     TH3F *hGenRecProton[2][nF];
     TH2D *hGenProton[2][nF];
     TH2D *hRecProton[2][nF];
-    double ptBins[kNBinsPt + 1];
-    for (int iB = 0; iB < kNBinsPt + 1; ++iB){
-      ptBins[iB] = kMinPt + kDeltaPt * iB;
-    }
 
     for (int iV{iVarMin}; iV < iVarMax; ++iV){
       for (int iC = 0; iC < 2; ++iC){
@@ -193,14 +204,17 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
           qPr_5_tmp[im] += (1. / powI(eff, 5));
           qPr_6_tmp[im] += (1. / powI(eff, 6));
           nPr[im] += 1;
+
+          // histos
+          outerPID[iS][im]->Fill(cent, std::abs(trk_tmp->fPt), trk_tmp->fOuterPID);
         }
       }
-      for (int iM = 0; iM < 2; ++iM){
       #ifdef FILL_MC
+      for (int iM = 0; iM < 2; ++iM){
         hGenRecProton[iM][iVar - iVarMin]->Fill(cent, nPr_gen[iM], nPr[iM]);
         evtTupleGen[iS][iVar - iVarMin]->Fill(cent, qPr_1_gen_tmp[1], qPr_1_gen_tmp[0]);
-      #endif // FILL_MC
       }
+      #endif // FILL_MC
 
       evtTuple[iS][iVar - iVarMin]->Fill(cent, qPr_1_tmp[1], qPr_1_tmp[0], qPr_2_tmp[1], qPr_2_tmp[0], qPr_3_tmp[1], qPr_3_tmp[0], qPr_4_tmp[1], qPr_4_tmp[0], qPr_5_tmp[1], qPr_5_tmp[0], qPr_6_tmp[1], qPr_6_tmp[0]);
     }
@@ -210,27 +224,21 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
   for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
   {
     for (int iS{0}; iS < N_SAMPLE; ++iS){
-    #ifdef FILL_MC
-      if (isMC || (!isMC && kUseIndex)){
-        o[iS][iVar - iVarMin]->mkdir(Form("subsample_%s%d", kSubsampleFlag, iS + 1));
-        o[iS][iVar - iVarMin]->cd(Form("subsample_%s%d", kSubsampleFlag, iS + 1));
-      }
-      else {
-        o[iS][iVar - iVarMin]->mkdir(Form("subsample_%s", ofname));
-        o[iS][iVar - iVarMin]->cd(Form("subsample_%s", ofname));
-      }
-
-      o[iS][iVar - iVarMin]->cd();
-      for (int iM = 0; iM < 2; ++iM){
-        hGenProton[iM][iVar - iVarMin]->Write();
-        hRecProton[iM][iVar - iVarMin]->Write();
-        hGenRecProton[iM][iVar - iVarMin]->Write();
-      }
-      evtTupleGen[iS][iVar - iVarMin]->Write();
-    #endif // FILL_MC
+      #ifdef FILL_MC
+        o[iS][iVar - iVarMin]->cd();
+        for (int iM = 0; iM < 2; ++iM){
+          hGenProton[iM][iVar - iVarMin]->Write();
+          hRecProton[iM][iVar - iVarMin]->Write();
+          hGenRecProton[iM][iVar - iVarMin]->Write();
+        }
+        evtTupleGen[iS][iVar - iVarMin]->Write();
+      #endif // FILL_MC
 
       o[iS][iVar - iVarMin]->cd();
       hCent[iS]->Write();
+      for (int iC{0}; iC < 2; ++iC){
+        outerPID[iS][iC]->Write();
+      }
       evtTuple[iS][iVar - iVarMin]->Write();
     }
   }

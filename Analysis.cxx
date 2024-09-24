@@ -109,7 +109,7 @@ void Analysis(const char* period = "18")
       TFile *fin = new TFile(Form("%s/output_sys_%d_%d.root", kResDir, sample, iVar));
       TFile *fCent = TFile::Open(Form("%s/LHC18%d_var_%d.root", kResDir, sample, iVar));
 
-      TH1D *hCent = (TH1D*)fCent->Get("hCent");
+      TH1D *hCent = (TH1D*)fCent->Get(Form("hCent_%d", smpl));
 
       if (!fin) {nSkip++; fin->Close(); delete fin; continue;}
 

@@ -29,7 +29,7 @@ void ProcessTuple(int smpl = 0, int iVarMin = 0, int iVarMax = 3)
     TFile fout(Form("%s/output_sys_%d_%d.root", kResDir, sample, iVar), "recreate");
 
     TNtupleD *tuple_qmoment = (TNtupleD*)fin->Get(Form("evtTuple_%d", iVar));
-    TH1D *hCent = (TH1D*)fin->Get("hCent");
+    TH1D *hCent = (TH1D*)fin->Get(Form("hCent_%d", smpl));
 
     if (!tuple_qmoment)
     {
