@@ -47,12 +47,12 @@ constexpr float kCentBins[kNCentBins + 1] = {0., 10., 20., 30., 40., 50., 60., 7
 
 constexpr int kNEtaBins = 1;
 constexpr int kNBinsPt = 20;
-constexpr int kNBinsPID = 32;
+constexpr int kNBinsPID = 50;
 constexpr float kMinEta = -0.8f;
 constexpr float kDeltaEta = 1.6f;
 constexpr float kMinPt = 0.2f;
-constexpr float kDeltaPt = 0.01f;
-constexpr float kMinPID = -4.f;
+constexpr float kDeltaPt = 0.05f;
+constexpr float kMinPID = -5.f;
 constexpr float kDeltaPID = 0.25f;
 
 constexpr int kNTPCcls = 3;

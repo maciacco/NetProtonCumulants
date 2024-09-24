@@ -60,7 +60,8 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
   t->SetBranchAddress("fTracks", &tracks);
 
   // Init histos and tuple
-  TH1D *hCent[N_SAMPLE];
+  TH1D *hCent[N_SAMPLE]{nullptr};
+  TH1D* hNtrkl[N_SAMPLE]{nullptr};
   TH3D *outerPID[N_SAMPLE][2];
   #ifdef FILL_MC
     TNtupleD *evtTupleGen[N_SAMPLE][nF];
@@ -71,6 +72,8 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
 
   for (int iS = 0; iS < N_SAMPLE; ++iS){
     hCent[iS] = new TH1D(Form("hCent_%d", iS), ";Centrality (%);Entries", kNCentBinsSmall, kCentBinsSmall);
+    hNtrkl[iS] = new TH1D(Form("hNtrkl_%d", iS), ";#it{N}_{tracklets}^{0.7 < |#eta| < 1.2};Entries", 100, 0, 100);
+
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
     {
       evtTuple[iS][iVar - iVarMin] = new TNtupleD(Form("evtTuple_%d", iVar), Form("evtTuple_%d", iVar), "cent:q1pP:q1pN:q2pP:q2pN:q3pP:q3pN:q4pP:q4pN:q5pP:q5pN:q6pP:q6pN");
@@ -91,7 +94,7 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
     }
   }
 
-
+  // histos
   float ptBins[kNBinsPt + 1];
   for (int iB = 0; iB < kNBinsPt + 1; ++iB){
     ptBins[iB] = kMinPt + kDeltaPt * iB;
@@ -105,6 +108,7 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
       outerPID[iS][iC] = new TH3D(Form("h%sOuterPID_%d", kAntiMatterLabel[iC], iS), ";Centrality (%);#it{p}_{T} (GeV/#it{c});n#sigma (a.u.)", kNCentBins, kCentBins, kNBinsPt, ptBins, kNBinsPID, pidBins);
     }
   }
+
   #ifdef FILL_MC
     TH3F *hGenRecProton[2][nF];
     TH2D *hGenProton[2][nF];
@@ -142,6 +146,7 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
     int ic_sm = hCentSmallTmp.FindBin(cent);
 
     hCent[iS]->Fill(cent);
+    hNtrkl[iS]->Fill(fNtracklets);
 
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
     {
@@ -236,6 +241,7 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
 
       o[iS][iVar - iVarMin]->cd();
       hCent[iS]->Write();
+      hNtrkl[iS]->Write();
       for (int iC{0}; iC < 2; ++iC){
         outerPID[iS][iC]->Write();
       }

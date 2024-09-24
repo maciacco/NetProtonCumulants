@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "Utils.h"
 
-using namespace utils;
+//using namespace utils;
 
 void PrEff(const char* inFileName = "LHC180_var", const char* outFileName = "prEff"){
   gStyle->SetOptStat(0);
