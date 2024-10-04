@@ -41,9 +41,9 @@ const char *kCalibDir = "calib";
 constexpr bool kUseIndex = true;
 constexpr bool isMC = true;
 
-constexpr int N_SAMPLE = 1;
-constexpr int kNCentBins = 10;
-constexpr float kCentBins[kNCentBins + 1] = {0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100.};
+constexpr int N_SAMPLE = 10;
+constexpr int kNCentBins = 7;
+constexpr float kCentBins[kNCentBins + 1] = {0., 10., 20., 30., 40., 50., 70., 100.};
 
 constexpr int kNEtaBins = 1;
 constexpr int kNBinsPt = 20;
@@ -66,7 +66,7 @@ constexpr int kMaxCent = 100;
 
 constexpr uint8_t kEtaCut = 8;
 constexpr float kPtLowLimitPr = 0.3f;
-constexpr float kTOFptCut = 1.2f;
+constexpr float kTOFptCut = 1.f;
 
 // variations
 // tpc cls

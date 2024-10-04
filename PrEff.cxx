@@ -3,10 +3,10 @@
 
 //using namespace utils;
 
-void PrEff(const char* inFileName = "LHC180_var", const char* outFileName = "prEff"){
+void PrEff(const char* inFileName = "LHC21d30_var", const char* outFileName = "prEff"){
   gStyle->SetOptStat(0);
   TFile *fOut = TFile::Open(Form("%s/%s.root", kResDir, outFileName), "recreate");
-  for (int iVar{0}; iVar < 3; ++iVar){
+  for (int iVar{364}; iVar < 365; ++iVar){
     TFile *fMC = TFile::Open(Form("%s/%s_%d.root", kResDir, inFileName, iVar));
     for (int iS = 0; iS < 1; ++iS){
       fOut->mkdir(Form("subsample_%d_var_%d", iS + 1, iVar));
@@ -23,14 +23,19 @@ void PrEff(const char* inFileName = "LHC180_var", const char* outFileName = "prE
           leg.SetTextFont(44);
           leg.SetTextSize(20);
           TH1D *hEff[kNCentBins][kNEtaBins];
+          TH1D *hEffMult[kNCentBins][kNEtaBins];
           for (int iC = 0; iC < kNCentBins; ++iC){
             for (int iE = 0; iE < kNEtaBins; ++iE){
-              auto hGenProj = (TH1D*)hGen->ProjectionY(Form("h%sGen%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1/* , iE + 1, iE + 1 */);
-              auto hRecProj = (TH1D*)hRec->ProjectionY(Form("h%sRec%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1/* , iE + 1, iE + 1 */);
+              auto hGenProjMult = (TH1D*)hGen->ProjectionY(Form("h%sGen%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1/* , iE + 1, iE + 1 */);
+              auto hRecProjMult = (TH1D*)hRec->ProjectionY(Form("h%sRec%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1/* , iE + 1, iE + 1 */);
+              auto hGenProj = (TH1D*)hGen->ProjectionY(Form("h%sGen%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, 100/* , iE + 1, iE + 1 */);
+              auto hRecProj = (TH1D*)hRec->ProjectionY(Form("h%sRec%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, 100/* , iE + 1, iE + 1 */);
+              hEffMult[iC][iE] = new TH1D(*hGenProjMult);
               hEff[iC][iE] = new TH1D(*hGenProj);
               hEff[iC][iE]->SetName(Form("h%sEff%s_%d_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE, iVar));
               hEff[iC][iE]->SetTitle(";#it{p}_{T} (GeV/#it{c});Efficiency");
               hEff[iC][iE]->Divide(hRecProj, hGenProj, 1, 1, "B");
+              hEffMult[iC][iE]->Divide(hRecProjMult, hGenProjMult, 1, 1, "B");
               hEff[iC][iE]->SetMarkerColor(colors[iC]);
               hEff[iC][iE]->SetLineColor(colors[iC]);
               hEff[iC][iE]->SetLineWidth(2);
@@ -39,9 +44,15 @@ void PrEff(const char* inFileName = "LHC180_var", const char* outFileName = "prE
               hEff[iC][iE]->Write();
               ce.cd();
               hEff[iC][iE]->GetYaxis()->SetRangeUser(0., iP == 1 ? 0.15 : 1.);
-              hEff[iC][iE]->GetXaxis()->SetRangeUser(iP == 1 ? 1. : .2, iP == 1 ? 3. : 1.);
+              hEff[iC][iE]->GetXaxis()->SetRangeUser(iP == 1 ? 1. : .2, iP == 1 ? 3. : 1.2);
               leg.AddEntry(hEff[iC][iE], Form("%.0f-%.0f%%", kCentBins[iC], kCentBins[iC + 1]));
-              hEff[iC][iE]->Draw(iC == 0 && iE == 0 ? "pe" : "pesame");
+              hEffMult[iC][iE]->SetMarkerColor(colors[iC]);
+              hEffMult[iC][iE]->SetLineColor(colors[iC]);
+              hEffMult[iC][iE]->SetLineWidth(2);
+              // hEff[iC][iE]->Draw(iC == 0 && iE == 0 ? "pe" : "pesame");
+              hEffMult[iC][iE]->Divide(hEff[iC][iE]);
+              hEffMult[iC][iE]->Write();
+              hEffMult[iC][iE]->Draw(iC == 0 && iE == 0 ? "pe" : "pesame");
               //hGenProj->Write();
               //hRecProj->Write();
             }

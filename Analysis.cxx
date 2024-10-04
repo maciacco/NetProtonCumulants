@@ -12,6 +12,8 @@ void remove_outlier(TH1D* h, double reject_level = 3.){
   }
 }
 
+const int kNSample = 10;
+
 double cbwc(const double *array, const int centbin, const TH1D* hCent){
   double lowEdge = kCentBins[centbin];
   double upEdge = kCentBins[centbin + 1];
@@ -37,14 +39,14 @@ double cbwc(const double *array, const int centbin, const TH1D* hCent){
 void cumulant_ratio(double &mean, double &rms, const double *denom, const double *num, const double nSkip = 0.){
   mean = 0.0;
   rms = 0.0;
-  for(int sample = 0; sample < N_SAMPLE; sample++)
+  for(int sample = 0; sample < kNSample; sample++)
   {
     if (std::abs(denom[sample]) > 1.e-9) {
       mean = mean + (num[sample] / denom[sample]);
     }
   }
-  mean = mean / ( N_SAMPLE - nSkip);
-  for(int sample = 0; sample < N_SAMPLE; sample++)
+  mean = mean / ( kNSample - nSkip);
+  for(int sample = 0; sample < kNSample; sample++)
   {
     if (std::abs(denom[sample]) > 1.e-9) {
       rms = rms + powI(mean - (num[sample] / denom[sample]), 2);
@@ -62,7 +64,7 @@ void Analysis(const char* period = "18")
     hSys[i] = new TH1D(Form("hSys_%d", i), ";#kappa_{2}/#kappa_{1};Entries", 500, -2., 2.);
   }
 
-  for(int iVar = 0; iVar < 3; ++iVar)
+  for(int iVar = 364; iVar < 365; ++iVar)
   {
     std::cout << "var = " << iVar << "..." << std::endl;
 
@@ -71,18 +73,18 @@ void Analysis(const char* period = "18")
     double nSkip = 0;
 
     #ifdef FILL_MC
-      double k2sk_small_gen[N_SAMPLE][100];
-      double k2_small_gen[N_SAMPLE][100];
-      double k3_small_gen[N_SAMPLE][100];
-      double k4_small_gen[N_SAMPLE][100];
-      double k5_small_gen[N_SAMPLE][100];
-      double k6_small_gen[N_SAMPLE][100];
-      double k2sk_gen[10][N_SAMPLE];
-      double k2_gen[10][N_SAMPLE];
-      double k3_gen[10][N_SAMPLE];
-      double k4_gen[10][N_SAMPLE];
-      double k5_gen[10][N_SAMPLE];
-      double k6_gen[10][N_SAMPLE];
+      double k2sk_small_gen[kNSample][100];
+      double k2_small_gen[kNSample][100];
+      double k3_small_gen[kNSample][100];
+      double k4_small_gen[kNSample][100];
+      double k5_small_gen[kNSample][100];
+      double k6_small_gen[kNSample][100];
+      double k2sk_gen[10][kNSample];
+      double k2_gen[10][kNSample];
+      double k3_gen[10][kNSample];
+      double k4_gen[10][kNSample];
+      double k5_gen[10][kNSample];
+      double k6_gen[10][kNSample];
     #endif
 
     double Q1_small;
@@ -91,134 +93,135 @@ void Analysis(const char* period = "18")
     double Q4_small;
     double Q5_small;
     double Q6_small;
-    double k2sk_small[N_SAMPLE][100];
-    double k2_small[N_SAMPLE][100];
-    double k3_small[N_SAMPLE][100];
-    double k4_small[N_SAMPLE][100];
-    double k5_small[N_SAMPLE][100];
-    double k6_small[N_SAMPLE][100];
-    double k2sk[10][N_SAMPLE];
-    double k2[10][N_SAMPLE];
-    double k3[10][N_SAMPLE];
-    double k4[10][N_SAMPLE];
-    double k5[10][N_SAMPLE];
-    double k6[10][N_SAMPLE];
+    double k2sk_small[kNSample][100];
+    double k2_small[kNSample][100];
+    double k3_small[kNSample][100];
+    double k4_small[kNSample][100];
+    double k5_small[kNSample][100];
+    double k6_small[kNSample][100];
+    double k2sk[10][kNSample];
+    double k2[10][kNSample];
+    double k3[10][kNSample];
+    double k4[10][kNSample];
+    double k5[10][kNSample];
+    double k6[10][kNSample];
 
-    for(int sample = 0; sample < N_SAMPLE; sample++)
+    for(int sample = 0; sample < kNSample; sample++)
     {
+      // if (sample == 0) {nSkip++; continue;}
       TFile *fin = new TFile(Form("%s/output_sys_%d_%d.root", kResDir, sample, iVar));
-      TFile *fCent = TFile::Open(Form("%s/LHC18%d_var_%d.root", kResDir, sample, iVar));
+      TFile *fCent = TFile::Open(Form("%s/LHC21d3%d_var_%d.root", kResDir, sample, iVar));
 
       TH1D *hCent = (TH1D*)fCent->Get(Form("hCent_%d", sample));
 
       if (!fin || sample == 4) {nSkip++; fin->Close(); delete fin; continue;}
 
       // 1st order
-      TH1D *q1_1_1 = (TH1D*)fin->Get(Form("var_%d/q1_1_1", iVar));
+      TProfile *q1_1_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1", iVar));
 
       // 2nd order
-      TH1D *q2_1_1 = (TH1D*)fin->Get(Form("var_%d/q2_1_1", iVar));
-      TH1D *q1_2_1 = (TH1D*)fin->Get(Form("var_%d/q1_2_1", iVar));
-      TH1D *q1_2_2 = (TH1D*)fin->Get(Form("var_%d/q1_2_2", iVar));
+      TProfile *q2_1_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1", iVar));
+      TProfile *q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q1_2_1", iVar));
+      TProfile *q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_2", iVar));
 
       // 3rd order
-      TH1D *q3_1_1 = (TH1D*)fin->Get(Form("var_%d/q3_1_1", iVar));
-      TH1D *q1_1_1_x_q1_2_1 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1", iVar));
-      TH1D *q1_1_1_x_q1_2_2 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2", iVar));
-      TH1D *q1_3_1 = (TH1D*)fin->Get(Form("var_%d/q1_3_1", iVar));
-      TH1D *q1_3_2 = (TH1D*)fin->Get(Form("var_%d/q1_3_2", iVar));
-      TH1D *q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q1_3_3", iVar));
+      TProfile *q3_1_1 = (TProfile*)fin->Get(Form("var_%d/q3_1_1", iVar));
+      TProfile *q1_1_1_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1", iVar));
+      TProfile *q1_1_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2", iVar));
+      TProfile *q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_3_1", iVar));
+      TProfile *q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_3_2", iVar));
+      TProfile *q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_3_3", iVar));
 
       // 4th order
-      TH1D *q4_1_1 = (TH1D*)fin->Get(Form("var_%d/q4_1_1", iVar));
-      TH1D *q2_1_1_x_q1_2_1 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_2_1", iVar));
-      TH1D *q2_1_1_x_q1_2_2 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_2_2", iVar));
-      TH1D *q1_1_1_x_q1_3_1 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_3_1", iVar));
-      TH1D *q2_2_1 = (TH1D*)fin->Get(Form("var_%d/q2_2_1", iVar));
-      TH1D *q2_2_2 = (TH1D*)fin->Get(Form("var_%d/q2_2_2", iVar));
-      TH1D *q1_1_1_x_q1_3_2 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_3_2", iVar));
-      TH1D *q1_1_1_x_q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_3_3", iVar));
-      TH1D *q1_2_1_x_q1_2_2 = (TH1D*)fin->Get(Form("var_%d/q1_2_1_x_q1_2_2", iVar));
-      TH1D *q1_4_1 = (TH1D*)fin->Get(Form("var_%d/q1_4_1", iVar));
-      TH1D *q1_4_2 = (TH1D*)fin->Get(Form("var_%d/q1_4_2", iVar));
-      TH1D *q1_4_3 = (TH1D*)fin->Get(Form("var_%d/q1_4_3", iVar));
-      TH1D *q1_4_4 = (TH1D*)fin->Get(Form("var_%d/q1_4_4", iVar));
+      TProfile *q4_1_1 = (TProfile*)fin->Get(Form("var_%d/q4_1_1", iVar));
+      TProfile *q2_1_1_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_2_1", iVar));
+      TProfile *q2_1_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_2_2", iVar));
+      TProfile *q1_1_1_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_3_1", iVar));
+      TProfile *q2_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_2_1", iVar));
+      TProfile *q2_2_2 = (TProfile*)fin->Get(Form("var_%d/q2_2_2", iVar));
+      TProfile *q1_1_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_3_2", iVar));
+      TProfile *q1_1_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_3_3", iVar));
+      TProfile *q1_2_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_2_2", iVar));
+      TProfile *q1_4_1 = (TProfile*)fin->Get(Form("var_%d/q1_4_1", iVar));
+      TProfile *q1_4_2 = (TProfile*)fin->Get(Form("var_%d/q1_4_2", iVar));
+      TProfile *q1_4_3 = (TProfile*)fin->Get(Form("var_%d/q1_4_3", iVar));
+      TProfile *q1_4_4 = (TProfile*)fin->Get(Form("var_%d/q1_4_4", iVar));
 
       // 5th order
-      TH1D *q5_1_1 = (TH1D*)fin->Get(Form("var_%d/q5_1_1", iVar));
-      TH1D *q3_1_1_x_q1_2_1 = (TH1D*)fin->Get(Form("var_%d/q3_1_1_x_q1_2_1", iVar));
-      TH1D *q3_1_1_x_q1_2_2 = (TH1D*)fin->Get(Form("var_%d/q3_1_1_x_q1_2_2", iVar));
-      TH1D *q2_1_1_x_q1_3_1 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_3_1", iVar));
-      TH1D *q2_1_1_x_q1_3_2 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_3_2", iVar));
-      TH1D *q2_1_1_x_q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_3_3", iVar));
-      TH1D *q2_2_2_x_q1_1_1 = (TH1D*)fin->Get(Form("var_%d/q2_2_2_x_q1_1_1", iVar));
-      TH1D *q2_2_1_x_q1_1_1 = (TH1D*)fin->Get(Form("var_%d/q2_2_1_x_q1_1_1", iVar));
-      TH1D *q1_1_1_x_q1_2_1_x_q1_2_2 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_2_2", iVar));
-      TH1D *q1_1_1_x_q1_4_1 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_4_1", iVar));
-      TH1D *q1_1_1_x_q1_4_2 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_4_2", iVar));
-      TH1D *q1_1_1_x_q1_4_3 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_4_3", iVar));
-      TH1D *q1_1_1_x_q1_4_4 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_4_4", iVar));
-      TH1D *q1_2_1_x_q1_3_1 = (TH1D*)fin->Get(Form("var_%d/q1_2_1_x_q1_3_1", iVar));
-      TH1D *q1_2_1_x_q1_3_2 = (TH1D*)fin->Get(Form("var_%d/q1_2_1_x_q1_3_2", iVar));
-      TH1D *q1_2_1_x_q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q1_2_1_x_q1_3_3", iVar));
-      TH1D *q1_2_2_x_q1_3_1 = (TH1D*)fin->Get(Form("var_%d/q1_2_2_x_q1_3_1", iVar));
-      TH1D *q1_2_2_x_q1_3_2 = (TH1D*)fin->Get(Form("var_%d/q1_2_2_x_q1_3_2", iVar));
-      TH1D *q1_2_2_x_q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q1_2_2_x_q1_3_3", iVar));
-      TH1D *q1_5_1 = (TH1D*)fin->Get(Form("var_%d/q1_5_1", iVar));
-      TH1D *q1_5_2 = (TH1D*)fin->Get(Form("var_%d/q1_5_2", iVar));
-      TH1D *q1_5_3 = (TH1D*)fin->Get(Form("var_%d/q1_5_3", iVar));
-      TH1D *q1_5_4 = (TH1D*)fin->Get(Form("var_%d/q1_5_4", iVar));
-      TH1D *q1_5_5 = (TH1D*)fin->Get(Form("var_%d/q1_5_5", iVar));
+      TProfile *q5_1_1 = (TProfile*)fin->Get(Form("var_%d/q5_1_1", iVar));
+      TProfile *q3_1_1_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q3_1_1_x_q1_2_1", iVar));
+      TProfile *q3_1_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q3_1_1_x_q1_2_2", iVar));
+      TProfile *q2_1_1_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_3_1", iVar));
+      TProfile *q2_1_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_3_2", iVar));
+      TProfile *q2_1_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_3_3", iVar));
+      TProfile *q2_2_2_x_q1_1_1 = (TProfile*)fin->Get(Form("var_%d/q2_2_2_x_q1_1_1", iVar));
+      TProfile *q2_2_1_x_q1_1_1 = (TProfile*)fin->Get(Form("var_%d/q2_2_1_x_q1_1_1", iVar));
+      TProfile *q1_1_1_x_q1_2_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_2_2", iVar));
+      TProfile *q1_1_1_x_q1_4_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_4_1", iVar));
+      TProfile *q1_1_1_x_q1_4_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_4_2", iVar));
+      TProfile *q1_1_1_x_q1_4_3 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_4_3", iVar));
+      TProfile *q1_1_1_x_q1_4_4 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_4_4", iVar));
+      TProfile *q1_2_1_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_3_1", iVar));
+      TProfile *q1_2_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_3_2", iVar));
+      TProfile *q1_2_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_3_3", iVar));
+      TProfile *q1_2_2_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_3_1", iVar));
+      TProfile *q1_2_2_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_3_2", iVar));
+      TProfile *q1_2_2_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_3_3", iVar));
+      TProfile *q1_5_1 = (TProfile*)fin->Get(Form("var_%d/q1_5_1", iVar));
+      TProfile *q1_5_2 = (TProfile*)fin->Get(Form("var_%d/q1_5_2", iVar));
+      TProfile *q1_5_3 = (TProfile*)fin->Get(Form("var_%d/q1_5_3", iVar));
+      TProfile *q1_5_4 = (TProfile*)fin->Get(Form("var_%d/q1_5_4", iVar));
+      TProfile *q1_5_5 = (TProfile*)fin->Get(Form("var_%d/q1_5_5", iVar));
 
       // 6th order
-      TH1D *q6_1_1 = (TH1D*)fin->Get(Form("var_%d/q6_1_1", iVar));
-      TH1D *q4_1_1_x_q1_2_1 = (TH1D*)fin->Get(Form("var_%d/q4_1_1_x_q1_2_1", iVar));
-      TH1D *q4_1_1_x_q1_2_2 = (TH1D*)fin->Get(Form("var_%d/q4_1_1_x_q1_2_2", iVar));
-      TH1D *q3_1_1_x_q1_3_1 = (TH1D*)fin->Get(Form("var_%d/q3_1_1_x_q1_3_1", iVar));
-      TH1D *q3_1_1_x_q1_3_2 = (TH1D*)fin->Get(Form("var_%d/q3_1_1_x_q1_3_2", iVar));
-      TH1D *q3_1_1_x_q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q3_1_1_x_q1_3_3", iVar));
-      TH1D *q2_1_1_x_q1_2_2_x_q1_2_1 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_2_2_x_q1_2_1", iVar));
-      TH1D *q2_1_1_x_q2_2_1 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q2_2_1", iVar));
-      TH1D *q2_1_1_x_q2_2_2 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q2_2_2", iVar));
-      TH1D *q3_2_1 = (TH1D*)fin->Get(Form("var_%d/q3_2_1", iVar));
-      TH1D *q3_2_2 = (TH1D*)fin->Get(Form("var_%d/q3_2_2", iVar));
-      TH1D *q2_1_1_x_q1_4_1 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_1", iVar));
-      TH1D *q2_1_1_x_q1_4_2 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_2", iVar));
-      TH1D *q2_1_1_x_q1_4_3 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_3", iVar));
-      TH1D *q2_1_1_x_q1_4_4 = (TH1D*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_4", iVar));
-      TH1D *q2_2_1_x_q1_2_2 = (TH1D*)fin->Get(Form("var_%d/q2_2_1_x_q1_2_2", iVar));
-      TH1D *q2_2_2_x_q1_2_1 = (TH1D*)fin->Get(Form("var_%d/q2_2_2_x_q1_2_1", iVar));
-      TH1D *q1_1_1_x_q1_2_1_x_q1_3_1 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_3_1", iVar));
-      TH1D *q1_1_1_x_q1_2_1_x_q1_3_2 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_3_2", iVar));
-      TH1D *q1_1_1_x_q1_2_1_x_q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_3_3", iVar));
-      TH1D *q1_1_1_x_q1_2_2_x_q1_3_1 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2_x_q1_3_1", iVar));
-      TH1D *q1_1_1_x_q1_2_2_x_q1_3_2 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2_x_q1_3_2", iVar));
-      TH1D *q1_1_1_x_q1_2_2_x_q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2_x_q1_3_3", iVar));
-      TH1D *q1_1_1_x_q1_5_1 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_1", iVar));
-      TH1D *q1_1_1_x_q1_5_2 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_2", iVar));
-      TH1D *q1_1_1_x_q1_5_3 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_3", iVar));
-      TH1D *q1_1_1_x_q1_5_4 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_4", iVar));
-      TH1D *q1_1_1_x_q1_5_5 = (TH1D*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_5", iVar));
-      TH1D *q1_2_1_x_q1_4_1 = (TH1D*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_1", iVar));
-      TH1D *q1_2_1_x_q1_4_2 = (TH1D*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_2", iVar));
-      TH1D *q1_2_1_x_q1_4_3 = (TH1D*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_3", iVar));
-      TH1D *q1_2_1_x_q1_4_4 = (TH1D*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_4", iVar));
-      TH1D *q1_2_2_x_q1_4_1 = (TH1D*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_1", iVar));
-      TH1D *q1_2_2_x_q1_4_2 = (TH1D*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_2", iVar));
-      TH1D *q1_2_2_x_q1_4_3 = (TH1D*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_3", iVar));
-      TH1D *q1_2_2_x_q1_4_4 = (TH1D*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_4", iVar));
-      TH1D *q2_3_1 = (TH1D*)fin->Get(Form("var_%d/q2_3_1", iVar));
-      TH1D *q1_3_1_x_q1_3_2 = (TH1D*)fin->Get(Form("var_%d/q1_3_1_x_q1_3_2", iVar));
-      TH1D *q1_3_1_x_q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q1_3_1_x_q1_3_3", iVar));
-      TH1D *q2_3_2 = (TH1D*)fin->Get(Form("var_%d/q2_3_2", iVar));
-      TH1D *q1_3_2_x_q1_3_3 = (TH1D*)fin->Get(Form("var_%d/q1_3_2_x_q1_3_3", iVar));
-      TH1D *q2_3_3 = (TH1D*)fin->Get(Form("var_%d/q2_3_3", iVar));
-      TH1D *q1_6_1 = (TH1D*)fin->Get(Form("var_%d/q1_6_1", iVar));
-      TH1D *q1_6_2 = (TH1D*)fin->Get(Form("var_%d/q1_6_2", iVar));
-      TH1D *q1_6_3 = (TH1D*)fin->Get(Form("var_%d/q1_6_3", iVar));
-      TH1D *q1_6_4 = (TH1D*)fin->Get(Form("var_%d/q1_6_4", iVar));
-      TH1D *q1_6_5 = (TH1D*)fin->Get(Form("var_%d/q1_6_5", iVar));
-      TH1D *q1_6_6 = (TH1D*)fin->Get(Form("var_%d/q1_6_6", iVar));
+      TProfile *q6_1_1 = (TProfile*)fin->Get(Form("var_%d/q6_1_1", iVar));
+      TProfile *q4_1_1_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q4_1_1_x_q1_2_1", iVar));
+      TProfile *q4_1_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q4_1_1_x_q1_2_2", iVar));
+      TProfile *q3_1_1_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q3_1_1_x_q1_3_1", iVar));
+      TProfile *q3_1_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q3_1_1_x_q1_3_2", iVar));
+      TProfile *q3_1_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q3_1_1_x_q1_3_3", iVar));
+      TProfile *q2_1_1_x_q1_2_2_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_2_2_x_q1_2_1", iVar));
+      TProfile *q2_1_1_x_q2_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q2_2_1", iVar));
+      TProfile *q2_1_1_x_q2_2_2 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q2_2_2", iVar));
+      TProfile *q3_2_1 = (TProfile*)fin->Get(Form("var_%d/q3_2_1", iVar));
+      TProfile *q3_2_2 = (TProfile*)fin->Get(Form("var_%d/q3_2_2", iVar));
+      TProfile *q2_1_1_x_q1_4_1 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_1", iVar));
+      TProfile *q2_1_1_x_q1_4_2 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_2", iVar));
+      TProfile *q2_1_1_x_q1_4_3 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_3", iVar));
+      TProfile *q2_1_1_x_q1_4_4 = (TProfile*)fin->Get(Form("var_%d/q2_1_1_x_q1_4_4", iVar));
+      TProfile *q2_2_1_x_q1_2_2 = (TProfile*)fin->Get(Form("var_%d/q2_2_1_x_q1_2_2", iVar));
+      TProfile *q2_2_2_x_q1_2_1 = (TProfile*)fin->Get(Form("var_%d/q2_2_2_x_q1_2_1", iVar));
+      TProfile *q1_1_1_x_q1_2_1_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_3_1", iVar));
+      TProfile *q1_1_1_x_q1_2_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_3_2", iVar));
+      TProfile *q1_1_1_x_q1_2_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_1_x_q1_3_3", iVar));
+      TProfile *q1_1_1_x_q1_2_2_x_q1_3_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2_x_q1_3_1", iVar));
+      TProfile *q1_1_1_x_q1_2_2_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2_x_q1_3_2", iVar));
+      TProfile *q1_1_1_x_q1_2_2_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_2_2_x_q1_3_3", iVar));
+      TProfile *q1_1_1_x_q1_5_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_1", iVar));
+      TProfile *q1_1_1_x_q1_5_2 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_2", iVar));
+      TProfile *q1_1_1_x_q1_5_3 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_3", iVar));
+      TProfile *q1_1_1_x_q1_5_4 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_4", iVar));
+      TProfile *q1_1_1_x_q1_5_5 = (TProfile*)fin->Get(Form("var_%d/q1_1_1_x_q1_5_5", iVar));
+      TProfile *q1_2_1_x_q1_4_1 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_1", iVar));
+      TProfile *q1_2_1_x_q1_4_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_2", iVar));
+      TProfile *q1_2_1_x_q1_4_3 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_3", iVar));
+      TProfile *q1_2_1_x_q1_4_4 = (TProfile*)fin->Get(Form("var_%d/q1_2_1_x_q1_4_4", iVar));
+      TProfile *q1_2_2_x_q1_4_1 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_1", iVar));
+      TProfile *q1_2_2_x_q1_4_2 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_2", iVar));
+      TProfile *q1_2_2_x_q1_4_3 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_3", iVar));
+      TProfile *q1_2_2_x_q1_4_4 = (TProfile*)fin->Get(Form("var_%d/q1_2_2_x_q1_4_4", iVar));
+      TProfile *q2_3_1 = (TProfile*)fin->Get(Form("var_%d/q2_3_1", iVar));
+      TProfile *q1_3_1_x_q1_3_2 = (TProfile*)fin->Get(Form("var_%d/q1_3_1_x_q1_3_2", iVar));
+      TProfile *q1_3_1_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_3_1_x_q1_3_3", iVar));
+      TProfile *q2_3_2 = (TProfile*)fin->Get(Form("var_%d/q2_3_2", iVar));
+      TProfile *q1_3_2_x_q1_3_3 = (TProfile*)fin->Get(Form("var_%d/q1_3_2_x_q1_3_3", iVar));
+      TProfile *q2_3_3 = (TProfile*)fin->Get(Form("var_%d/q2_3_3", iVar));
+      TProfile *q1_6_1 = (TProfile*)fin->Get(Form("var_%d/q1_6_1", iVar));
+      TProfile *q1_6_2 = (TProfile*)fin->Get(Form("var_%d/q1_6_2", iVar));
+      TProfile *q1_6_3 = (TProfile*)fin->Get(Form("var_%d/q1_6_3", iVar));
+      TProfile *q1_6_4 = (TProfile*)fin->Get(Form("var_%d/q1_6_4", iVar));
+      TProfile *q1_6_5 = (TProfile*)fin->Get(Form("var_%d/q1_6_5", iVar));
+      TProfile *q1_6_6 = (TProfile*)fin->Get(Form("var_%d/q1_6_6", iVar));
 
       #ifdef FILL_MC
         TProfile *N1p = (TProfile*)fin->Get(Form("var_%d/N1p", iVar));
@@ -308,30 +311,36 @@ void Analysis(const char* period = "18")
 
     TGraphErrors g;
     g.SetName(Form("g_%d", iVar));
+    g.SetLineWidth(2);
+    g.SetLineColor(kRed);
+    g.SetMarkerColor(kRed);
     #ifdef FILL_MC
       TGraphErrors g_gen;
       g_gen.SetName(Form("g_gen_%d", iVar));
+      g_gen.SetLineWidth(2);
+      g_gen.SetLineColor(kBlue);
+      g_gen.SetMarkerColor(kBlue);
     #endif // FILL_MC
 
-    for(int i = 1; i < kNCentBins; i++)
+    for(int i = 1; i <= kNCentBins; i++)
     {
       double mean = 0.0;
       double rms = 0.0;
       //cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
-      cumulant_ratio(mean, rms, k2[i - 1], k4[i - 1], nSkip);
+      cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
 
       g.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean);
       hSys[i - 1]->Fill(mean);
-      g.SetPointError(i - 1, 0, TMath::Sqrt(rms / (( N_SAMPLE - nSkip) * (( N_SAMPLE - nSkip) - 1))));
+      g.SetPointError(i - 1, 0, TMath::Sqrt(rms / (( kNSample - nSkip) * (( kNSample - nSkip) - 1))));
 
       #ifdef FILL_MC
         double mean_gen = 0.0;
         double rms_gen = 0.0;
         // cumulant_ratio(mean_gen, rms_gen, k2sk_gen[i - 1], k2_gen[i - 1], nSkip);
-        cumulant_ratio(mean_gen, rms_gen, k2_gen[i - 1], k4_gen[i - 1], nSkip);
+        cumulant_ratio(mean_gen, rms_gen, k2sk_gen[i - 1], k2_gen[i - 1], nSkip);
 
         g_gen.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean_gen);
-        g_gen.SetPointError(i - 1, 0, TMath::Sqrt(rms_gen / (( N_SAMPLE - nSkip) * (( N_SAMPLE - nSkip) - 1))));
+        g_gen.SetPointError(i - 1, 0, TMath::Sqrt(rms_gen / (( kNSample - nSkip) * (( kNSample - nSkip) - 1))));
       #endif // FILL_MC
     }
 

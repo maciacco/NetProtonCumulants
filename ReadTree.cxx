@@ -13,9 +13,9 @@
 #include <TNtuple.h>
 #include <TStopwatch.h>
 
-//#define FILL_MC
+#define FILL_MC
 
-void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const int iVarMin = 0, const int iVarMax = 3)
+void ReadTree(const char* fname = "newTree_mc", const char* ofname = "LHC21d3", const int iVarMin = 364, const int iVarMax = 365)
 {
   TStopwatch w;
   w.Start();
@@ -188,14 +188,15 @@ void ReadTree(const char* fname = "newTree", const char* ofname = "LHC18", const
             ( ( ((trk_tmp->fSelMask & kCutDCAxy[iDCAxy]) == kCutDCAxy[iDCAxy] || (trk_tmp->fSelMask & kCutDCAxy2[iDCAxy]) == kCutDCAxy2[iDCAxy]) && kRequireDCAxyCut[iDCAxy] ) || !kRequireDCAxyCut[iDCAxy] ) &&
             ( ( ((trk_tmp->fSelMask & kCutDCAz[iDCAz]) == kCutDCAz[iDCAz] || (trk_tmp->fSelMask & kCutDCAz2[iDCAz]) == kCutDCAz2[iDCAz]) && kRequireDCAzCut[iDCAz] ) || !kRequireDCAzCut[iDCAz] ) &&
             std::abs(trk_tmp->fPt) > kPtLowLimitPr && std::abs(trk_tmp->fPt) < kTOFptCut &&
-            (trk_tmp->fEtaMask < kEtaCut)
+            (trk_tmp->fEtaMask < kEtaCut) &&
+            (std::abs(trk_tmp->fOuterPID) < 3.f)
           )
         {
           #ifdef FILL_MC
             int im_ = trk_tmp->fPt > 0 ? 1 : 0;
-            int ie_ = hEtaTmp.FindBin(trk_tmp->fGenEtaMask);
+            int ie_ = hEtaTmp.FindBin(static_cast<float>(trk_tmp->fEtaMask) / 10.f);
             double eff_ = fEffPr ? hEffPr[im_][ic - 1][ie_ - 1][iS][iVar - iVarMin]->GetBinContent(hEffPr[im_][ic - 1][ie_ - 1][iS][iVar - iVarMin]->FindBin(std::abs(trk_tmp->fGenPt))) : kDummyEffPr;
-            if (!trk_tmp->fIsReco) continue;
+            if (!trk_tmp->fIsReco || trk_tmp->fGenPt < -998.f) continue;
             int im_tmp = trk_tmp->fPt > 0 ? 1 : 0;
             hRecProton[im_tmp][iVar - iVarMin]->Fill(cent, std::abs(trk_tmp->fPt), 1./eff_);
           #endif // FILL_MC
