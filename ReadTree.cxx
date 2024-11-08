@@ -15,7 +15,7 @@
 
 #define FILL_MC
 
-void ReadTree(const char* fname = "newTree_mc", const char* ofname = "LHC21d3", const int iVarMin = 364, const int iVarMax = 365)
+void ReadTree(const char* fname = "newTree_mc", const char* ofname = "LHC21pp", const int iVarMin = 364, const int iVarMax = 365)
 {
   TStopwatch w;
   w.Start();
@@ -33,17 +33,17 @@ void ReadTree(const char* fname = "newTree_mc", const char* ofname = "LHC21d3", 
 
   // track table (w/ MC info)
   float fPt = 0.f;
-  uint8_t fEtaMask = 0u;
+  int8_t fEtaMask = 0;
   int fSelMask = 0;
   float fOuterPID = 0.f;
   float fGenPt = -999.f;
-  uint8_t fGenEtaMask = 100u;
+  int8_t fGenEtaMask = 100;
   bool fIsReco = 0;
   int32_t fIndexMiniCollTables = 0;
 
   // collision table
   int64_t icoll = 0;
-  uint8_t fZvtxMask = 0u;
+  char fZvtxMask = 0;
   uint8_t fTriggerMask = 0u;
   uint8_t fNtracklets = 0u;
   uint8_t fV0Multiplicity = 0u;
@@ -175,7 +175,7 @@ void ReadTree(const char* fname = "newTree_mc", const char* ofname = "LHC21d3", 
         miniTrack* trk_tmp = (miniTrack*)tracks->At(itrk);
 
         #ifdef FILL_MC
-          if ( std::abs(trk_tmp->fGenPt) > kTOFptCut || std::abs(trk_tmp->fGenPt) < kPtLowLimitPr || trk_tmp->fGenEtaMask > kEtaCut ) continue;
+          if ( std::abs(trk_tmp->fGenPt) > kTOFptCut || std::abs(trk_tmp->fGenPt) < kPtLowLimitPr || trk_tmp->fGenEtaMask > kEtaCut || trk_tmp->fGenEtaMask < -kEtaCut) continue;
             int im_MC = trk_tmp->fGenPt > 0 ? 1 : 0;
             // std::cout << im_MC << std::endl;
             qPr_1_gen_tmp[im_MC] += 1.;
@@ -188,20 +188,21 @@ void ReadTree(const char* fname = "newTree_mc", const char* ofname = "LHC21d3", 
             ( ( ((trk_tmp->fSelMask & kCutDCAxy[iDCAxy]) == kCutDCAxy[iDCAxy] || (trk_tmp->fSelMask & kCutDCAxy2[iDCAxy]) == kCutDCAxy2[iDCAxy]) && kRequireDCAxyCut[iDCAxy] ) || !kRequireDCAxyCut[iDCAxy] ) &&
             ( ( ((trk_tmp->fSelMask & kCutDCAz[iDCAz]) == kCutDCAz[iDCAz] || (trk_tmp->fSelMask & kCutDCAz2[iDCAz]) == kCutDCAz2[iDCAz]) && kRequireDCAzCut[iDCAz] ) || !kRequireDCAzCut[iDCAz] ) &&
             std::abs(trk_tmp->fPt) > kPtLowLimitPr && std::abs(trk_tmp->fPt) < kTOFptCut &&
-            (trk_tmp->fEtaMask < kEtaCut) &&
+            (trk_tmp->fEtaMask < kEtaCut && trk_tmp->fEtaMask > -kEtaCut) &&
             (std::abs(trk_tmp->fOuterPID) < 3.f)
           )
         {
           #ifdef FILL_MC
             int im_ = trk_tmp->fPt > 0 ? 1 : 0;
-            int ie_ = hEtaTmp.FindBin(static_cast<float>(trk_tmp->fEtaMask) / 10.f);
+            // std::cout << static_cast<float>(trk_tmp->fEtaMask) / 100.f << std::endl;
+            int ie_ = hEtaTmp.FindBin(static_cast<float>(trk_tmp->fEtaMask) / 100.f);
             double eff_ = fEffPr ? hEffPr[im_][ic - 1][ie_ - 1][iS][iVar - iVarMin]->GetBinContent(hEffPr[im_][ic - 1][ie_ - 1][iS][iVar - iVarMin]->FindBin(std::abs(trk_tmp->fGenPt))) : kDummyEffPr;
             if (!trk_tmp->fIsReco || trk_tmp->fGenPt < -998.f) continue;
             int im_tmp = trk_tmp->fPt > 0 ? 1 : 0;
             hRecProton[im_tmp][iVar - iVarMin]->Fill(cent, std::abs(trk_tmp->fPt), 1./eff_);
           #endif // FILL_MC
           int im = trk_tmp->fPt > 0 ? 1 : 0;
-          int ie = hEtaTmp.FindBin(static_cast<float>(trk_tmp->fEtaMask) / 10.f);
+          int ie = hEtaTmp.FindBin(static_cast<float>(trk_tmp->fEtaMask) / 100.f);
           double eff = fEffPr ? hEffPr[im][ic - 1][ie - 1][iS][0]->GetBinContent(hEffPr[im][ic - 1][ie - 1][iS][iVar - iVarMin]->FindBin(std::abs(trk_tmp->fPt))) : kDummyEffPr;
           qPr_1_tmp[im] += (1. / eff);
           qPr_2_tmp[im] += (1. / powI(eff, 2));

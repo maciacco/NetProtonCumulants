@@ -6,7 +6,7 @@
 #include <TNtuple.h>
 #include <Riostream.h>
 
-#define FILL_MC
+// #define FILL_MC
 
 void ProcessTuple(int smpl = 0, int iVarMin = 364, int iVarMax = 365)
 {
@@ -18,7 +18,7 @@ void ProcessTuple(int smpl = 0, int iVarMin = 364, int iVarMax = 365)
 
   for (int iVar = iVarMin; iVar < iVarMax; ++iVar){
 
-    TFile *fin = TFile::Open(Form("%s/LHC21d3%d_var_%d.root", kResDir, sample, iVar));
+    TFile *fin = TFile::Open(Form("%s/LHC18pp%d_var_%d.root", kResDir, sample, iVar));
     if (!fin || fin->TestBit(TFile::kZombie)){
       std::cout << "no input, skip" << std::endl;
       skippedVar += 1;

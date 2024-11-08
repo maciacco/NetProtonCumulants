@@ -3,7 +3,7 @@
 
 //using namespace utils;
 
-void PrEff(const char* inFileName = "LHC21d30_var", const char* outFileName = "prEff"){
+void PrEff(const char* inFileName = "LHC21pp0_var", const char* outFileName = "prEff"){
   gStyle->SetOptStat(0);
   TFile *fOut = TFile::Open(Form("%s/%s.root", kResDir, outFileName), "recreate");
   for (int iVar{364}; iVar < 365; ++iVar){
@@ -43,8 +43,8 @@ void PrEff(const char* inFileName = "LHC21d30_var", const char* outFileName = "p
               fOut->cd(Form("subsample_%d_var_%d", iS + 1, iVar));
               hEff[iC][iE]->Write();
               ce.cd();
-              hEff[iC][iE]->GetYaxis()->SetRangeUser(0., iP == 1 ? 0.15 : 1.);
-              hEff[iC][iE]->GetXaxis()->SetRangeUser(iP == 1 ? 1. : .2, iP == 1 ? 3. : 1.2);
+              //hEff[iC][iE]->GetYaxis()->SetRangeUser(0., iP == 1 ? 0.15 : 1.);
+              //hEff[iC][iE]->GetXaxis()->SetRangeUser(iP == 1 ? 1. : .2, iP == 1 ? 3. : 1.2);
               leg.AddEntry(hEff[iC][iE], Form("%.0f-%.0f%%", kCentBins[iC], kCentBins[iC + 1]));
               hEffMult[iC][iE]->SetMarkerColor(colors[iC]);
               hEffMult[iC][iE]->SetLineColor(colors[iC]);

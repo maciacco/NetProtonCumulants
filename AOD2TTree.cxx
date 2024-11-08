@@ -1,13 +1,13 @@
 #include <TFile.h>
 #include "utils.h"
 
-void AOD2TTree(const char *inFile = "AO2D_mc_20240928_merged", const char *outFile = "newTree_mc", const bool isMC = true){
+void AOD2TTree(const char *inFile = "AO2D_LHC21d_merged", const char *outFile = "newTree_mc", const bool isMC = true){
   TFile *fout = TFile::Open(Form("%s/%s.root", kResDir, outFile), "recreate");
 
   TTree *new_tree = new TTree("newtree", "new tree");
   TClonesArray *tracks = new TClonesArray("miniTrack");
   TClonesArray &tr = *tracks;
-  uint8_t zvtxMask = 0;
+  char zvtxMask = 0;
   uint8_t triggerMask = 0u;
   uint8_t ntracklets = 0u;
   uint8_t v0Multiplicity = 0u;
@@ -19,18 +19,18 @@ void AOD2TTree(const char *inFile = "AO2D_mc_20240928_merged", const char *outFi
 
   // track table (w/ MC info)
   float fPt = 0.f;
-  uint8_t fEtaMask = 0u;
+  char fEtaMask = 0;
   int fSelMask = 0;
   float fOuterPID = 0.f;
   float fGenPt = -999.f;
-  uint8_t fGenEtaMask = 100u;
+  char fGenEtaMask = 100;
   bool fIsReco = 0;
   int32_t fIndexMiniCollTables = 0;
 
   // collision table
   int64_t icoll = 0;
-  uint8_t fZvtxMask = 0u;
-  uint8_t fTriggerMask = 0u;
+  char fZvtxMask = 0;
+  uint8_t fTriggerMask = 0;
   uint8_t fNtracklets = 0u;
   uint8_t fV0Multiplicity = 0u;
 
