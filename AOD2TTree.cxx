@@ -1,7 +1,7 @@
 #include <TFile.h>
 #include "utils.h"
 
-void AOD2TTree(const char *inFile = "AO2D_LHC21d_merged", const char *outFile = "newTree_mc", const bool isMC = true){
+void AOD2TTree(const char *inFile = "AO2D_merged_22f3", const char *outFile = "newTree_mc_TOF_extendedPt_06122024", const bool isMC = true){
   TFile *fout = TFile::Open(Form("%s/%s.root", kResDir, outFile), "recreate");
 
   TTree *new_tree = new TTree("newtree", "new tree");

@@ -3,12 +3,11 @@
 #include <TStopwatch.h>
 #include <TFile.h>
 #include <TH1D.h>
-#include <TNtuple.h>
+#include <TNtupleD.h>
 #include <Riostream.h>
+#include <TProfile.h>
 
-// #define FILL_MC
-
-void ProcessTuple(int smpl = 0, int iVarMin = 364, int iVarMax = 365)
+void ProcessTuple(const int smpl = 0, const int iVarMin = 364, const int iVarMax = 365, const bool FILL_MC = false)
 {
   TStopwatch w;
   w.Start();
@@ -41,10 +40,11 @@ void ProcessTuple(int smpl = 0, int iVarMin = 364, int iVarMax = 365)
     }
     tuple_qmoment->SetCacheSize(0);
 
-    #ifdef FILL_MC
-      TNtupleD *tuple_moment_gen = (TNtupleD*)fin->Get(Form("evtTupleGen_%d", iVar));
+    TNtupleD *tuple_moment_gen;
+    if (FILL_MC) {
+      tuple_moment_gen = (TNtupleD*)fin->Get(Form("evtTupleGen_%d", iVar));
       tuple_moment_gen->SetCacheSize(0);
-    #endif // FILL_MC
+    }
 
     int evt[10] = {0};
     int centrality;
@@ -52,18 +52,26 @@ void ProcessTuple(int smpl = 0, int iVarMin = 364, int iVarMax = 365)
     double *arg;
     double total_event = tuple_qmoment->GetEntriesFast();
 
-    #ifdef FILL_MC
-      double *arg_gen;
-      double total_event_gen = tuple_moment_gen->GetEntriesFast();
+    double *arg_gen;
+    double total_event_gen = 0.;
+    TProfile *N1p = nullptr;
+    TProfile *N1 = nullptr;
+    TProfile *N2 = nullptr;
+    TProfile *N3 = nullptr;
+    TProfile *N4 = nullptr;
+    TProfile *N5 = nullptr;
+    TProfile *N6 = nullptr;
+    if (FILL_MC) {
+      total_event_gen = tuple_moment_gen->GetEntriesFast();
       // non-central moments of generated distribution
-      TProfile *N1p = new TProfile("N1p", "N1p", kNCentBinsSmall, kCentBinsSmall);
-      TProfile *N1 = new TProfile("N1", "N1", kNCentBinsSmall, kCentBinsSmall);
-      TProfile *N2 = new TProfile("N2", "N2", kNCentBinsSmall, kCentBinsSmall);
-      TProfile *N3 = new TProfile("N3", "N3", kNCentBinsSmall, kCentBinsSmall);
-      TProfile *N4 = new TProfile("N4", "N4", kNCentBinsSmall, kCentBinsSmall);
-      TProfile *N5 = new TProfile("N5", "N5", kNCentBinsSmall, kCentBinsSmall);
-      TProfile *N6 = new TProfile("N6", "N6", kNCentBinsSmall, kCentBinsSmall);
-    #endif // FILL_MC
+      N1p = new TProfile("N1p", "N1p", kNCentBinsSmall, kCentBinsSmall);
+      N1 = new TProfile("N1", "N1", kNCentBinsSmall, kCentBinsSmall);
+      N2 = new TProfile("N2", "N2", kNCentBinsSmall, kCentBinsSmall);
+      N3 = new TProfile("N3", "N3", kNCentBinsSmall, kCentBinsSmall);
+      N4 = new TProfile("N4", "N4", kNCentBinsSmall, kCentBinsSmall);
+      N5 = new TProfile("N5", "N5", kNCentBinsSmall, kCentBinsSmall);
+      N6 = new TProfile("N6", "N6", kNCentBinsSmall, kCentBinsSmall);
+    }
 
     // full formula
     // 1st order
@@ -178,7 +186,7 @@ void ProcessTuple(int smpl = 0, int iVarMin = 364, int iVarMax = 365)
     {
       if (tuple_qmoment->GetEntry(j) < 0) {readError = -999; break;}
       arg = tuple_qmoment->GetArgs();
-      centrality = arg[0];
+      centrality = kMultV0M ? arg[0] : arg[13];
 
       double qPr_p[]{arg[1], arg[3], arg[5], arg[7], arg[9], arg[11]};
       double qPr_n[]{arg[2], arg[4], arg[6], arg[8], arg[10], arg[12]};
@@ -305,33 +313,33 @@ void ProcessTuple(int smpl = 0, int iVarMin = 364, int iVarMax = 365)
       continue;
     }
 
-    #ifdef FILL_MC
-    for (int j_gen = 0; j_gen < total_event_gen; j_gen++)
-    {
-      if (tuple_moment_gen->GetEntry(j_gen) < 0) {readError = -999; break;}
-      arg_gen = tuple_moment_gen->GetArgs();
-      centrality = arg_gen[0];
+    if (FILL_MC) {
+      for (int j_gen = 0; j_gen < total_event_gen; j_gen++)
+      {
+        if (tuple_moment_gen->GetEntry(j_gen) < 0) {readError = -999; break;}
+        arg_gen = tuple_moment_gen->GetArgs();
+        centrality = kMultV0M ? arg_gen[0] : arg_gen[3];
 
-      double qP1_p = arg_gen[1];
-      double qP1_n = arg_gen[2];
+        double qP1_p = arg_gen[1];
+        double qP1_n = arg_gen[2];
 
-      // full formula (gen)
-      N1p->Fill(centrality, qP1_p + qP1_n);
-      N1->Fill(centrality, qP1_p - qP1_n);
-      N2->Fill(centrality, std::pow(qP1_p - qP1_n, 2));
-      N3->Fill(centrality, std::pow(qP1_p - qP1_n, 3));
-      N4->Fill(centrality, std::pow(qP1_p - qP1_n, 4));
-      N5->Fill(centrality, std::pow(qP1_p - qP1_n, 5));
-      N6->Fill(centrality, std::pow(qP1_p - qP1_n, 6));
+        // full formula (gen)
+        N1p->Fill(centrality, qP1_p + qP1_n);
+        N1->Fill(centrality, qP1_p - qP1_n);
+        N2->Fill(centrality, std::pow(qP1_p - qP1_n, 2));
+        N3->Fill(centrality, std::pow(qP1_p - qP1_n, 3));
+        N4->Fill(centrality, std::pow(qP1_p - qP1_n, 4));
+        N5->Fill(centrality, std::pow(qP1_p - qP1_n, 5));
+        N6->Fill(centrality, std::pow(qP1_p - qP1_n, 6));
+      }
+      if (readError < 0) {
+        std::cout << "no input, skip" << std::endl;
+        skippedVar += 1;
+
+        delete fin;
+        continue;
+      }
     }
-    if (readError < 0) {
-      std::cout << "no input, skip" << std::endl;
-      skippedVar += 1;
-
-      delete fin;
-      continue;
-    }
-    #endif // FILL_MC
 
     fout.mkdir(Form("var_%d", iVar));
     fout.cd(Form("var_%d", iVar));
@@ -444,7 +452,7 @@ void ProcessTuple(int smpl = 0, int iVarMin = 364, int iVarMax = 365)
     q1_6_5->Write();
     q1_6_6->Write();
 
-    #ifdef FILL_MC
+    if (FILL_MC) {
       N1p->Write();
       N1->Write();
       N2->Write();
@@ -452,7 +460,7 @@ void ProcessTuple(int smpl = 0, int iVarMin = 364, int iVarMax = 365)
       N4->Write();
       N5->Write();
       N6->Write();
-    #endif // FILL_MC
+    }
 
     fout.Close();
     fin->Close();

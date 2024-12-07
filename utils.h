@@ -29,28 +29,31 @@ constexpr const char* kPartLabelExtend[1] = {"Proton"};
 
 int colors[] = {TColor::GetColor("#ff3300"), TColor::GetColor("#ec6e0a"), TColor::GetColor("#daaa14"), TColor::GetColor("#c7e51e"), TColor::GetColor("#85dd69"), TColor::GetColor("#42d6b4"), TColor::GetColor("#00ceff"), TColor::GetColor("#009adf"), TColor::GetColor("#0067c0"), TColor::GetColor("#595959"), TColor::GetColor("#0033a1")};
 
-const char *kEffPrFile = ""; //"prEff";
+const char *kEffPrFile = "prEff";
 constexpr float kDummyEffPr = 1.;
 constexpr const char* kSubsampleFlag = "_";
+const bool kMultV0M = true; //false;
 
-constexpr int kLimitSample = false;
-constexpr int kLimitedSample = 100;
+constexpr int kLimitSample = 1;
+constexpr int kLimitedSample = 50000000;
 const char *kDataDir = "data";
 const char *kResDir = "results";
 const char *kCalibDir = "calib";
-constexpr bool kUseIndex = true;
-constexpr bool isMC = true;
+constexpr bool kUseIndex = false;
+// constexpr bool isMC = false;
 
-constexpr int N_SAMPLE = 1;
-constexpr int kNCentBins = 7;
-constexpr float kCentBins[kNCentBins + 1] = {0., 10., 20., 30., 40., 50., 70., 100.};
+constexpr int kNSample = 1;
+constexpr int kNCentBins = 10;
+constexpr float kCentBins[kNCentBins + 1] = {0.f, 1.f, 5.f, 10.f, 15.f, 20.f, 30.f, 40.f, 50.f, 70.f, 100.f};
+constexpr int kNTrklBins = 10;
+constexpr float kTrklBins[kNTrklBins + 1] = /* {0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 35.f, 40.f}; */ {0.f, 3.f, 4.f, 5.f, 7.f, 9.f, 11.f, 15.f, 19.f, 27.f, 100.f};
 
 constexpr int kNEtaBins = 1;
-constexpr int kNBinsPt = 20;
+constexpr int kNBinsPt = 24;
 constexpr int kNBinsPID = 50;
-constexpr float kMinEta = -0.6f;
-constexpr float kDeltaEta = 1.2f;
-constexpr float kMinPt = 0.2f;
+constexpr float kMinEta = -0.8f;
+constexpr float kDeltaEta = 1.6f;
+constexpr float kMinPt = 0.3f;
 constexpr float kDeltaPt = 0.05f;
 constexpr float kMinPID = -5.f;
 constexpr float kDeltaPID = 0.25f;
@@ -65,8 +68,11 @@ constexpr int kNTPCPID = 3;
 constexpr int kMaxCent = 100;
 
 constexpr int8_t kEtaCut = 60;
+constexpr int8_t kEtaCutMin = 0;
 constexpr float kPtLowLimitPr = 0.3f;
-constexpr float kTOFptCut = 1.f;
+constexpr float kTOFptCut = 1.5f;
+constexpr int8_t kZvtxCut = 80;
+constexpr int8_t kZvtxCutMin = 0;
 
 // variations
 // tpc cls
@@ -99,9 +105,12 @@ constexpr int kCutTPCPID[] = {BIT(10), BIT(10), BIT(10)};
 constexpr int kCutTPCPID2[] = {BIT(10), BIT(11), BIT(11)};
 constexpr bool kRequireTPCPIDCut[] = {true, true, false};
 
-//constexpr int kNCentBinsSmall = 10;
-//constexpr float kCentBinsSmall[kNCentBinsSmall + 1] = {0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100.};
-constexpr int kNCentBinsSmall = 100;
-constexpr float kCentBinsSmall[kNCentBinsSmall + 1] = {0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36., 37., 38., 39., 40., 41., 42., 43., 44., 45., 46., 47., 48., 49., 50., 51., 52., 53., 54., 55., 56., 57., 58., 59., 60., 61., 62., 63., 64., 65., 66., 67., 68., 69., 70., 71., 72., 73., 74., 75., 76., 77., 78., 79., 80., 81., 82., 83., 84., 85., 86., 87., 88., 89., 90., 91., 92., 93., 94., 95., 96., 97., 98., 99., 100.};
+// constexpr int kNCentBinsSmall = 32;
+// constexpr float kCentBinsSmall[kNCentBinsSmall + 1] = {0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 35.f, 40.f};// {0.f, 3.f, 4.f, 5.f, 7.f, 9.f, 11.f, 15.f, 19.f, 27.f, 100.f};
+
+constexpr int kNCentBinsSmall =10;
+constexpr float kCentBinsSmall[kNCentBinsSmall + 1] = /* {0.f, 3.f, 4.f, 5.f, 7.f, 9.f, 11.f, 15.f, 19.f, 27.f, 100.f}; */{0., 1.f, 5.f, 10.f, 15.f, 20.f, 30.f, 40.f, 50.f, 70.f, 100.f};
+//constexpr int kNCentBinsSmall = 100;
+//constexpr float kCentBinsSmall[kNCentBinsSmall + 1] = {0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 31.f, 32.f, 33.f, 34.f, 35.f, 36.f, 37.f, 38.f, 39.f, 40.f, 41.f, 42.f, 43.f, 44.f, 45.f, 46.f, 47.f, 48.f, 49.f, 50.f, 51.f, 52.f, 53.f, 54.f, 55.f, 56.f, 57.f, 58.f, 59.f, 60.f, 61.f, 62.f, 63.f, 64.f, 65.f, 66.f, 67.f, 68.f, 69.f, 70.f, 71.f, 72.f, 73.f, 74.f, 75.f, 76.f, 77.f, 78.f, 79.f, 80.f, 81.f, 82.f, 83.f, 84.f, 85.f, 86.f, 87.f, 88.f, 89.f, 90.f, 91.f, 92.f, 93.f, 94.f, 95.f, 96.f, 97.f, 98.f, 99.f, 100.f};
 
 #endif

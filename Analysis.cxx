@@ -1,6 +1,6 @@
 #include "utils.h"
 
-#define FILL_MC
+//#define FILL_MC
 
 void remove_outlier(TH1D* h, double reject_level = 3.){
   double mean = h->GetMean();
@@ -12,11 +12,9 @@ void remove_outlier(TH1D* h, double reject_level = 3.){
   }
 }
 
-const int kNSample = 10;
-
 double cbwc(const double *array, const int centbin, const TH1D* hCent){
-  double lowEdge = kCentBins[centbin];
-  double upEdge = kCentBins[centbin + 1];
+  double lowEdge = kMultV0M ? kCentBins[centbin] : kTrklBins[centbin];
+  double upEdge = kMultV0M ? kCentBins[centbin + 1] : kTrklBins[centbin + 1];
   int iL = 0; int iU = kNCentBinsSmall - 1;
   while (kCentBinsSmall[iL] + 0.05 < lowEdge) {
     iL++;
@@ -42,14 +40,14 @@ void cumulant_ratio(double &mean, double &rms, const double *denom, const double
   for(int sample = 0; sample < kNSample; sample++)
   {
     if (std::abs(denom[sample]) > 1.e-9) {
-      mean = mean + (num[sample] / denom[sample]);
+      mean = mean + (num[sample] /* / denom[sample] */);
     }
   }
   mean = mean / ( kNSample - nSkip);
   for(int sample = 0; sample < kNSample; sample++)
   {
     if (std::abs(denom[sample]) > 1.e-9) {
-      rms = rms + powI(mean - (num[sample] / denom[sample]), 2);
+      rms = rms + powI(mean - (num[sample] /* / denom[sample] */), 2);
     }
   }
 }
@@ -57,10 +55,10 @@ void cumulant_ratio(double &mean, double &rms, const double *denom, const double
 void Analysis(const char* period = "18")
 {
   TFile f(Form("out_sys_%s_finalBinning.root", period), "recreate");
-  TH1D *hSys[kNCentBins];
+  TH1D *hSys[(kMultV0M ? kNCentBins : kNTrklBins)];
   TCanvas cSys("cSys", "cSys");
   cSys.Divide(3, 3);
-  for (int i{0}; i < kNCentBins; ++i){
+  for (int i{0}; i < (kMultV0M ? kNCentBins : kNTrklBins); ++i){
     hSys[i] = new TH1D(Form("hSys_%d", i), ";#kappa_{2}/#kappa_{1};Entries", 500, -2., 2.);
   }
 
@@ -93,28 +91,31 @@ void Analysis(const char* period = "18")
     double Q4_small;
     double Q5_small;
     double Q6_small;
+    double k1_small[kNSample][100];
     double k2sk_small[kNSample][100];
     double k2_small[kNSample][100];
     double k3_small[kNSample][100];
     double k4_small[kNSample][100];
     double k5_small[kNSample][100];
     double k6_small[kNSample][100];
-    double k2sk[10][kNSample];
-    double k2[10][kNSample];
-    double k3[10][kNSample];
-    double k4[10][kNSample];
-    double k5[10][kNSample];
-    double k6[10][kNSample];
+    double k1[100][kNSample];
+    double k2sk[100][kNSample];
+    double k2[100][kNSample];
+    double k3[100][kNSample];
+    double k4[100][kNSample];
+    double k5[100][kNSample];
+    double k6[100][kNSample];
 
     for(int sample = 0; sample < kNSample; sample++)
     {
       // if (sample == 0) {nSkip++; continue;}
       TFile *fin = new TFile(Form("%s/output_sys_%d_%d.root", kResDir, sample, iVar));
-      TFile *fCent = TFile::Open(Form("%s/LHC21d3%d_var_%d.root", kResDir, sample, iVar));
+      TFile *fCent = TFile::Open(Form("%s/LHC18pp%d_var_%d.root", kResDir, sample, iVar));
 
       TH1D *hCent = (TH1D*)fCent->Get(Form("hCent_%d", sample));
+      TH1D *hNtrkl = (TH1D*)fCent->Get(Form("hNtrkl_%d", sample));
 
-      if (!fin || sample == 4) {nSkip++; fin->Close(); delete fin; continue;}
+      if (!fin /* || sample == 4 */) {nSkip++; fin->Close(); delete fin; continue;}
 
       // 1st order
       TProfile *q1_1_1 = (TProfile*)fin->Get(Form("var_%d/q1_1_1", iVar));
@@ -264,6 +265,7 @@ void Analysis(const char* period = "18")
                    + q1_6_1->GetBinContent(i) - (31. * q1_6_2->GetBinContent(i)) + (180. * q1_6_3->GetBinContent(i)) - (390. * q1_6_4->GetBinContent(i)) + (360. * q1_6_5->GetBinContent(i)) - (120. * q1_6_6->GetBinContent(i));
         // std::cout << Q3_small << std::endl;
 
+        k1_small[sample][i - 1] = q1_1_1->GetBinContent(i);
         k2sk_small[sample][i - 1] = q1_2_1->GetBinContent(i);
         k2_small[sample][i - 1] = Q2_small - powI(Q1_small, 2);
         k3_small[sample][i - 1] = Q3_small - (3. * Q2_small * Q1_small) + (2. * powI(Q1_small, 3));
@@ -284,22 +286,23 @@ void Analysis(const char* period = "18")
         #endif // FILL_MC
       }
 
-      for(int i = 1; i <= kNCentBins; i++)
+      for(int i = 1; i <= (kMultV0M ? kNCentBins : kNTrklBins); i++)
       {
-        k2sk[i - 1][sample] = cbwc(k2sk_small[sample], i - 1, hCent);
-        k2[i - 1][sample] = cbwc(k2_small[sample], i - 1, hCent);
-        k3[i - 1][sample] = cbwc(k3_small[sample], i - 1, hCent);
-        k4[i - 1][sample] = cbwc(k4_small[sample], i - 1, hCent);
-        k5[i - 1][sample] = cbwc(k5_small[sample], i - 1, hCent);
-        k6[i - 1][sample] = cbwc(k6_small[sample], i - 1, hCent);
+        k1[i - 1][sample] = cbwc(k1_small[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+        k2sk[i - 1][sample] = cbwc(k2sk_small[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+        k2[i - 1][sample] = cbwc(k2_small[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+        k3[i - 1][sample] = cbwc(k3_small[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+        k4[i - 1][sample] = cbwc(k4_small[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+        k5[i - 1][sample] = cbwc(k5_small[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+        k6[i - 1][sample] = cbwc(k6_small[sample], i - 1, kMultV0M ? hCent : hNtrkl);
 
         #ifdef FILL_MC
-          k2sk_gen[i - 1][sample] = cbwc(k2sk_small_gen[sample], i - 1, hCent);
-          k2_gen[i - 1][sample] = cbwc(k2_small_gen[sample], i - 1, hCent);
-          k3_gen[i - 1][sample] = cbwc(k3_small_gen[sample], i - 1, hCent);
-          k4_gen[i - 1][sample] = cbwc(k4_small_gen[sample], i - 1, hCent);
-          k5_gen[i - 1][sample] = cbwc(k5_small_gen[sample], i - 1, hCent);
-          k6_gen[i - 1][sample] = cbwc(k6_small_gen[sample], i - 1, hCent);
+          k2sk_gen[i - 1][sample] = cbwc(k2sk_small_gen[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+          k2_gen[i - 1][sample] = cbwc(k2_small_gen[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+          k3_gen[i - 1][sample] = cbwc(k3_small_gen[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+          k4_gen[i - 1][sample] = cbwc(k4_small_gen[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+          k5_gen[i - 1][sample] = cbwc(k5_small_gen[sample], i - 1, kMultV0M ? hCent : hNtrkl);
+          k6_gen[i - 1][sample] = cbwc(k6_small_gen[sample], i - 1, kMultV0M ? hCent : hNtrkl);
         #endif // FILL_MC
       }
 
@@ -322,14 +325,16 @@ void Analysis(const char* period = "18")
       g_gen.SetMarkerColor(kBlue);
     #endif // FILL_MC
 
-    for(int i = 1; i <= kNCentBins; i++)
+    double mult[]/* {1.5f, 3.5f, 4.5f, 6.f, 8.f, 10.f, 13.f, 17.f, 23.f, 35.f}; */{26.01, 19.99, 16.18, 13.78, 12.01, 10.03, 7.95, 6.32, 4.49, 2.54};
+    //double mult[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,32.5,37.5};
+    for(int i = 1; i <= (kMultV0M ? kNCentBins : kNTrklBins); i++)
     {
       double mean = 0.0;
       double rms = 0.0;
       //cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
-      cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
+      cumulant_ratio(mean, rms, k1[i - 1], k1[i - 1], nSkip);
 
-      g.AddPoint(0.5 * (kCentBins[i - 1] + kCentBins[i]), mean);
+      g.AddPoint(mult[i -1]/* 0.5 * (kCentBins[i - 1] + kCentBins[i]) */, mean);
       hSys[i - 1]->Fill(mean);
       g.SetPointError(i - 1, 0, TMath::Sqrt(rms / (( kNSample - nSkip) * (( kNSample - nSkip) - 1))));
 
@@ -354,7 +359,7 @@ void Analysis(const char* period = "18")
     #endif // FILL_MC
   }
 
-  for (int i{0}; i < kNCentBins - 1; ++i){
+  for (int i{0}; i < (kMultV0M ? kNCentBins : kNTrklBins) - 1; ++i){
     // remove_outlier(hSys[i]);
     hSys[i]->Write();
     hSys[i]->SetFillStyle(3004);
