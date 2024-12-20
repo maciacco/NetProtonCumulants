@@ -40,14 +40,14 @@ void cumulant_ratio(double &mean, double &rms, const double *denom, const double
   for(int sample = 0; sample < kNSample; sample++)
   {
     if (std::abs(denom[sample]) > 1.e-9) {
-      mean = mean + (num[sample] /* / denom[sample] */);
+      mean = mean + (num[sample]/*  / denom[sample] */);
     }
   }
   mean = mean / ( kNSample - nSkip);
   for(int sample = 0; sample < kNSample; sample++)
   {
     if (std::abs(denom[sample]) > 1.e-9) {
-      rms = rms + powI(mean - (num[sample] /* / denom[sample] */), 2);
+      rms = rms + powI(mean - (num[sample]/*  / denom[sample] */), 2);
     }
   }
 }
@@ -325,16 +325,16 @@ void Analysis(const char* period = "18")
       g_gen.SetMarkerColor(kBlue);
     #endif // FILL_MC
 
-    double mult[]/* {1.5f, 3.5f, 4.5f, 6.f, 8.f, 10.f, 13.f, 17.f, 23.f, 35.f}; */{26.01, 19.99, 16.18, 13.78, 12.01, 10.03, 7.95, 6.32, 4.49, 2.54};
+    double mult[]/* {0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 31.f, 32.f, 33.f, 34.f, 35.f, 36.f, 37.f, 38.f, 39.f, 40.f, 41.f, 42.f, 43.f, 44.f, 45.f, 46.f, 47.f, 48.f, 49.f, 50.f, 51.f, 52.f, 53.f, 54.f, 55.f, 56.f, 57.f, 58.f, 59.f, 60.f, 61.f, 62.f, 63.f, 64.f, 65.f, 66.f, 67.f, 68.f, 69.f, 70.f, 71.f, 72.f, 73.f, 74.f, 75.f, 76.f, 77.f, 78.f, 79.f, 80.f, 81.f, 82.f, 83.f, 84.f, 85.f, 86.f, 87.f, 88.f, 89.f, 90.f, 91.f, 92.f, 93.f, 94.f, 95.f, 96.f, 97.f, 98.f, 99.f, 100.f}; */{0.5f, 3.f, 7.5f, 12.5f, 17.5f, 25.f, 35.f, 45.f, 60.f, 85.f};/* {2.92, 4.87, 6.49, 8.67, 11.44, 13.86, 16.86, 20.93, 25.64, 33.22}; */ /* {1.5f, 3.5f, 4.5f, 6.f, 8.f, 10.f, 13.f, 17.f, 23.f, 35.f}; */ //{26.01, 19.99, 16.18, 13.78, 12.01, 10.03, 7.95, 6.32, 4.49, 2.54};
     //double mult[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,32.5,37.5};
     for(int i = 1; i <= (kMultV0M ? kNCentBins : kNTrklBins); i++)
     {
       double mean = 0.0;
       double rms = 0.0;
       //cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
-      cumulant_ratio(mean, rms, k1[i - 1], k1[i - 1], nSkip);
+      cumulant_ratio(mean, rms, k2[i - 1], k2[i - 1], nSkip);
 
-      g.AddPoint(mult[i -1]/* 0.5 * (kCentBins[i - 1] + kCentBins[i]) */, mean);
+      g.AddPoint(mult[i - 1]/* 0.5 * (kCentBins[i - 1] + kCentBins[i]) */, mean);
       hSys[i - 1]->Fill(mean);
       g.SetPointError(i - 1, 0, TMath::Sqrt(rms / (( kNSample - nSkip) * (( kNSample - nSkip) - 1))));
 

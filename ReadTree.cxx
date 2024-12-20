@@ -106,7 +106,7 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
 
   for (int iS = 0; iS < nSample; ++iS){
     hCent[iS] = new TH1D(Form("hCent_%d", iS), ";Centrality (%);Entries", kNCentBinsSmall, kCentBinsSmall);
-    hNtrkl[iS] = new TH1D(Form("hNtrkl_%d", iS), ";#it{N}_{tracklets}^{0.7 < |#eta| < 1.2};Entries", 100, 0, 100);
+    hNtrkl[iS] = new TH1D(Form("hNtrkl_%d", iS), ";#it{N}_{tracklets}^{0.7 < |#eta| < 1.2};Entries", kNTrklBinsSmall, kTrklBinsSmall);
 
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
     {
@@ -188,6 +188,15 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
     t->GetEntry(tentry);
 
     float cent = fV0Multiplicity;
+
+    if ((fTriggerMask & 0x2) == 0x2) { // high granularity
+      cent = cent / 100.f;
+    }
+
+    if (!((fTriggerMask & kTriggerSel) == kTriggerSel) && !isMC) {
+      continue;
+    }
+
     if (cent > kMaxCent) continue;
     int ic = hCentTmp.FindBin(cent);
     int ic_sm = hCentSmallTmp.FindBin(cent);
@@ -243,7 +252,7 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
             std::abs(trk_tmp->fPt) > kPtLowLimitPr && std::abs(trk_tmp->fPt) < kTOFptCut &&
             (trk_tmp->fEtaMask < kEtaCut && trk_tmp->fEtaMask > -kEtaCut) &&
             (trk_tmp->fEtaMask < -kEtaCutMin || trk_tmp->fEtaMask > kEtaCutMin) &&
-            (std::abs(trk_tmp->fOuterPID) < 4.f)
+            (std::abs(trk_tmp->fOuterPID) < 2.f)
           )
         {
           if (isMC) {
