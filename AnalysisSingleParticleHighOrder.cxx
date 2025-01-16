@@ -16,10 +16,10 @@ double cbwc(const double *array, const int centbin, const TH1D* hCent){
   double lowEdge = kMultV0M ? kCentBins[centbin] : kTrklBins[centbin];
   double upEdge = kMultV0M ? kCentBins[centbin + 1] : kTrklBins[centbin + 1];
   int iL = 0; int iU = kNCentBinsSmall - 1;
-  while (kCentBinsSmall[iL] + 0.005 < lowEdge) {
+  while (kCentBinsSmall[iL] + 0.05 < lowEdge) {
     iL++;
   }
-  while (kCentBinsSmall[iU] + 0.005 > upEdge) {
+  while (kCentBinsSmall[iU] + 0.05 > upEdge) {
     iU--;
   }
   // std::cout << iL << "\t" << iU << "\t" << lowEdge << "\t" << upEdge << std::endl;
@@ -40,6 +40,7 @@ void cumulant_ratio(double &mean, double &rms, const double *denom, const double
   for(int sample = 0; sample < kNSample; sample++)
   {
     if (std::abs(denom[sample]) > 1.e-9) {
+//      std::cout << num[sample] << std::endl;
       mean = mean + (num[sample] / denom[sample]);
     }
   }
@@ -58,6 +59,7 @@ void cumulant(double &mean, double &rms, const double *denom, const double *num,
   for(int sample = 0; sample < kNSample; sample++)
   {
     if (std::abs(denom[sample]) > 1.e-9) {
+//      std::cout << num[sample] << std::endl;
       mean = mean + (num[sample]);
     }
   }
@@ -70,9 +72,9 @@ void cumulant(double &mean, double &rms, const double *denom, const double *num,
   }
 }
 
-void Analysis(const char* period = "18", const char* obs = "k2k1")
+void AnalysisSingleParticleHighOrder(const char* period = "18", const char* obs = "k2k1")
 {
-  TFile f(Form("out_sys_%s_finalBinning_%s.root", period, obs), "recreate");
+  TFile f(Form("out_sys_%s_finalBinning_singleParticleHighOrder_%s.root", period, obs), "recreate");
   std::string obs_str{obs};
   TH1D *hSys[(kMultV0M ? kNCentBins : kNTrklBins)];
   TCanvas cSys("cSys", "cSys");
@@ -128,7 +130,7 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
     for(int sample = 0; sample < kNSample; sample++)
     {
       // if (sample == 0) {nSkip++; continue;}
-      TFile *fin = new TFile(Form("%s/output_sys_HM_%d_%d.root", kResDir, sample, iVar));
+      TFile *fin = new TFile(Form("%s/output_sys_singleParticle_%d_%d.root", kResDir, sample, iVar));
       TFile *fCent = TFile::Open(Form("%s/LHC18ppTrig_HM%d_var_%d.root", kResDir, sample, iVar));
 
       TH1D *hCent = (TH1D*)fCent->Get(Form("hCent_%d", sample));
@@ -344,24 +346,22 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
       g_gen.SetMarkerColor(kBlue);
     #endif // FILL_MC
 
-    double multHM[]{31.25, -1.};
-    double mult[]{18.68, 12.90, 10.03, 7.95, 6.32, 4.49, 2.54};
+    double multHM[]{31.25, -1};
+    double mult[]{18.63, 12.90, 10.03, 7.95, 6.32, 4.49, 2.54};
     //double mult[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,32.5,37.5};
     for(int i = 1; i <= (kMultV0M ? kNCentBins : kNTrklBins); i++)
     {
       double mean = 0.0;
       double rms = 0.0;
       //cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
-      if (obs_str == "k2k2sk") cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
-      else if (obs_str == "k4k2") cumulant_ratio(mean, rms, k2[i - 1], k4[i - 1], nSkip);
-      else if (obs_str == "k6k2") cumulant_ratio(mean, rms, k2[i - 1], k6[i - 1], nSkip);
-      else if (obs_str == "k2sk") cumulant_ratio(mean, rms, k2[i - 1], k2sk[i - 1], nSkip);
-      else if (obs_str == "k1") cumulant_ratio(mean, rms, k2[i - 1], k1[i - 1], nSkip);
-      else if (obs_str == "k2") cumulant_ratio(mean, rms, k2[i - 1], k2[i - 1], nSkip);
-      else if (obs_str == "k3") cumulant_ratio(mean, rms, k2[i - 1], k3[i - 1], nSkip);
-      else if (obs_str == "k4") cumulant_ratio(mean, rms, k2[i - 1], k4[i - 1], nSkip);
-      else if (obs_str == "k5") cumulant_ratio(mean, rms, k2[i - 1], k5[i - 1], nSkip);
-      else if (obs_str == "k6") cumulant_ratio(mean, rms, k2[i - 1], k6[i - 1], nSkip);
+      if (obs_str == "k2k1") cumulant_ratio(mean, rms, k1[i - 1], k2[i - 1], nSkip);
+      else if (obs_str == "k1") cumulant(mean, rms, k1[i - 1], k1[i - 1], nSkip);
+      else if (obs_str == "k2") cumulant(mean, rms, k1[i - 1], k2[i - 1], nSkip);
+      else if (obs_str == "k3") cumulant(mean, rms, k1[i - 1], k3[i - 1], nSkip);
+      else if (obs_str == "k4") cumulant(mean, rms, k1[i - 1], k4[i - 1], nSkip);
+      else if (obs_str == "k5") cumulant(mean, rms, k1[i - 1], k5[i - 1], nSkip);
+      else if (obs_str == "k6") cumulant(mean, rms, k1[i - 1], k6[i - 1], nSkip);
+
       g.AddPoint(kTriggerSel == 0x1 ? mult[i - 1] : multHM[i - 1]/* 0.5 * (kCentBins[i - 1] + kCentBins[i]) */, mean);
       hSys[i - 1]->Fill(mean);
       g.SetPointError(i - 1, 0, TMath::Sqrt(rms / (( kNSample - nSkip) * (( kNSample - nSkip) - 1))));

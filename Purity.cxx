@@ -32,7 +32,7 @@ Double_t GausDExp(Double_t *x, Double_t *par)
   return f;
 }
 
-void Purity(const char *inFile = "LHC18pp0_var_364", const char* outFile = "outPID"){
+void Purity(const char *inFile = "LHC18ppTrig_HM0_var_364", const char* outFile = "outPID"){
   TFile *_file0 = TFile::Open(Form("%s/%s.root", kResDir, inFile));
   TFile *fout = TFile::Open(Form("%s.root", outFile), "recreate");
   TH3D *outerPID[2]{nullptr};

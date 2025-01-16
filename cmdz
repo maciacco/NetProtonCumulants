@@ -1,10 +1,20 @@
 . scripts/run_process_tuple.sh 0
-. scripts/run_process_tuple.sh 1
-. scripts/run_process_tuple.sh 2
-. scripts/run_process_tuple.sh 3
-. scripts/run_process_tuple.sh 4
-. scripts/run_process_tuple.sh 5
-. scripts/run_process_tuple.sh 6
-. scripts/run_process_tuple.sh 7
-. scripts/run_process_tuple.sh 8
-. scripts/run_process_tuple.sh 9
+ . scripts/run_process_tuple.sh 1
+ . scripts/run_process_tuple.sh 2
+ . scripts/run_process_tuple.sh 3
+ . scripts/run_process_tuple.sh 4
+ . scripts/run_process_tuple.sh 5
+ . scripts/run_process_tuple.sh 6
+ . scripts/run_process_tuple.sh 7
+ . scripts/run_process_tuple.sh 8
+ . scripts/run_process_tuple.sh 9
+ . scripts/run_process_tuple.sh 10
+ . scripts/run_process_tuple.sh 11
+ . scripts/run_process_tuple.sh 12
+ . scripts/run_process_tuple.sh 13
+ . scripts/run_process_tuple.sh 14
+ . scripts/run_process_tuple.sh 15
+ . scripts/run_process_tuple.sh 16
+ . scripts/run_process_tuple.sh 17
+ . scripts/run_process_tuple.sh 18
+ . scripts/run_process_tuple.sh 19

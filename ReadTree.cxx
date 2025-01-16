@@ -14,7 +14,12 @@
 #include <TStopwatch.h>
 #include <TClonesArray.h>
 
-void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp_noTOF", const int iVarMin = 526, const int iVarMax = 527, const bool isMC = false)
+enum kSources{
+  kPrim = 0,
+  kWD = 1
+};
+
+void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp_noTOF", const int iVarMin = 526, const int iVarMax = 527, const bool isMC = false, const char source = kSources::kPrim)
 {
   TStopwatch w;
   w.Start();
@@ -188,6 +193,7 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
     t->GetEntry(tentry);
 
     float cent = fV0Multiplicity;
+    if (cent > kMaxCent) continue;
 
     if ((fTriggerMask & 0x2) == 0x2) { // high granularity
       cent = cent / 100.f;
@@ -197,7 +203,6 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
       continue;
     }
 
-    if (cent > kMaxCent) continue;
     int ic = hCentTmp.FindBin(cent);
     int ic_sm = hCentSmallTmp.FindBin(cent);
     if (std::abs(fZvtxMask) > kZvtxCut || std::abs(fZvtxMask) < kZvtxCutMin) continue;
@@ -211,7 +216,7 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
       int iChi2TPC = (iVar / kNTPCcls) % kNChi2TPC;
       int iDCAxy = (iVar / kNTPCcls / kNChi2TPC) % kNDCAxy;
       int iDCAz = (iVar / kNTPCcls / kNChi2TPC / kNDCAxy) % kNDCAz;
-      // int iITSPID = (iVar / kNTPCcls / kNChi2TPC / kNDCAxy / kNDCAz) % kNITSPID;
+      int iITSPID = (iVar / kNTPCcls / kNChi2TPC / kNDCAxy / kNDCAz) % kNITSPID;
       int iTPCPID = (iVar / kNTPCcls / kNChi2TPC / kNDCAxy / kNDCAz / kNITSPID) % kNTPCPID;
       // std::cout << iTPCcls << "\t" << iChi2TPC << "\t" << iDCAxy << "\t" << iDCAz << "\t" << iTPCPID << std::endl;
 
@@ -231,17 +236,23 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
         miniTrack* trk_tmp = (miniTrack*)tracks->At(itrk);
 
         if (isMC) {
-          if ( std::abs(trk_tmp->fGenPt) > (kTOFptCut + 1.) || std::abs(trk_tmp->fGenPt) < (kPtLowLimitPr - .1) || trk_tmp->fGenEtaMask > (kEtaCut + 10.) || trk_tmp->fGenEtaMask < -(kEtaCut + 10.) ) continue;
-          if ( trk_tmp->fGenEtaMask > -kEtaCutMin && trk_tmp->fGenEtaMask < kEtaCutMin ) continue;
-          float eta_MC = static_cast<float>(trk_tmp->fGenEtaMask) / 100.f;
-          int ie_MC = hEtaTmp.FindBin(eta_MC);
-          int im_MC = trk_tmp->fGenPt > 0 ? 1 : 0;
-          hGenProton[im_MC][iVar - iVarMin]->Fill(cent, std::abs(trk_tmp->fGenPt), eta_MC);
-          hGenProtonTrkl[im_MC][iVar - iVarMin]->Fill(fNtracklets, std::abs(trk_tmp->fGenPt), eta_MC);
-          if ( std::abs(trk_tmp->fGenPt) < kTOFptCut && std::abs(trk_tmp->fGenPt) > kPtLowLimitPr ) {
-            // std::cout << im_MC << std::endl;
-            qPr_1_gen_tmp[im_MC] += 1.;
-            nPr_gen[im_MC] += 1;
+          if ( std::abs(trk_tmp->fGenPt) < kTOFptCut && std::abs(trk_tmp->fGenPt) > kPtLowLimitPr &&
+               trk_tmp->fGenEtaMask < kEtaCut && trk_tmp->fGenEtaMask > -kEtaCut )
+          {
+            float eta_MC = static_cast<float>(trk_tmp->fGenEtaMask) / 100.f;
+            int ie_MC = hEtaTmp.FindBin(eta_MC);
+            int im_MC = trk_tmp->fGenPt > 0 ? 1 : 0;
+            if (((trk_tmp->fSelMask & BIT(20)) != BIT(20)) && (source == kSources::kWD)) continue;
+            if (((trk_tmp->fSelMask & BIT(22)) != BIT(22)) && (source == kSources::kPrim)) continue;
+            hGenProton[im_MC][iVar - iVarMin]->Fill(cent, std::abs(trk_tmp->fGenPt), eta_MC);
+            hGenProtonTrkl[im_MC][iVar - iVarMin]->Fill(fNtracklets, std::abs(trk_tmp->fGenPt), eta_MC);
+            if ( std::abs(trk_tmp->fGenPt) < kTOFptCut && std::abs(trk_tmp->fGenPt) > kPtLowLimitPr ) {
+              // std::cout << im_MC << std::endl;
+              qPr_1_gen_tmp[im_MC] += 1.;
+              nPr_gen[im_MC] += 1;
+            }
+          } else {
+            continue;
           }
         }
         if (

@@ -7,7 +7,7 @@
 #include <Riostream.h>
 #include <TProfile.h>
 
-void ProcessTuple(const int smpl = 0, const int iVarMin = 364, const int iVarMax = 365, const bool FILL_MC = false)
+void ProcessTupleSingleParticleHighOrder(const int smpl = 0, const int iVarMin = 364, const int iVarMax = 365, const bool FILL_MC = false)
 {
   TStopwatch w;
   w.Start();
@@ -25,7 +25,7 @@ void ProcessTuple(const int smpl = 0, const int iVarMin = 364, const int iVarMax
       delete fin;
       continue;
     }
-    TFile fout(Form("%s/output_sys_HM_%d_%d.root", kResDir, sample, iVar), "recreate");
+    TFile fout(Form("%s/output_sys_singleParticle_%d_%d.root", kResDir, sample, iVar), "recreate");
 
     TNtupleD *tuple_qmoment = (TNtupleD*)fin->Get(Form("evtTuple_%d", iVar));
     TH1D *hCent = (TH1D*)fin->Get(Form("hCent_%d", smpl));
@@ -47,7 +47,7 @@ void ProcessTuple(const int smpl = 0, const int iVarMin = 364, const int iVarMax
     }
 
     int evt[10] = {0};
-    double centrality;
+    int centrality;
 
     double *arg;
     double total_event = tuple_qmoment->GetEntriesFast();
@@ -194,7 +194,7 @@ void ProcessTuple(const int smpl = 0, const int iVarMin = 364, const int iVarMax
       auto qa_b_c = [&](int const a, int const b, int const c) -> double
       {
         double sgn = (b % 2) == 0 ? 1. : -1.;
-        return std::pow(qPr_p[c - 1] + sgn * qPr_n[c - 1], a);
+        return std::pow(/* qPr_p[c - 1] + sgn * */ qPr_n[c - 1], a);
       };
 
       // full formula
@@ -324,13 +324,13 @@ void ProcessTuple(const int smpl = 0, const int iVarMin = 364, const int iVarMax
         double qP1_n = arg_gen[2];
 
         // full formula (gen)
-        N1p->Fill(centrality, qP1_p + qP1_n);
-        N1->Fill(centrality, qP1_p - qP1_n);
-        N2->Fill(centrality, std::pow(qP1_p - qP1_n, 2));
-        N3->Fill(centrality, std::pow(qP1_p - qP1_n, 3));
-        N4->Fill(centrality, std::pow(qP1_p - qP1_n, 4));
-        N5->Fill(centrality, std::pow(qP1_p - qP1_n, 5));
-        N6->Fill(centrality, std::pow(qP1_p - qP1_n, 6));
+        N1p->Fill(centrality, /* qP1_p + */ qP1_n);
+        N1->Fill(centrality, /* qP1_p - */ qP1_n);
+        N2->Fill(centrality, std::pow(/* qP1_p - */ qP1_n, 2));
+        N3->Fill(centrality, std::pow(/* qP1_p - */ qP1_n, 3));
+        N4->Fill(centrality, std::pow(/* qP1_p - */ qP1_n, 4));
+        N5->Fill(centrality, std::pow(/* qP1_p - */ qP1_n, 5));
+        N6->Fill(centrality, std::pow(/* qP1_p - */ qP1_n, 6));
       }
       if (readError < 0) {
         std::cout << "no input, skip" << std::endl;
