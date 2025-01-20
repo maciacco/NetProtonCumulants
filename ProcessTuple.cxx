@@ -16,8 +16,15 @@ void ProcessTuple(const int smpl = 0, const int iVarMin = 364, const int iVarMax
   int skippedVar = 0;
 
   for (int iVar = iVarMin; iVar < iVarMax; ++iVar){
-
-    TFile *fin = TFile::Open(Form("%s/LHC18ppTrig_HM%d_var_%d.root", kResDir, sample, iVar));
+    bool inVars = false;
+    for (int iV{0}; iV < kNVar; ++iV) {
+      if (iVar == kVar[iV]) {
+        inVars = true;
+      }
+    }
+    if (!inVars) continue;
+    const char* dir = kTriggerSel == 0x1 ? "MB" : "HM";
+    TFile *fin = TFile::Open(Form("%s/%s/LHC18ppTrig_HM%d_var_%d.root", kResDir, dir, sample, iVar));
     if (!fin || fin->TestBit(TFile::kZombie)){
       std::cout << "no input, skip" << std::endl;
       skippedVar += 1;
@@ -25,7 +32,7 @@ void ProcessTuple(const int smpl = 0, const int iVarMin = 364, const int iVarMax
       delete fin;
       continue;
     }
-    TFile fout(Form("%s/output_sys_HM_%d_%d.root", kResDir, sample, iVar), "recreate");
+    TFile fout(Form("%s/%s/output_sys_HM_%d_%d.root", kResDir, dir, sample, iVar), "recreate");
 
     TNtupleD *tuple_qmoment = (TNtupleD*)fin->Get(Form("evtTuple_%d", iVar));
     TH1D *hCent = (TH1D*)fin->Get(Form("hCent_%d", smpl));

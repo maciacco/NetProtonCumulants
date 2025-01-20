@@ -44,28 +44,49 @@ void Purity(const char *inFile = "LHC18ppTrig_HM0_var_364", const char* outFile 
   for (int iC{0}; iC < 2; ++iC){
     outerPID[iC] = (TH3D*)_file0->Get(Form("h%sOuterPID_0", kAntiMatterLabel[iC]));
     purity[iC] = new TH1D(Form("Purity_%s", kAntiMatterLabel[iC]), ";#it{p}_{T} (GeV/#it{c});S / (S + B)", kNBinsPt, ptBins);
-    for (int iP{1}; iP < kNBinsPt; ++iP){
+    for (int iP{1}; iP <= kNBinsPt; ++iP){
       TH1D* outerPID_proj = (TH1D*)outerPID[iC]->ProjectionZ(Form("outerPID_%s_%.2f_%.2f", kAntiMatterLabel[iC], outerPID[iC]->GetYaxis()->GetBinLowEdge(iP), outerPID[iC]->GetYaxis()->GetBinUpEdge(iP)), 1, kNCentBins, iP, iP);
 
-      TF1 fit("fit", GausDExpExp, -4., 4., 7);
-      fit.SetParLimits(0, 0., 1.e7);
-      fit.SetParLimits(1, -2., 2.);
-      fit.SetParLimits(2, 0.1, 2.);
-      fit.SetParLimits(3, -2., .8);
-      fit.SetParLimits(4, 0.8, 2.);
-      fit.SetParLimits(5, -10., 10.);
-      fit.SetParLimits(6, -10., 10.);
-      outerPID_proj->Fit("fit", "MRL+", "", -4., 4.);
-      TF1 sig("sig", GausDExp, -4., 4., 5);
+      TF1 *fit = nullptr;
+      if (iP != 10) {
+        fit = new TF1("fit", GausDExpExp, -4., 4., 7);
+        fit->SetParLimits(0, 0., 1.e7);
+        fit->SetParLimits(1, -2., 2.);
+        fit->SetParLimits(2, 0.1, 2.);
+        fit->SetParLimits(3, -2., 1.);
+        fit->SetParLimits(4, 1., 2.);
+        fit->SetParLimits(5, 0., 10.);
+        fit->SetParLimits(6, -10., 10.);
+
+        outerPID_proj->Fit("fit", "MRL+", "", -3., 1.);
+        outerPID_proj->Fit("fit", "MRL+", "", iP < 10 ? -3.1 : -3.9, 4.);
+      }
+      else {
+        TF1 tmp("tmp", "gaus", -4., 4.);
+        outerPID_proj->Fit("tmp", "MRL+", "", -1.5, 1.5);
+        fit = new TF1("fit", "gaus(0) + expo(3)", -4., 4.);
+        fit->SetParLimits(3, -10., 10.);
+        fit->SetParLimits(4, -10., 10.);
+        fit->SetParLimits(0, 1., 1.e7);
+        fit->SetParLimits(1, -1., 1.);
+        fit->SetParLimits(2, 0.5, 2.);
+        outerPID_proj->Fit("fit", "MRL+", "", -3., 4.);
+      }
+      TF1 *sig = nullptr;
+      if (iP != 10) sig = new TF1("sig", GausDExp, -4., 4., 5);
+      else sig = new TF1("sig", "gaus", -4., 4.);
       TF1 bkg("bkg", "TMath::Exp(-[0]*x + [1])");
-      sig.SetParameter(0, fit.GetParameter(0));
-      sig.SetParameter(1, fit.GetParameter(1));
-      sig.SetParameter(2, fit.GetParameter(2));
-      sig.SetParameter(3, fit.GetParameter(3));
-      sig.SetParameter(4, fit.GetParameter(4));
-      bkg.SetParameter(0, fit.GetParameter(5));
-      bkg.SetParameter(1, fit.GetParameter(6));
-      double purity_ = (sig.Integral(-2., 2., 1.e-7)) / (sig.Integral(-2., 2., 1.e-7) + bkg.Integral(-2., 2., 1.e-7));
+
+      sig->SetParameter(0, fit->GetParameter(0));
+      sig->SetParameter(1, fit->GetParameter(1));
+      sig->SetParameter(2, fit->GetParameter(2));
+      if (iP != 10) {
+        sig->SetParameter(3, fit->GetParameter(3));
+        sig->SetParameter(4, fit->GetParameter(4));
+      }
+      bkg.SetParameter(0, iP != 10 ? fit->GetParameter(5) : -fit->GetParameter(3));
+      bkg.SetParameter(1, iP != 10 ? fit->GetParameter(6) : fit->GetParameter(4));
+      double purity_ = (sig->Integral(-2., 2., 1.e-7)) / (sig->Integral(-2., 2., 1.e-7) + bkg.Integral(-2., 2., 1.e-7));
       purity[iC]->SetBinContent(iP, purity_);
       fout->cd();
       outerPID_proj->Write();

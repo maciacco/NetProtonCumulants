@@ -25,8 +25,9 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
   w.Start();
 
   int nSample = isMC ? 1 : kNSample;
+  const char* dir = kTriggerSel == 0x1 ? "MB" : "HM";
 
-  TFile *fEffPr = isMC ? nullptr : TFile::Open(Form("%s/%s.root", kResDir, kEffPrFile));
+  TFile *fEffPr = isMC ? nullptr : TFile::Open(Form("%s/%s/%s_%d_%d.root", kResDir, dir, kEffPrFile, iVarMin, iVarMax));
   TFile f(Form("%s/%s.root", kResDir, fname));
 
   const int nF = iVarMax - iVarMin;
@@ -36,7 +37,14 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
   }
   for (int iS{0}; iS < nSample; ++iS){
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar){
-      o[iS][iVar - iVarMin] = new TFile(Form("%s/%s%d_var_%d.root", kResDir, ofname, iS, iVar), "recreate");
+      bool inVars = false;
+      for (int iV{0}; iV < kNVar; ++iV) {
+        if (iVar == kVar[iV]) {
+          inVars = true;
+        }
+      }
+      if (!inVars) continue;
+      o[iS][iVar - iVarMin] = new TFile(Form("%s/%s/%s%d_var_%d.root", kResDir, dir, ofname, iS, iVar), "recreate");
     }
   }
 
@@ -115,6 +123,14 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
 
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
     {
+
+      bool inVars = false;
+      for (int iV{0}; iV < kNVar; ++iV) {
+        if (iVar == kVar[iV]) {
+          inVars = true;
+        }
+      }
+      if (!inVars) continue;
       evtTuple[iS][iVar - iVarMin] = new TNtupleD(Form("evtTuple_%d", iVar), Form("evtTuple_%d", iVar), "cent:q1pP:q1pN:q2pP:q2pN:q3pP:q3pN:q4pP:q4pN:q5pP:q5pN:q6pP:q6pN:ntrkl");
       evtTuple[iS][iVar - iVarMin]->SetDirectory(o[iS][iVar - iVarMin]);
       for (int iC = 0; iC < 2; ++iC){
@@ -145,6 +161,7 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
   for (int iB = 0; iB < kNBinsPt + 1; ++iB){
     ptBins[iB] = kMinPt + kDeltaPt * iB;
   }
+  std::cout << kNBinsPt << std::endl;
   float pidBins[kNBinsPID + 1];
   for (int iB = 0; iB < kNBinsPID + 1; ++iB){
     pidBins[iB] = kMinPID + kDeltaPID * iB;
@@ -193,6 +210,7 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
     t->GetEntry(tentry);
 
     float cent = fV0Multiplicity;
+    // std::cout << cent << std::endl;
     if (cent > kMaxCent) continue;
 
     if ((fTriggerMask & 0x2) == 0x2) { // high granularity
@@ -212,6 +230,15 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
 
     for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
     {
+      bool inVars = false;
+      // std::cout << iVar << std::endl;
+      for (int iV{0}; iV < kNVar; ++iV) {
+        if (iVar == kVar[iV]) {
+          inVars = true;
+        }
+      }
+      if (!inVars) continue;
+
       int iTPCcls = iVar % kNTPCcls;
       int iChi2TPC = (iVar / kNTPCcls) % kNChi2TPC;
       int iDCAxy = (iVar / kNTPCcls / kNChi2TPC) % kNDCAxy;
@@ -236,7 +263,7 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
         miniTrack* trk_tmp = (miniTrack*)tracks->At(itrk);
 
         if (isMC) {
-          if ( std::abs(trk_tmp->fGenPt) < kTOFptCut && std::abs(trk_tmp->fGenPt) > kPtLowLimitPr &&
+          if ( std::abs(trk_tmp->fGenPt) < kTOFptCut + 0.1f && std::abs(trk_tmp->fGenPt) > kPtLowLimitPr &&
                trk_tmp->fGenEtaMask < kEtaCut && trk_tmp->fGenEtaMask > -kEtaCut )
           {
             float eta_MC = static_cast<float>(trk_tmp->fGenEtaMask) / 100.f;
@@ -304,6 +331,14 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
   // Process output
   for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
   {
+    bool inVars = false;
+    for (int iV{0}; iV < kNVar; ++iV) {
+      if (iVar == kVar[iV]) {
+        inVars = true;
+      }
+    }
+    if (!inVars) continue;
+
     for (int iS{0}; iS < nSample; ++iS){
       //if (isMC) {
         o[iS][iVar - iVarMin]->cd();
@@ -330,6 +365,13 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
   }
 
   for (int iVar{iVarMin}; iVar < iVarMax; ++iVar){
+    bool inVars = false;
+    for (int iV{0}; iV < kNVar; ++iV) {
+      if (iVar == kVar[iV]) {
+        inVars = true;
+      }
+    }
+    if (!inVars) continue;
     for (int iS{0}; iS < nSample; ++iS){
       o[iS][iVar - iVarMin]->Close();
     }

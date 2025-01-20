@@ -78,11 +78,20 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
   TCanvas cSys("cSys", "cSys");
   cSys.Divide(3, 3);
   for (int i{0}; i < (kMultV0M ? kNCentBins : kNTrklBins); ++i){
-    hSys[i] = new TH1D(Form("hSys_%d", i), ";#kappa_{2}/#kappa_{1};Entries", 500, -2., 2.);
+    hSys[i] = new TH1D(Form("hSys_%d", i), ";#kappa_{2}/#kappa_{1};Entries", 15000, -.5, 1.5);
   }
 
-  for(int iVar = 364; iVar < 365; ++iVar)
+  for(int iVar = 0; iVar < 750; ++iVar)
   {
+    bool inVars = false;
+    for (int iV{0}; iV < kNVar; ++iV) {
+      if (iVar == kVar[iV]) {
+        inVars = true;
+        break;
+      }
+    }
+    if (!inVars) continue;
+
     std::cout << "var = " << iVar << "..." << std::endl;
 
     double iB0 = 0.;
@@ -127,9 +136,10 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
 
     for(int sample = 0; sample < kNSample; sample++)
     {
+      const char* triggerDir = kTriggerSel == 0x1 ? "MB" : "HM";
       // if (sample == 0) {nSkip++; continue;}
-      TFile *fin = new TFile(Form("%s/output_sys_HM_%d_%d.root", kResDir, sample, iVar));
-      TFile *fCent = TFile::Open(Form("%s/LHC18ppTrig_HM%d_var_%d.root", kResDir, sample, iVar));
+      TFile *fin = new TFile(Form("%s/%s/output_sys_HM_%d_%d.root", kResDir, triggerDir, sample, iVar));
+      TFile *fCent = TFile::Open(Form("%s/%s/LHC18ppTrig_HM%d_var_%d.root", kResDir, triggerDir, sample, iVar));
 
       TH1D *hCent = (TH1D*)fCent->Get(Form("hCent_%d", sample));
       TH1D *hNtrkl = (TH1D*)fCent->Get(Form("hNtrkl_%d", sample));
@@ -347,10 +357,13 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
     double multHM[]{31.25, -1.};
     double mult[]{18.68, 12.90, 10.03, 7.95, 6.32, 4.49, 2.54};
     //double mult[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,32.5,37.5};
-    for(int i = 1; i <= (kMultV0M ? kNCentBins : kNTrklBins); i++)
+    int nPoints = kMultV0M ? kNCentBins : kNTrklBins;
+    if (kMultV0M && kTriggerSel == 0x2) nPoints -= 1;
+    for(int i = 1; i <= nPoints; i++)
     {
       double mean = 0.0;
       double rms = 0.0;
+      std::cout << nSkip << std::endl;
       //cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
       if (obs_str == "k2k2sk") cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
       else if (obs_str == "k4k2") cumulant_ratio(mean, rms, k2[i - 1], k4[i - 1], nSkip);
@@ -388,7 +401,7 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
   }
 
   for (int i{0}; i < (kMultV0M ? kNCentBins : kNTrklBins) - 1; ++i){
-    // remove_outlier(hSys[i]);
+    remove_outlier(hSys[i]);
     hSys[i]->Write();
     hSys[i]->SetFillStyle(3004);
     hSys[i]->SetLineColor(kBlue);

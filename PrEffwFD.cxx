@@ -3,13 +3,24 @@
 
 //using namespace utils;
 
-void PrEffwFD(const char* inFileName = "LHC22f30_var", const char* inFileNameWD = "LHC22f3_WD0_var", const char* outFileName = "prEff", const int iVarMin = 364, const int iVarMax = 365){
+void PrEffwFD(const char* inFileName = "LHC22f30_var", const char* inFileNameWD = "LHC22f3_WD0_var", const char* outFileName = "prEff", const int iVarMin = 364, const int iVarMax = 365, const bool MB = true){
   gStyle->SetOptStat(0);
-  TFile *fOut = TFile::Open(Form("%s/%s.root", kResDir, outFileName), "recreate");
+  const char* dir = kTriggerSel == 0x1 ? "MB" : "HM";
+
+  TFile *fOut = TFile::Open(Form("%s/%s/%s_%d_%d.root", kResDir, dir, outFileName, iVarMin, iVarMax), "recreate");
   for (int iVar{iVarMin}; iVar < iVarMax; ++iVar){
-    TFile *fPt = TFile::Open("data/la2prPt.root");
-    TFile *fMC = TFile::Open(Form("%s/%s_%d.root", kResDir, inFileName, iVar));
-    TFile *fMCWD = TFile::Open(Form("%s/%s_%d.root", kResDir, inFileNameWD, iVar));
+    bool inVars = false;
+    for (int iV{0}; iV < kNVar; ++iV) {
+      if (iVar == kVar[iV]) {
+        inVars = true;
+        break;
+      }
+    }
+    if (!inVars) continue;
+    const char* dir = kTriggerSel ? "MB" : "HM";
+    TFile *fPt = TFile::Open(MB ? "data/la2prPt.root" : "data/la2prPtHM.root");
+    TFile *fMC = TFile::Open(Form("%s/%s/%s_%d.root", kResDir, dir, inFileName, iVar));
+    TFile *fMCWD = TFile::Open(Form("%s/%s/%s_%d.root", kResDir, dir, inFileNameWD, iVar));
     for (int iS = 0; iS < 1; ++iS){
       fOut->mkdir(Form("subsample_%d_var_%d", iS + 1, iVar));
       fOut->cd(Form("subsample_%d_var_%d", iS + 1, iVar));
@@ -32,6 +43,8 @@ void PrEffwFD(const char* inFileName = "LHC22f30_var", const char* inFileNameWD 
           for (int iC = 0; iC < kNCentBins; ++iC){
             for (int iE = 0; iE < kNEtaBins; ++iE){
               auto ptPrWD = (TH1D*)fPt->Get(Form("hPrPt_%d", iC));
+              auto ptPrWDSig = (TH1D*)fPt->Get(Form("hPrPtSig_%d", iC));
+              // ptPrWD->Add(ptPrWDSig);
               auto ptPrPrim = (TH1D*)fPt->Get(Form("hPrPtPrim_%d", iC));
               auto hGenProjMult = (TH1D*)hGenP->ProjectionY(Form("h%sGen%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1, iE + 1, iE + 1);
               auto hRecProjMult = (TH1D*)hRecP->ProjectionY(Form("h%sRec%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1, iE + 1, iE + 1);
@@ -42,19 +55,13 @@ void PrEffwFD(const char* inFileName = "LHC22f30_var", const char* inFileNameWD 
               auto hGenProjWD = (TH1D*)hGenWD->ProjectionY(Form("h%sGenWD%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, kNCentBins, iE + 1, iE + 1);
               auto hRecProjWD = (TH1D*)hRecWD->ProjectionY(Form("h%sRecWD%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, kNCentBins, iE + 1, iE + 1);
 
-              hGenProjMult->Multiply(ptPrPrim);
-              hGenProjMultWD->Multiply(ptPrWD);
-              hRecProjMult->Multiply(ptPrPrim);
-              hRecProjMultWD->Multiply(ptPrWD);
-              hGenProjMult->Add(hGenProjMultWD);
-              hRecProjMult->Add(hRecProjMultWD);
-
-              hGenProj->Multiply(ptPrPrim);
-              hGenProjWD->Multiply(ptPrWD);
+              hRecProj->Divide(hRecProj, hGenProj, 1., 1., "B");
+              hRecProjWD->Divide(hRecProjWD, hGenProjWD, 1., 1., "B");
               hRecProj->Multiply(ptPrPrim);
               hRecProjWD->Multiply(ptPrWD);
-              hGenProj->Add(hGenProjWD);
               hRecProj->Add(hRecProjWD);
+
+              hGenProj->Add(ptPrPrim, ptPrWD);
 
               hEffMult[iC][iE] = new TH1D(*hGenProjMult);
               hEff[iC][iE] = new TH1D(*hGenProj);

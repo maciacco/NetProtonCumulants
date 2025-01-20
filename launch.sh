@@ -1,17 +1,20 @@
+min=$1
+max=$2
+
 root -b -l <<EOF
-//.L ReadTree.cxx+
-//ReadTree("newTree_LHC22f3_WD", "LHC22f3", 364, 365, true)
-//.L ReadTree.cxx+
-//ReadTree("newTree_LHC22f3_WD", "LHC22f3_wd", 364, 365, true, 1)
+//.L La2PrPt.cxx
+//La2PrPt()
+//.L ReadTree.cxx
+//ReadTree("newTree_LHC22f3_20250116", "LHC22f3", ${min}, ${max}, true)
+//.L ReadTree.cxx
+//ReadTree("newTree_LHC22f3_20250116", "LHC22f3_wd", ${min}, ${max}, true, 1)
 //.L PrEffwFD.cxx
-//PrEffwFD("LHC22f30_var", "LHC22f3_wd0_var", "prEff", 364, 365)
-//PrEff("LHC22f30_var", "prEff", 364, 365)
-//PrEff("LHC22f3_wd0_var", "prEffWD", 364, 365)
-//.L ReadTree.cxx+
-//ReadTree("newTree_LHC18v2_20241230", "LHC18ppTrig_HM", 364, 365, false)
+//PrEffwFD("LHC22f30_var", "LHC22f3_wd0_var", "prEff", ${min}, ${max})
+.L ReadTree.cxx
+ReadTree("newTree_LHC18pp_20250116_MB", "LHC18ppTrig_HM", ${min}, ${max}, false)
 //.L ProcessTuple.cxx+
-.L ProcessTupleSingleParticleHighOrder.cxx+
+//.L ProcessTupleSingleParticleHighOrder.cxx+
 .q
 EOF
 
-cat cmdz | xargs -P 20 -I CMD bash -c CMD
+#cat cmdz | xargs -P 20 -I CMD bash -c CMD
