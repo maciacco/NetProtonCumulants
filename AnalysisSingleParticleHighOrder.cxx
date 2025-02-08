@@ -83,7 +83,7 @@ void AnalysisSingleParticleHighOrder(const char* period = "18", const char* obs 
     hSys[i] = new TH1D(Form("hSys_%d", i), ";#kappa_{2}/#kappa_{1};Entries", 10000, -.5, 1.5);
   }
 
-  for(int iVar = 0; iVar < 750; ++iVar)
+  for(int iVar = 0; iVar < 780; ++iVar)
   {
     bool inVars = false;
     for (int iV{0}; iV < kNVar; ++iV) {
@@ -139,13 +139,21 @@ void AnalysisSingleParticleHighOrder(const char* period = "18", const char* obs 
     for(int sample = 0; sample < kNSample; sample++)
     {
       // if (sample == 0) {nSkip++; continue;}
-      const char* triggerDir = kTriggerSel == 0x1 ? "MB" : "HM";
+      const char* triggerDir = kTriggerSel == 0x1 ? "MB_08" : "HM_08";
       TFile *fin = new TFile(Form("%s/%s/output_sys_singleParticle_%d_%d.root", kResDir, triggerDir, sample, iVar));
       TFile *fCent = TFile::Open(Form("%s/%s/LHC18ppTrig_HM%d_var_%d.root", kResDir, triggerDir, sample, iVar));
 
-      TH1D *hCent = (TH1D*)fCent->Get(Form("hCent_%d", sample));
-      TH1D *hNtrkl = (TH1D*)fCent->Get(Form("hNtrkl_%d", sample));
-
+      TH1D *hCent = nullptr, *hNtrkl = nullptr;
+      if (fCent){
+        hCent = (TH1D*)fCent->Get(Form("hCent_%d", sample));
+        hNtrkl = (TH1D*)fCent->Get(Form("hNtrkl_%d", sample));
+      }
+      else {
+        hCent = new TH1D("hCent", "hCent", kNCentBinsSmall, kCentBinsSmall);
+        hNtrkl = new TH1D("hNtrkl", "hNtrkl", kNTrklBinsSmall, kTrklBinsSmall);
+        for (int iB{1}; iB <= hCent->GetNbinsX(); ++iB) hCent->SetBinContent(iB, 1);
+        for (int iB{1}; iB <= hNtrkl->GetNbinsX(); ++iB) hNtrkl->SetBinContent(iB, 1);
+      }
       if (!fin /* || sample == 4 */) {nSkip++; fin->Close(); delete fin; continue;}
 
       // 1st order
@@ -338,7 +346,8 @@ void AnalysisSingleParticleHighOrder(const char* period = "18", const char* obs 
       }
 
       fin->Close();
-      fCent->Close();
+      if (fCent)
+        fCent->Close();
       delete fin;
       delete fCent;
     }
@@ -367,6 +376,7 @@ void AnalysisSingleParticleHighOrder(const char* period = "18", const char* obs 
       double rms = 0.0;
       //cumulant_ratio(mean, rms, k2sk[i - 1], k2[i - 1], nSkip);
       if (obs_str == "k2k1") cumulant_ratio(mean, rms, k1[i - 1], k2[i - 1], nSkip);
+      else if (obs_str == "k3k1") cumulant_ratio(mean, rms, k1[i - 1], k3[i - 1], nSkip);
       else if (obs_str == "k1") cumulant(mean, rms, k1[i - 1], k1[i - 1], nSkip);
       else if (obs_str == "k2") cumulant(mean, rms, k1[i - 1], k2[i - 1], nSkip);
       else if (obs_str == "k3") cumulant(mean, rms, k1[i - 1], k3[i - 1], nSkip);
@@ -399,7 +409,9 @@ void AnalysisSingleParticleHighOrder(const char* period = "18", const char* obs 
     #endif // FILL_MC
   }
 
-  for (int i{0}; i < (kMultV0M ? kNCentBins : kNTrklBins) - 1; ++i){
+  int nPoints = kMultV0M ? kNCentBins : kNTrklBins;
+  if (kMultV0M && kTriggerSel == 0x2) nPoints -= 1;
+  for (int i{0}; i < nPoints; ++i){
     remove_outlier(hSys[i]);
     hSys[i]->Write();
     hSys[i]->SetFillStyle(3004);

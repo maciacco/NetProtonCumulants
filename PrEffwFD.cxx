@@ -17,10 +17,10 @@ void PrEffwFD(const char* inFileName = "LHC22f30_var", const char* inFileNameWD 
       }
     }
     if (!inVars) continue;
-    const char* dir = kTriggerSel ? "MB" : "HM";
-    TFile *fPt = TFile::Open(MB ? "data/la2prPt.root" : "data/la2prPtHM.root");
+    const char* dir = kTriggerSel == 0x1? "MB" : "HM";
+    //TFile *fPt = TFile::Open(MB ? "data/la2prPt.root" : "data/la2prPtHM.root");
     TFile *fMC = TFile::Open(Form("%s/%s/%s_%d.root", kResDir, dir, inFileName, iVar));
-    TFile *fMCWD = TFile::Open(Form("%s/%s/%s_%d.root", kResDir, dir, inFileNameWD, iVar));
+    //TFile *fMCWD = TFile::Open(Form("%s/%s/%s_%d.root", kResDir, dir, inFileNameWD, iVar));
     for (int iS = 0; iS < 1; ++iS){
       fOut->mkdir(Form("subsample_%d_var_%d", iS + 1, iVar));
       fOut->cd(Form("subsample_%d_var_%d", iS + 1, iVar));
@@ -28,8 +28,8 @@ void PrEffwFD(const char* inFileName = "LHC22f30_var", const char* inFileNameWD 
         for (int iM = 0; iM < 2; ++iM){
           auto hGenP = (TH3D*)fMC->Get(Form("h%sGen%s_%d",kAntiMatterLabel[iM], kPartLabelExtend[iP], iVar));
           auto hRecP = (TH3D*)fMC->Get(Form("h%sRec%s_%d",kAntiMatterLabel[iM], kPartLabelExtend[iP], iVar));
-          auto hGenWD = (TH3D*)fMCWD->Get(Form("h%sGen%s_%d",kAntiMatterLabel[iM], kPartLabelExtend[iP], iVar));
-          auto hRecWD = (TH3D*)fMCWD->Get(Form("h%sRec%s_%d",kAntiMatterLabel[iM], kPartLabelExtend[iP], iVar));
+          //auto hGenWD = (TH3D*)fMCWD->Get(Form("h%sGen%s_%d",kAntiMatterLabel[iM], kPartLabelExtend[iP], iVar));
+          //auto hRecWD = (TH3D*)fMCWD->Get(Form("h%sRec%s_%d",kAntiMatterLabel[iM], kPartLabelExtend[iP], iVar));
           auto hGenTrkl = (TH3D*)fMC->Get(Form("h%sGen%sTrkl_%d",kAntiMatterLabel[iM], kPartLabelExtend[iP], iVar));
           auto hRecTrkl = (TH3D*)fMC->Get(Form("h%sRec%sTrkl_%d",kAntiMatterLabel[iM], kPartLabelExtend[iP], iVar));
           TCanvas ce(Form("c%sEff_%s_%d", kAntiMatterLabel[iM], kPartLabelExtend[iP], iVar), Form("c%sEff_%s", kAntiMatterLabel[iM], kPartLabelExtend[iP]), 500, 500);
@@ -42,26 +42,26 @@ void PrEffwFD(const char* inFileName = "LHC22f30_var", const char* inFileNameWD 
           TH1D *hEffMultTrkl[kNTrklBins][kNEtaBins];
           for (int iC = 0; iC < kNCentBins; ++iC){
             for (int iE = 0; iE < kNEtaBins; ++iE){
-              auto ptPrWD = (TH1D*)fPt->Get(Form("hPrPt_%d", iC));
-              auto ptPrWDSig = (TH1D*)fPt->Get(Form("hPrPtSig_%d", iC));
+              //auto ptPrWD = (TH1D*)fPt->Get(Form("hPrPt_%d", iC));
+              //auto ptPrWDSig = (TH1D*)fPt->Get(Form("hPrPtSig_%d", iC));
               // ptPrWD->Add(ptPrWDSig);
-              auto ptPrPrim = (TH1D*)fPt->Get(Form("hPrPtPrim_%d", iC));
+              //auto ptPrPrim = (TH1D*)fPt->Get(Form("hPrPtPrim_%d", iC));
               auto hGenProjMult = (TH1D*)hGenP->ProjectionY(Form("h%sGen%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1, iE + 1, iE + 1);
               auto hRecProjMult = (TH1D*)hRecP->ProjectionY(Form("h%sRec%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1, iE + 1, iE + 1);
-              auto hGenProjMultWD = (TH1D*)hGenWD->ProjectionY(Form("h%sGenWD%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1, iE + 1, iE + 1);
-              auto hRecProjMultWD = (TH1D*)hRecWD->ProjectionY(Form("h%sRecWD%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1, iE + 1, iE + 1);
+              //auto hGenProjMultWD = (TH1D*)hGenWD->ProjectionY(Form("h%sGenWD%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1, iE + 1, iE + 1);
+              //auto hRecProjMultWD = (TH1D*)hRecWD->ProjectionY(Form("h%sRecWD%sProjMult_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), iC + 1, iC + 1, iE + 1, iE + 1);
               auto hGenProj = (TH1D*)hGenP->ProjectionY(Form("h%sGen%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, kNCentBins, iE + 1, iE + 1);
               auto hRecProj = (TH1D*)hRecP->ProjectionY(Form("h%sRec%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, kNCentBins, iE + 1, iE + 1);
-              auto hGenProjWD = (TH1D*)hGenWD->ProjectionY(Form("h%sGenWD%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, kNCentBins, iE + 1, iE + 1);
-              auto hRecProjWD = (TH1D*)hRecWD->ProjectionY(Form("h%sRecWD%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, kNCentBins, iE + 1, iE + 1);
+              //auto hGenProjWD = (TH1D*)hGenWD->ProjectionY(Form("h%sGenWD%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, kNCentBins, iE + 1, iE + 1);
+              //auto hRecProjWD = (TH1D*)hRecWD->ProjectionY(Form("h%sRecWD%sProj_%d_%d", kAntiMatterLabel[iM], kPartLabel[iP], iC, iE), 1, kNCentBins, iE + 1, iE + 1);
 
-              hRecProj->Divide(hRecProj, hGenProj, 1., 1., "B");
-              hRecProjWD->Divide(hRecProjWD, hGenProjWD, 1., 1., "B");
-              hRecProj->Multiply(ptPrPrim);
-              hRecProjWD->Multiply(ptPrWD);
-              hRecProj->Add(hRecProjWD);
+              //hRecProj->Divide(hRecProj, hGenProj, 1., 1., "B");
+              //hRecProjWD->Divide(hRecProjWD, hGenProjWD, 1., 1., "B");
+              //hRecProj->Multiply(ptPrPrim);
+              //hRecProjWD->Multiply(ptPrWD);
+              //hRecProj->Add(hRecProjWD);
 
-              hGenProj->Add(ptPrPrim, ptPrWD);
+              //hGenProj->Add(ptPrPrim, ptPrWD);
 
               hEffMult[iC][iE] = new TH1D(*hGenProjMult);
               hEff[iC][iE] = new TH1D(*hGenProj);

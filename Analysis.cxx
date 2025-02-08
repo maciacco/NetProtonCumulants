@@ -81,6 +81,9 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
     hSys[i] = new TH1D(Form("hSys_%d", i), ";#kappa_{2}/#kappa_{1};Entries", 15000, -.5, 1.5);
   }
 
+  TGraphErrors gSys;
+  gSys.SetName("g_sys");
+
   for(int iVar = 0; iVar < 750; ++iVar)
   {
     bool inVars = false;
@@ -141,8 +144,17 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
       TFile *fin = new TFile(Form("%s/%s/output_sys_HM_%d_%d.root", kResDir, triggerDir, sample, iVar));
       TFile *fCent = TFile::Open(Form("%s/%s/LHC18ppTrig_HM%d_var_%d.root", kResDir, triggerDir, sample, iVar));
 
-      TH1D *hCent = (TH1D*)fCent->Get(Form("hCent_%d", sample));
-      TH1D *hNtrkl = (TH1D*)fCent->Get(Form("hNtrkl_%d", sample));
+      TH1D *hCent = nullptr, *hNtrkl = nullptr;
+      if (fCent){
+        hCent = (TH1D*)fCent->Get(Form("hCent_%d", sample));
+        hNtrkl = (TH1D*)fCent->Get(Form("hNtrkl_%d", sample));
+      }
+      else {
+        hCent = new TH1D("hCent", "hCent", kNCentBinsSmall, kCentBinsSmall);
+        hNtrkl = new TH1D("hNtrkl", "hNtrkl", kNTrklBinsSmall, kTrklBinsSmall);
+        for (int iB{1}; iB <= hCent->GetNbinsX(); ++iB) hCent->SetBinContent(iB, 1);
+        for (int iB{1}; iB <= hNtrkl->GetNbinsX(); ++iB) hNtrkl->SetBinContent(iB, 1);
+      }
 
       if (!fin /* || sample == 4 */) {nSkip++; fin->Close(); delete fin; continue;}
 
@@ -336,7 +348,8 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
       }
 
       fin->Close();
-      fCent->Close();
+      if (fCent)
+        fCent->Close();
       delete fin;
       delete fCent;
     }
@@ -378,6 +391,7 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
       g.AddPoint(kTriggerSel == 0x1 ? mult[i - 1] : multHM[i - 1]/* 0.5 * (kCentBins[i - 1] + kCentBins[i]) */, mean);
       hSys[i - 1]->Fill(mean);
       g.SetPointError(i - 1, 0, TMath::Sqrt(rms / (( kNSample - nSkip) * (( kNSample - nSkip) - 1))));
+      if (iVar == 364)     gSys.AddPoint(g.GetPointX(i), g.GetPointY(i));
 
       #ifdef FILL_MC
         double mean_gen = 0.0;
@@ -400,8 +414,10 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
     #endif // FILL_MC
   }
 
-  for (int i{0}; i < (kMultV0M ? kNCentBins : kNTrklBins) - 1; ++i){
-    remove_outlier(hSys[i]);
+  int nPoints = kMultV0M ? kNCentBins : kNTrklBins;
+  if (kMultV0M && kTriggerSel == 0x2) nPoints -= 1;
+  for (int i{0}; i < nPoints; ++i){
+    // remove_outlier(hSys[i]);
     hSys[i]->Write();
     hSys[i]->SetFillStyle(3004);
     hSys[i]->SetLineColor(kBlue);
@@ -410,8 +426,10 @@ void Analysis(const char* period = "18", const char* obs = "k2k1")
     hSys[i]->SetTitle(Form("mult. class %d", i));
     cSys.cd(i + 1);
     hSys[i]->Draw("histo");
+    //gSys.AddPoint(g.GetPointX(i), g.GetPointY(i));
+    gSys.SetPointError(i, 0.5, hSys[i]->GetStdDev());
   }
-
+  gSys.Write();
   cSys.Write();
   f.Close();
 }

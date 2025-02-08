@@ -195,6 +195,8 @@ void ProcessTuple(const int smpl = 0, const int iVarMin = 364, const int iVarMax
       arg = tuple_qmoment->GetArgs();
       centrality = kMultV0M ? arg[0] : arg[13];
 
+      if ((j%100000)==0) std::cout << j << std::endl;
+
       double qPr_p[]{arg[1], arg[3], arg[5], arg[7], arg[9], arg[11]};
       double qPr_n[]{arg[2], arg[4], arg[6], arg[8], arg[10], arg[12]};
 

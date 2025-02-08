@@ -24,6 +24,18 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
   TStopwatch w;
   w.Start();
 
+  std::vector<int> var_vect;
+  for (int iV{iVarMin}; iV < iVarMax; ++iV) {
+    for (int iV2{0}; iV2 < kNVar; ++iV2) {
+      if (iV == kVar[iV2])
+        var_vect.push_back(iV);
+    }
+  }
+
+  for (int v : var_vect) {
+    std::cout << "var = " << v << std::endl;
+  }
+
   int nSample = isMC ? 1 : kNSample;
   const char* dir = kTriggerSel == 0x1 ? "MB" : "HM";
 
@@ -133,6 +145,7 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
       if (!inVars) continue;
       evtTuple[iS][iVar - iVarMin] = new TNtupleD(Form("evtTuple_%d", iVar), Form("evtTuple_%d", iVar), "cent:q1pP:q1pN:q2pP:q2pN:q3pP:q3pN:q4pP:q4pN:q5pP:q5pN:q6pP:q6pN:ntrkl");
       evtTuple[iS][iVar - iVarMin]->SetDirectory(o[iS][iVar - iVarMin]);
+      evtTuple[iS][iVar - iVarMin]->SetAutoFlush(2000000);
       for (int iC = 0; iC < 2; ++iC){
         if (isMC) {
           evtTupleGen[iS][iVar - iVarMin] = new TNtupleD(Form("evtTupleGen_%d", iVar), Form("evtTupleGen_%d", iVar), "cent:q1pP:q1pN:ntrkl");
@@ -228,16 +241,9 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
     hCent[iS]->Fill(cent);
     hNtrkl[iS]->Fill(fNtracklets);
 
-    for (int iVar{iVarMin}; iVar < iVarMax; ++iVar)
+    for (int const& iVar : var_vect)
     {
       bool inVars = false;
-      // std::cout << iVar << std::endl;
-      for (int iV{0}; iV < kNVar; ++iV) {
-        if (iVar == kVar[iV]) {
-          inVars = true;
-        }
-      }
-      if (!inVars) continue;
 
       int iTPCcls = iVar % kNTPCcls;
       int iChi2TPC = (iVar / kNTPCcls) % kNChi2TPC;
@@ -287,6 +293,8 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
             ( ( (((trk_tmp->fSelMask & kCutChi2TPC[iChi2TPC]) == kCutChi2TPC[iChi2TPC]) || ((trk_tmp->fSelMask & kCutChi2TPC2[iChi2TPC]) == kCutChi2TPC2[iChi2TPC]) ) && kRequireChi2TPCCut[iChi2TPC] ) || !kRequireChi2TPCCut[iChi2TPC] ) &&
             ( ( ((trk_tmp->fSelMask & kCutDCAxy[iDCAxy]) == kCutDCAxy[iDCAxy] || (trk_tmp->fSelMask & kCutDCAxy2[iDCAxy]) == kCutDCAxy2[iDCAxy]) && kRequireDCAxyCut[iDCAxy] ) || !kRequireDCAxyCut[iDCAxy] ) &&
             ( ( ((trk_tmp->fSelMask & kCutDCAz[iDCAz]) == kCutDCAz[iDCAz] || (trk_tmp->fSelMask & kCutDCAz2[iDCAz]) == kCutDCAz2[iDCAz]) && kRequireDCAzCut[iDCAz] ) || !kRequireDCAzCut[iDCAz] ) &&
+            ( ( ((trk_tmp->fSelMask & kCutITSPID[iITSPID]) == kCutITSPID[iITSPID] || (trk_tmp->fSelMask & kCutITSPID2[iITSPID]) == kCutITSPID2[iITSPID]) && kRequireDCAzCut[iITSPID] ) || !kRequireITSPIDCut[iITSPID] ) &&
+            //( ( ((trk_tmp->fSelMask & kCutTPCPID[iTPCPID]) == kCutDCAz[iTPCPID] || (trk_tmp->fSelMask & kCutTPCPID2[iTPCPID]) == kCutTPCPID2[iTPCPID]) && kRequireTPCPIDCut[iTPCPID] ) || !kRequireTPCPIDCut[iTPCPID] ) &&
             std::abs(trk_tmp->fPt) > kPtLowLimitPr && std::abs(trk_tmp->fPt) < kTOFptCut &&
             (trk_tmp->fEtaMask < kEtaCut && trk_tmp->fEtaMask > -kEtaCut) &&
             (trk_tmp->fEtaMask < -kEtaCutMin || trk_tmp->fEtaMask > kEtaCutMin) &&
