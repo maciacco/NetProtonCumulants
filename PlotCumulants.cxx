@@ -1,10 +1,12 @@
-const char* obs_ax[]{"#tilde{#kappa}_{6}/#tilde{#kappa}_{2}", "#tilde{#kappa}_{4}/#tilde{#kappa}_{2}", "#kappa_{2}/#kappa_{2,Sk}", "#kappa_{2}^{#bar{p}}/#kappa_{1}^{#bar{p}}", "#kappa_{3}^{#bar{p}}/#kappa_{1}^{#bar{p}}"};
+const char* obs_ax[]{"#kappa_{6}/#kappa_{2}", "#kappa_{4}/#kappa_{2}", "#kappa_{2}/#kappa_{2,Sk}", "#kappa_{2}^{#bar{p}}/#kappa_{1}^{#bar{p}}", "#kappa_{3}^{#bar{p}}/#kappa_{1}^{#bar{p}}"};
 const char* obs_sr[]{"k6k2", "k4k2", "k2k2sk", "k2k1", "k3k1"};
 const char* fname_ = "18";
 const char* fname_m[]{"18_28_volF_23", "18_28_volF_23", "18_28", "18_28", "18_28"};
 const char* fname_dat[]{"", "", "", "_singleParticleHighOrder", "_singleParticleHighOrder"};
 const double yax_lim[][2] = {{0.25, 1.2}, {0.84, 1.03}, {0.9, .93}, {0.95, 1.02}, {0.86, 1.05}};
 const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", ""};
+//const double xerr[]{0.16, 0.12, 0.13, 0.11, 0.085, 0.064, 0.036};
+//const double xerr_hm{0.26};
 
 void SetGraphStyle(TGraph* g, Color_t const color = kRed){
   g->SetMarkerStyle(20);
@@ -23,7 +25,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulants(const int obs = 4){
+void PlotCumulants(const int obs = 1){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -74,7 +76,9 @@ void PlotCumulants(const int obs = 4){
   for (int i{0}; i < 7; ++i) {
     auto hSys = (TH1D*)f_mb->Get(Form("hSys_%d", i));
     g_mb_s->AddPoint(g_mb->GetPointX(i), g_mb->GetPointY(i));
-    g_mb_s->SetPointError(i, 0.5, hSys->GetStdDev());
+    double min = hSys->GetBinCenter(hSys->FindFirstBinAbove(0));
+    double max = hSys->GetBinCenter(hSys->FindLastBinAbove(0));
+    g_mb_s->SetPointError(i, 0.5, /*xerr[i],*/ /*0.5 * (max - min)*/ hSys->GetStdDev());
   /*  hSys = (TH1D*)f_mb_6->Get(Form("hSys_%d", i));
     g_mb_s_6->AddPoint(g_mb_6->GetPointX(i), g_mb_6->GetPointY(i));
     g_mb_s_6->SetPointError(i, 0.5, hSys->GetStdDev());
@@ -86,7 +90,7 @@ void PlotCumulants(const int obs = 4){
   for (int i{0}; i < 1; ++i) {
     auto hSys = (TH1D*)f_hm->Get(Form("hSys_%d", i));
     g_hm_s->AddPoint(g_hm->GetPointX(i), g_hm->GetPointY(i));
-    g_hm_s->SetPointError(i, 0.5, hSys->GetStdDev());
+    g_hm_s->SetPointError(i, 0.5, /*xerr_hm,*/ hSys->GetStdDev());
   /*  hSys = (TH1D*)f_hm->Get(Form("hSys_%d", i));
     g_hm_s_6->AddPoint(g_hm_6->GetPointX(i), g_hm_6->GetPointY(i));
     g_hm_s_6->SetPointError(i, 0.5, hSys->GetStdDev());
