@@ -1,15 +1,15 @@
 void computeVolumeFluct(){
   TFile f("fo_compute_volF.root", "recreate");
 
-  TFile fin_k2k1_n("../ResultsNetP/final_plots/out_sys_MB_18_08_finalBinning_singleParticleHighOrder_k2k1.root");
-  TFile fin_k3k1_n("../out_sys_MB_18_08_finalBinning_singleParticleHighOrder_k3k1.root");
+  TFile fin_k2k1_n("../ResultsNetP/final_plots_08_hadPID/out_sys_MB_18_08_finalBinning_singleParticleHighOrder_k2k1.root");
+  TFile fin_k3k1_n("../ResultsNetP/final_plots_08_hadPID/out_sys_MB_18_08_finalBinning_singleParticleHighOrder_k3k1.root");
 
-  TFile fin_k2k1_n_hm("../ResultsNetP/final_plots/out_sys_HM_18_08_finalBinning_singleParticleHighOrder_k2k1.root");
-  TFile fin_k3k1_n_hm("../out_sys_HM_18_08_finalBinning_singleParticleHighOrder_k3k1.root");
+  TFile fin_k2k1_n_hm("../ResultsNetP/final_plots_08_hadPID/out_sys_HM_18_08_finalBinning_singleParticleHighOrder_k2k1.root");
+  TFile fin_k3k1_n_hm("../ResultsNetP/final_plots_08_hadPID/out_sys_HM_18_08_finalBinning_singleParticleHighOrder_k3k1.root");
 
-  TFile fin_k2k1_n_model("/home/mciacco/Code/out_sys_18_28_finalBinning_k2k1_n.root");
-  TFile fin_k3k1_n_model("/home/mciacco/Code/out_sys_18_28_finalBinning_k3k1_n.root");
-  TFile fin_k1_n_model("/home/mciacco/Code/out_sys_18_28_finalBinning_k1_n.root");
+  TFile fin_k2k1_n_model("/home/mciacco/Code/NetProtonCumulants/out_sys_18_278_finalBinning_k2k1_n.root");
+  TFile fin_k3k1_n_model("/home/mciacco/Code/NetProtonCumulants/out_sys_18_278_finalBinning_k3k1_n.root");
+  TFile fin_k1_n_model("/home/mciacco/Code/NetProtonCumulants/out_sys_18_278_finalBinning_k1_n.root");
 
   TGraphErrors *g_k2k1_n_ = static_cast<TGraphErrors*>(fin_k2k1_n.Get("g_364"));
   TGraphErrors *g_k3k1_n_ = static_cast<TGraphErrors*>(fin_k3k1_n.Get("g_364"));

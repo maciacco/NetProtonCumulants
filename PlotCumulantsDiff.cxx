@@ -1,13 +1,17 @@
 const char* obs_ax[]{"#kappa_{6}/#kappa_{2}", "#kappa_{4}/#kappa_{2}", "#kappa_{2}/#kappa_{2,Sk}", "#kappa_{2}^{#bar{p}}/#kappa_{1}^{#bar{p}}", "#kappa_{3}^{#bar{p}}/#kappa_{1}^{#bar{p}}"};
 const char* obs_sr[]{"k6k2", "k4k2", "k2k2sk", "k2k1", "k3k1"};
 const char* fname_ = "18";
-const char* fname_m[]{"18_28_volF_23", "18_28_volF_23", "18_28", "18_28", "18_28"};
+const char* fname_m[]{"18_278", "18_278", "18_278", "18_278", "18_278"};
 const char* fname_dat[]{"", "", "", "_singleParticleHighOrder", "_singleParticleHighOrder"};
-const double yax_lim[][2] = {{0.24, 1.2}, {0.845, 1.03}, {0.9, .93}, {0.95, 1.02}, {0.86, 1.05}};
-const double yax_lim_diff[][2] = {{-0.17, 0.17}, {-0.011, 0.011}, {-0.2, .2}, {0.95, 1.02}, {0.86, 1.05}};
+const double yax_lim[][2] = {{0.15, 1.2}, {0.805, 1.04}, {0.897, 0.93}, {0.88, 1.02}, {0.86, 1.05}};
+const double yax_lim_diff[][2] = {{-0.17, 0.17}, {-0.014, 0.014}, {-0.007, .007}, {0.95, 1.02}, {0.86, 1.05}};
 const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", ""};
 //const double xerr[]{0.16, 0.12, 0.13, 0.11, 0.085, 0.064, 0.036};
 //const double xerr_hm{0.26};
+const double pythia8_monash[][7]{{0.803634, 0.994558, 0.956312, 0.967531, 0.956223, 0.952725, 1.11756}, {0.950518, 0.991494, 0.980016, 0.981019, 0.979718, 0.977441, 1.00332}, {0.833258, 0.802092, 0.785658, 0.771072, 0.756551, 0.742023, 0.728226/*, 0.721047*/}};
+const double pythia8_monash_err[][7]{{0.00347729, 0.00917395, 0.0125335, 0.0207804, 0.0169664, 0.0169349, 0.0255032}, {0.000502528, 0.00119946, 0.0016136, 0.00134277, 0.00159809, 0.00111598, 0.0016718}, {0.000128186, 0.000121104, 0.000301248, 0.000184409, 0.000225784, 0.000243093, 0.000224489/*, 0.00212855*/}};
+const double pythia8_monash_mult[]{2.70857, 4.74809, 6.93366, 8.87174, 11.4479, 14.8722, 20.4656};
+const double pythia8_monash_mult_err[]{0., 0., 0., 0., 0., 0., 0.};
 
 void SetGraphStyle(TGraph* g, Color_t const color = kRed){
   g->SetMarkerStyle(20);
@@ -26,12 +30,12 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulantsDiff(const int obs = 0){
+void PlotCumulantsDiff(const int obs = 2){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
-  TFile *f_mb = TFile::Open(Form("../ResultsNetP/final_plots/out_sys_MB_%s_08_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
-  TFile *f_hm = TFile::Open(Form("../ResultsNetP/final_plots/out_sys_HM_%s_08_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_mb = TFile::Open(Form("../ResultsNetP/final_plots_08_hadPID/out_sys_MB_%s_08_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_hm = TFile::Open(Form("../ResultsNetP/final_plots_08_hadPID/out_sys_HM_%s_08_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
 /*  TFile *f_mb_6 = TFile::Open(Form("../ResultsNetP/final_plots_06/out_sys_MB_%s_06_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
   TFile *f_hm_6 = TFile::Open(Form("../ResultsNetP/final_plots_06/out_sys_HM_%s_06_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
   TFile *f_mb_4 = TFile::Open(Form("../ResultsNetP/final_plots_04/out_sys_MB_%s_04_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
@@ -40,9 +44,18 @@ void PlotCumulantsDiff(const int obs = 0){
   TFile *f_mb_m = TFile::Open(Form("out_sys_%s_finalBinning_%s.root", fname_m[obs], obs_sr[obs]));
 //  TFile *f_hm_m = TFile::Open(Form("../test_models_thermalFistDowngrade/out_sys_HM_%s_finalBinning_%s_model.root", fname_m, obs_sr[obs]));
   TGraphErrors gSys_mb, gSys_hm;
+
+  TGraphErrors gPythia8Monash(7, pythia8_monash_mult, pythia8_monash[obs], pythia8_monash_mult_err, pythia8_monash_err[obs]);
+  gPythia8Monash.SetFillColor(kOrange + 1);
+  gPythia8Monash.SetLineColor(kOrange + 1);
+  gPythia8Monash.SetLineWidth(2);
+  gPythia8Monash.SetFillStyle(3154);
+  gPythia8Monash.SetMarkerStyle(20);
+  gPythia8Monash.SetMarkerSize(0);
+
   TCanvas c("c", "c", 600, 700);
 
-  TPad p1("p1", "p1", 0., .35, 1., 1., 0);
+  TPad p1("p1", "p1", 0., .3, 1., 1., 0);
   p1.SetTopMargin(0.03);
   p1.SetRightMargin(0.03);
   p1.SetLeftMargin(0.14);
@@ -50,7 +63,7 @@ void PlotCumulantsDiff(const int obs = 0){
   c.cd();
   p1.Draw();
 
-  TPad p2("p2", "p2", 0., 0., 1., .35, 0);
+  TPad p2("p2", "p2", 0., 0., 1., .3, 0);
   p2.SetTopMargin(0.0);
   p2.SetRightMargin(0.03);
   p2.SetLeftMargin(0.14);
@@ -141,6 +154,7 @@ void PlotCumulantsDiff(const int obs = 0){
   g_hm_s->Draw("samee5");
   g_mb->Draw("samepez");
   g_hm->Draw("samepez");
+//  gPythia8Monash.Draw("samee3l");
 
 //  g_mb_s_6->Draw("samee5");
 //  g_hm_s_6->Draw("samee5");
@@ -157,13 +171,14 @@ void PlotCumulantsDiff(const int obs = 0){
   g_ph.SetLineWidth(0);
   g_ph.SetMarkerStyle(20);
   g_ph.SetMarkerSize(0);
-  TLegend leg(0.18, 0.58, 0.4, 0.72);
+  TLegend leg(0.18, 0.6, 0.4, 0.8);
   leg.SetTextFont(45);
   leg.SetTextSize(17);
   leg.SetBorderSize(0);
   leg.AddEntry(g_mb, "Data", "pe");
-  leg.AddEntry(g_mb_m, Form("Thermal-FIST ev. gen. + BW%s, #it{V}_{c} = 2.8 d#it{V}/d#it{y}", volf_str[obs]), "f");
+  leg.AddEntry(g_mb_m, Form("Thermal-FIST ev. gen. + BW%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]), "f");
   leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from Phys. Rev. C 100 (2019) 054906");
+//  leg.AddEntry(&gPythia8Monash, "Pythia 8.313 Monash", "f");
   leg.Draw("same");
 
   TLatex txt;
@@ -171,14 +186,14 @@ void PlotCumulantsDiff(const int obs = 0){
   txt.SetTextFont(45);
   txt.SetTextSize(25);
   txt.DrawLatex(0.18, 0.9, "ALICE Preliminary");
-  txt.DrawLatex(0.18, 0.825, "pp, #sqrt{s} = 13 TeV");
-  txt.DrawLatex(0.18, 0.75, "|#eta| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
+  txt.DrawLatex(0.18, 0.83, "pp, #sqrt{s} = 13 TeV, INEL > 0");
+  txt.DrawLatex(0.18, 0.05, "|#eta| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
 
   p2.cd();
   TH2D hFrame2("hFrame2", ";#LTd#it{N}/d#eta#GT_{|#eta|<0.5};Data - Model", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);
   hFrame2.GetXaxis()->SetTitleFont(45);
   hFrame2.GetXaxis()->SetTitleSize(30);
-  hFrame2.GetXaxis()->SetTitleOffset(1.);
+  hFrame2.GetXaxis()->SetTitleOffset(.85);
   hFrame2.GetYaxis()->SetTitleFont(45);
   hFrame2.GetYaxis()->SetTitleSize(30);
   hFrame2.GetYaxis()->SetTitleOffset(1.35);

@@ -51,9 +51,9 @@ void fitVol(){
   cChi2.SetTopMargin(0.03);
   cChi2.SetRightMargin(0.03);
 
-  TFile *data = TFile::Open("../ResultsNetP/final_plots/out_sys_MB_18_08_finalBinning_k2k2sk.root");
+  TFile *data = TFile::Open("../ResultsNetP/final_plots_08_hadPID/out_sys_MB_18_08_finalBinning_k2k2sk.root");
   TGraphErrors* gr_dat_ = (TGraphErrors*)data->Get("g_364");
-  TFile *data_hm = TFile::Open("../ResultsNetP/final_plots/out_sys_HM_18_08_finalBinning_k2k2sk.root");
+  TFile *data_hm = TFile::Open("../ResultsNetP/final_plots_08_hadPID/out_sys_HM_18_08_finalBinning_k2k2sk.root");
   TGraphErrors* gr_dat_hm = (TGraphErrors*)data_hm->Get("g_364");
   TGraphErrors* gr_dat = new TGraphErrors();
   gr_dat->AddPoint(gr_dat_hm->GetPointX(0), gr_dat_hm->GetPointY(0));

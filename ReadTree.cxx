@@ -145,7 +145,6 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
       if (!inVars) continue;
       evtTuple[iS][iVar - iVarMin] = new TNtupleD(Form("evtTuple_%d", iVar), Form("evtTuple_%d", iVar), "cent:q1pP:q1pN:q2pP:q2pN:q3pP:q3pN:q4pP:q4pN:q5pP:q5pN:q6pP:q6pN:ntrkl");
       evtTuple[iS][iVar - iVarMin]->SetDirectory(o[iS][iVar - iVarMin]);
-      evtTuple[iS][iVar - iVarMin]->SetAutoFlush(2000000);
       for (int iC = 0; iC < 2; ++iC){
         if (isMC) {
           evtTupleGen[iS][iVar - iVarMin] = new TNtupleD(Form("evtTupleGen_%d", iVar), Form("evtTupleGen_%d", iVar), "cent:q1pP:q1pN:ntrkl");
@@ -166,16 +165,16 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
   }
 
   // histos
-  float etaBins[kNEtaBins + 1];
+  double etaBins[kNEtaBins + 1];
   for (int iB = 0; iB < kNEtaBins + 1; ++iB){
     etaBins[iB] = kMinEta + kDeltaEta * iB;
   }
-  float ptBins[kNBinsPt + 1];
+  double ptBins[kNBinsPt + 1];
   for (int iB = 0; iB < kNBinsPt + 1; ++iB){
     ptBins[iB] = kMinPt + kDeltaPt * iB;
   }
   std::cout << kNBinsPt << std::endl;
-  float pidBins[kNBinsPID + 1];
+  double pidBins[kNBinsPID + 1];
   for (int iB = 0; iB < kNBinsPID + 1; ++iB){
     pidBins[iB] = kMinPID + kDeltaPID * iB;
   }
@@ -208,12 +207,14 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
   // loop variables
   Long64_t nEntries = kLimitSample ? kLimitedSample : t->GetEntries();
   TH1D hCentTmp("hCentTmp", "hCentTmp", kNCentBins, kCentBins);
-  TH1D hCentSmallTmp("hCentSmallTmp", "hCentSmallTmp", kNCentBinsSmall, kCentBinsSmall);
+  TH1D hCentSmallTmp("hCentSmallTmp", "hCentSmallTmp", kNCentBinsSmallTmp, kCentBinsSmallTmp);
   TH1D hEtaTmp("hEtaTmp", "hEtaTmp", kNEtaBins, etaBins);
 
   // Event loop
   gRandom->SetSeed(42);
-  for (Long64_t i = 0; i < nEntries; ++i){
+  Long64_t ievStart = 0; // isMC ? 0 : 400000000;
+  for (Long64_t i = ievStart; i < nEntries; ++i){
+    // temporary cut on bad run
     const int iS = (int)(gRandom->Rndm() * nSample);
 
     Long64_t e = i;
@@ -222,9 +223,12 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
     Long64_t tentry = t->LoadTree(e);
     t->GetEntry(tentry);
 
-    float cent = fV0Multiplicity;
+    if (static_cast<int>(fV0Multiplicity) > 100) continue;
+    double cent = hCentSmallTmp.GetBinCenter(static_cast<int>(fV0Multiplicity) + 1);
     // std::cout << cent << std::endl;
-    if (cent > kMaxCent) continue;
+    if (cent > kMaxCent || cent < kMinCent) continue;
+
+    // std::cout << (int)fV0Multiplicity << "\t" << cent << std::endl;
 
     if ((fTriggerMask & 0x2) == 0x2) { // high granularity
       cent = cent / 100.f;
@@ -234,8 +238,8 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
       continue;
     }
 
-    int ic = hCentTmp.FindBin(cent);
-    int ic_sm = hCentSmallTmp.FindBin(cent);
+    int ic = hCentTmp.FindBin(cent + 0.005f);
+    int ic_sm = hCentSmallTmp.FindBin(cent + 0.005f);
     if (std::abs(fZvtxMask) > kZvtxCut || std::abs(fZvtxMask) < kZvtxCutMin) continue;
 
     hCent[iS]->Fill(cent);
