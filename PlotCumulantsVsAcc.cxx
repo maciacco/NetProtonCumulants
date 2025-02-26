@@ -331,7 +331,8 @@ void PlotCumulantsVsAcc(const int obs = 5){
   gKappaVsEtaSys[7]->Draw("pe5same");
 
   txt.SetTextSize(18);
-  txt.DrawLatex(0.25, 0.83, Form("V0M %s%%", classes[7]));
+  txt.SetTextAlign(obs > 4 ? 11 : 31);
+  txt.DrawLatex(obs > 4 ? 0.25 : 0.9, 0.83, Form("V0M %s%%", classes[7]));
 
   for (int i{0}; i < 7; ++i) {
     auto pad = c3.cd(i + 2);
@@ -354,9 +355,10 @@ void PlotCumulantsVsAcc(const int obs = 5){
     gKappaVsEta[i]->Draw("apez");
     gKappaVsEtaSys[i]->Draw("pe5same");
 
-    txt.DrawLatex(0.25, 0.83, Form("V0M %s%%", classes[i]));
+    txt.DrawLatex(obs > 4 ? 0.25 : 0.9, 0.83, Form("V0M %s%%", classes[i]));
   }
   c3.cd(9);
+  txt.SetTextAlign(11);
   txt.DrawLatex(0.15, 0.8, "ALICE Preliminary");
   txt.DrawLatex(0.15, 0.6, "pp, #sqrt{s} = 13 TeV INEL > 0");
   txt.DrawLatex(0.15, 0.4, "0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
