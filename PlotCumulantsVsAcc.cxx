@@ -1,10 +1,21 @@
-const char* obs_ax[]{"#kappa_{6}/#kappa_{2}", "#kappa_{4}/#kappa_{2}", "#kappa_{2}/#kappa_{2,Sk}", "#kappa_{2}^{#bar{p}}/#kappa_{1}^{#bar{p}}", "#kappa_{3}^{#bar{p}}/#kappa_{1}^{#bar{p}}"};
-const char* obs_sr[]{"k6k2", "k4k2", "k2k2sk", "k2k1", "k3k1"};
+int colors[] = {TColor::GetColor("#ff3300"), TColor::GetColor("#ec6e0a"), TColor::GetColor("#daaa14"), TColor::GetColor("#c7e51e"), TColor::GetColor("#85dd69"), TColor::GetColor("#42d6b4"),
+TColor::GetColor("#00ceff"), TColor::GetColor("#009adf"), TColor::GetColor("#0067c0"), TColor::GetColor("#595959"), TColor::GetColor("#0033a1")};
+
+const char* obs_ax[]{"#kappa_{6}/#kappa_{2}", "#kappa_{4}/#kappa_{2}", "#kappa_{2}/#kappa_{2,Sk}", "#kappa_{2}^{#bar{p}}/#kappa_{1}^{#bar{p}}",
+"#kappa_{3}^{#bar{p}}/#kappa_{1}^{#bar{p}}", "(#kappa_{2}/#kappa_{2,Sk} - 1)/#kappa_{2,Sk}"};
+const char* obs_ax_2[]{"#kappa_{6}/#kappa_{2}", "#kappa_{4}/#kappa_{2}", "#kappa_{2}/#kappa_{2,Sk}", "#kappa_{2}^{#bar{p}}/#kappa_{1}^{#bar{p}}",
+"#kappa_{3}^{#bar{p}}/#kappa_{1}^{#bar{p}}", "(#kappa_{2}/#kappa_{2,Sk} - 1)/#kappa_{2,Sk}"};
+
+const char* obs_sr[]{"k6k2", "k4k2", "k2k2sk", "k2k1", "k3k1", "k2k2sk-1"};
 const char* fname_ = "18";
-const char* fname_m[]{"18_28_volF_23", "18_28_volF_23", "18_28", "18_28", "18_28"};
-const char* fname_dat[]{"", "", "", "_singleParticleHighOrder", "_singleParticleHighOrder"};
-const double yax_lim[][2] = {{0.25, 1.2}, {0.84, 1.03}, {0.89, 1.015}, {0.95, 1.02}, {0.86, 1.05}};
-const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", ""};
+const char* fname_m[]{"18_28_volF_23", "18_28_volF_23", "18_28", "18_28", "18_28", "18_28"};
+const char* fname_dat[]{"", "", "", "_singleParticleHighOrder", "_singleParticleHighOrder", ""};
+const double yax_lim[][2] = {{0.15, 1.2}, {0.805, 1.05}, {0.89, 1.015}, {0.95, 1.02}, {0.86, 1.05}, {-1.2, 0.5}};
+const double yax_lim_2[][2] = {{0.15, 1.2}, {0.805, 1.05}, {0.89, 1.015}, {0.95, 1.02}, {0.86, 1.05}, {-1.4, 0.3}};
+const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", "", ""};
+
+const char* classes[]{"0-10", "10-20", "20-30", "30-40", "40-50", "50-70", "70-100", "0-0.1"};
+// const double scale[]{1., 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 1.};
 
 void SetGraphStyle(TGraph* g, Color_t const color = kRed){
   g->SetMarkerStyle(20);
@@ -23,18 +34,18 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulantsVsAcc(const int obs = 2){
+void PlotCumulantsVsAcc(const int obs = 5){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
-  TFile *f_mb = TFile::Open(Form("../ResultsNetP/final_plots/out_sys_MB_%s_08_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
-  TFile *f_hm = TFile::Open(Form("../ResultsNetP/final_plots/out_sys_HM_%s_08_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
-  TFile *f_mb_6 = TFile::Open(Form("../ResultsNetP/final_plots_06/out_sys_MB_%s_06_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
-  TFile *f_hm_6 = TFile::Open(Form("../ResultsNetP/final_plots_06/out_sys_HM_%s_06_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
-  TFile *f_mb_4 = TFile::Open(Form("../ResultsNetP/final_plots_04/out_sys_MB_%s_04_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
-  TFile *f_hm_4 = TFile::Open(Form("../ResultsNetP/final_plots_04/out_sys_HM_%s_04_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
-  TFile *f_mb_2 = TFile::Open(Form("../ResultsNetP/final_plots_02/out_sys_MB_%s_02_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
-  TFile *f_hm_2 = TFile::Open(Form("../ResultsNetP/final_plots_02/out_sys_HM_%s_02_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_mb = TFile::Open(Form("../ResultsNetP/final_plots_08_hadPID/out_sys_MB_%s_08_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_hm = TFile::Open(Form("../ResultsNetP/final_plots_08_hadPID/out_sys_HM_%s_08_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_mb_6 = TFile::Open(Form("../ResultsNetP/final_plots_06_hadPID/out_sys_MB_%s_06_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_hm_6 = TFile::Open(Form("../ResultsNetP/final_plots_06_hadPID/out_sys_HM_%s_06_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_mb_4 = TFile::Open(Form("../ResultsNetP/final_plots_04_hadPID/out_sys_MB_%s_04_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_hm_4 = TFile::Open(Form("../ResultsNetP/final_plots_04_hadPID/out_sys_HM_%s_04_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_mb_2 = TFile::Open(Form("../ResultsNetP/final_plots_02_hadPID/out_sys_MB_%s_02_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
+  TFile *f_hm_2 = TFile::Open(Form("../ResultsNetP/final_plots_02_hadPID/out_sys_HM_%s_02_finalBinning%s_%s.root", fname_, fname_dat[obs], obs_sr[obs]));
 
 //  TFile *f_mb_m = TFile::Open(Form("out_sys_%s_finalBinning_%s.root", fname_m[obs], obs_sr[obs]));
 //  TFile *f_hm_m = TFile::Open(Form("../test_models_thermalFistDowngrade/out_sys_HM_%s_finalBinning_%s_model.root", fname_m, obs_sr[obs]));
@@ -77,36 +88,94 @@ void PlotCumulantsVsAcc(const int obs = 2){
 //  g_mb_m->SetMarkerStyle(20);
 //  g_mb_m->SetMarkerSize(0);
 //  TGraphErrors* g_hm_m = (TGraphErrors*)f_hm_m->Get("g_gen_0");
+  TGraphErrors* gKappaVsEta[8];
+  TGraphErrors* gKappaVsEtaSys[8];
+  for (int i{0}; i < 1; ++i) {
+    gKappaVsEta[7] = new TGraphErrors();
+    gKappaVsEta[7]->SetName(Form("gKE_%d", i));
+    gKappaVsEtaSys[7] = new TGraphErrors();
+    gKappaVsEtaSys[7]->SetName(Form("gKE_%d_sys", i));
+
+    auto hSys = (TH1D*)f_hm->Get(Form("hSys_%d", i));
+    g_hm_s->AddPoint(g_hm->GetPointX(i), g_hm->GetPointY(i));
+    g_hm_s->SetPointError(i, 0.5, hSys->GetStdDev());
+    auto hSys_6 = (TH1D*)f_hm_6->Get(Form("hSys_%d", i));
+    g_hm_s_6->AddPoint(g_hm_6->GetPointX(i), g_hm_6->GetPointY(i));
+    g_hm_s_6->SetPointError(i, 0.5, hSys_6->GetStdDev());
+    auto hSys_4 = (TH1D*)f_hm_4->Get(Form("hSys_%d", i));
+    g_hm_s_4->AddPoint(g_hm_4->GetPointX(i), g_hm_4->GetPointY(i));
+    g_hm_s_4->SetPointError(i, 0.5, hSys_4->GetStdDev());
+    auto hSys_2 = (TH1D*)f_hm_2->Get(Form("hSys_%d", i));
+    g_hm_s_2->AddPoint(g_hm_2->GetPointX(i), g_hm_2->GetPointY(i));
+    g_hm_s_2->SetPointError(i, 0.5, hSys_2->GetStdDev());
+
+    gKappaVsEta[7]->AddPoint(0.2, g_hm_2->GetPointY(i));
+    gKappaVsEta[7]->SetPointError(0, 0.0, g_hm_2->GetErrorY(i));
+    gKappaVsEta[7]->AddPoint(0.4, g_hm_4->GetPointY(i));
+    gKappaVsEta[7]->SetPointError(1, 0.0, g_hm_4->GetErrorY(i));
+    gKappaVsEta[7]->AddPoint(0.6, g_hm_6->GetPointY(i));
+    gKappaVsEta[7]->SetPointError(2, 0.0, g_hm_6->GetErrorY(i));
+    gKappaVsEta[7]->AddPoint(0.8, g_hm->GetPointY(i));
+    gKappaVsEta[7]->SetPointError(3, 0.0, g_hm->GetErrorY(i));
+
+    gKappaVsEtaSys[7]->AddPoint(0.2, g_hm_2->GetPointY(i));
+    gKappaVsEtaSys[7]->SetPointError(0, 0.02, hSys_2->GetStdDev());
+    gKappaVsEtaSys[7]->AddPoint(0.4, g_hm_4->GetPointY(i));
+    gKappaVsEtaSys[7]->SetPointError(1, 0.02, hSys_4->GetStdDev());
+    gKappaVsEtaSys[7]->AddPoint(0.6, g_hm_6->GetPointY(i));
+    gKappaVsEtaSys[7]->SetPointError(2, 0.02, hSys_6->GetStdDev());
+    gKappaVsEtaSys[7]->AddPoint(0.8, g_hm->GetPointY(i));
+    gKappaVsEtaSys[7]->SetPointError(3, 0.02, hSys->GetStdDev());
+
+    SetGraphStyle(gKappaVsEta[7], colors[0]);
+    SetGraphStyle(gKappaVsEtaSys[7], colors[0]);
+  }
+
   for (int i{0}; i < 7; ++i) {
+    gKappaVsEta[i] = new TGraphErrors();
+    gKappaVsEta[i]->SetName(Form("gKE_%d", i + 1));
+    gKappaVsEtaSys[i] = new TGraphErrors();
+    gKappaVsEtaSys[i]->SetName(Form("gKE_%d_sys", i + 1));
+
     auto hSys = (TH1D*)f_mb->Get(Form("hSys_%d", i));
     g_mb_s->AddPoint(g_mb->GetPointX(i), g_mb->GetPointY(i));
     double min = hSys->GetBinCenter(hSys->FindFirstBinAbove(0));
     double max = hSys->GetBinCenter(hSys->FindLastBinAbove(0));
     g_mb_s->SetPointError(i, 0.5, /*0.5 * (max - min)*/ hSys->GetStdDev());
-    hSys = (TH1D*)f_mb_6->Get(Form("hSys_%d", i));
+    auto hSys_6 = (TH1D*)f_mb_6->Get(Form("hSys_%d", i));
     g_mb_s_6->AddPoint(g_mb_6->GetPointX(i), g_mb_6->GetPointY(i));
-    g_mb_s_6->SetPointError(i, 0.5, hSys->GetStdDev());
-    hSys = (TH1D*)f_mb_4->Get(Form("hSys_%d", i));
+    g_mb_s_6->SetPointError(i, 0.5, hSys_6->GetStdDev());
+    auto hSys_4 = (TH1D*)f_mb_4->Get(Form("hSys_%d", i));
     g_mb_s_4->AddPoint(g_mb_4->GetPointX(i), g_mb_4->GetPointY(i));
-    g_mb_s_4->SetPointError(i, 0.5, hSys->GetStdDev());
-    hSys = (TH1D*)f_mb_2->Get(Form("hSys_%d", i));
+    g_mb_s_4->SetPointError(i, 0.5, hSys_4->GetStdDev());
+    auto hSys_2 = (TH1D*)f_mb_2->Get(Form("hSys_%d", i));
     g_mb_s_2->AddPoint(g_mb_2->GetPointX(i), g_mb_2->GetPointY(i));
-    g_mb_s_2->SetPointError(i, 0.5, hSys->GetStdDev());
+    g_mb_s_2->SetPointError(i, 0.5, hSys_2->GetStdDev());
+
+    double scale = 1.; // g_hm_2->GetPointY(0) / g_mb_2->GetPointY(i);
+
+    gKappaVsEta[i]->AddPoint(0.2, scale * g_mb_2->GetPointY(i));
+    gKappaVsEta[i]->SetPointError(0, 0.0, scale * g_mb_2->GetErrorY(i));
+    gKappaVsEta[i]->AddPoint(0.4, scale * g_mb_4->GetPointY(i));
+    gKappaVsEta[i]->SetPointError(1, 0.0, scale * g_mb_4->GetErrorY(i));
+    gKappaVsEta[i]->AddPoint(0.6, scale * g_mb_6->GetPointY(i));
+    gKappaVsEta[i]->SetPointError(2, 0.0, scale * g_mb_6->GetErrorY(i));
+    gKappaVsEta[i]->AddPoint(0.8, scale * g_mb->GetPointY(i));
+    gKappaVsEta[i]->SetPointError(3, 0.0, scale * g_mb->GetErrorY(i));
+
+    gKappaVsEtaSys[i]->AddPoint(0.2, scale * g_mb_2->GetPointY(i));
+    gKappaVsEtaSys[i]->SetPointError(0, 0.02, scale * hSys_2->GetStdDev());
+    gKappaVsEtaSys[i]->AddPoint(0.4, scale * g_mb_4->GetPointY(i));
+    gKappaVsEtaSys[i]->SetPointError(1, 0.02, scale * hSys_4->GetStdDev());
+    gKappaVsEtaSys[i]->AddPoint(0.6, scale * g_mb_6->GetPointY(i));
+    gKappaVsEtaSys[i]->SetPointError(2, 0.02, scale * hSys_6->GetStdDev());
+    gKappaVsEtaSys[i]->AddPoint(0.8, scale * g_mb->GetPointY(i));
+    gKappaVsEtaSys[i]->SetPointError(3, 0.02, scale * hSys->GetStdDev());
+
+    SetGraphStyle(gKappaVsEta[i], colors[i + 1]);
+    SetGraphStyle(gKappaVsEtaSys[i], colors[i + 1]);
   }
-  for (int i{0}; i < 1; ++i) {
-    auto hSys = (TH1D*)f_hm->Get(Form("hSys_%d", i));
-    g_hm_s->AddPoint(g_hm->GetPointX(i), g_hm->GetPointY(i));
-    g_hm_s->SetPointError(i, 0.5, hSys->GetStdDev());
-    hSys = (TH1D*)f_hm_6->Get(Form("hSys_%d", i));
-    g_hm_s_6->AddPoint(g_hm_6->GetPointX(i), g_hm_6->GetPointY(i));
-    g_hm_s_6->SetPointError(i, 0.5, hSys->GetStdDev());
-    hSys = (TH1D*)f_hm_4->Get(Form("hSys_%d", i));
-    g_hm_s_4->AddPoint(g_hm_4->GetPointX(i), g_hm_4->GetPointY(i));
-    g_hm_s_4->SetPointError(i, 0.5, hSys->GetStdDev());
-    hSys = (TH1D*)f_hm_2->Get(Form("hSys_%d", i));
-    g_hm_s_2->AddPoint(g_hm_2->GetPointX(i), g_hm_2->GetPointY(i));
-    g_hm_s_2->SetPointError(i, 0.5, hSys->GetStdDev());
-  }
+
   SetGraphStyle(g_mb);
   SetGraphStyle(g_hm);
   SetGraphStyle(g_mb_s);
@@ -176,12 +245,124 @@ void PlotCumulantsVsAcc(const int obs = 2){
   txt.SetTextFont(45);
   txt.SetTextSize(25);
   txt.DrawLatex(0.18, 0.9, "ALICE Preliminary");
-  txt.DrawLatex(0.18, 0.85, "pp, #sqrt{s} = 13 TeV");
+  txt.DrawLatex(0.18, 0.85, "pp, #sqrt{s} = 13 TeV INEL > 0");
   txt.DrawLatex(0.18, 0.8, "0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
   c.Print(Form("c%s_deta.pdf", obs_sr[obs]));
 
   TFile *fout = TFile::Open("plot_out.root", "recreate");
   fout->cd();
   c.Write();
+
+  // ---------------------------------------------- //
+  TCanvas c2("c", "c", 600, 600);
+  c2.SetTopMargin(0.03);
+  c2.SetRightMargin(0.03);
+  c2.SetLeftMargin(0.14);
+  c2.SetBottomMargin(0.14);
+  TH2D hFrame2("hFrame", Form(";|#eta| < #it{x};%s", obs_ax_2[obs]), 1, 0, 1.3, 100, yax_lim_2[obs][0], yax_lim_2[obs][1]);
+  hFrame2.GetXaxis()->SetTitleFont(45);
+  hFrame2.GetXaxis()->SetTitleSize(30);
+  hFrame2.GetXaxis()->SetTitleOffset(1.1);
+  hFrame2.GetYaxis()->SetTitleFont(45);
+  hFrame2.GetYaxis()->SetTitleSize(30);
+  hFrame2.GetYaxis()->SetTitleOffset(1.3);
+  c2.cd();
+  hFrame2.Draw();
+
+  TLegend leg_2(0.73913, 0.293913, 0.837793, 0.793043);
+  leg_2.SetTextFont(45);
+  leg_2.SetTextSize(25);
+  leg_2.SetBorderSize(0);
+  leg_2.SetHeader("V0M class");
+
+  gKappaVsEta[7]->Write();
+  gKappaVsEtaSys[7]->Write();
+
+  gKappaVsEtaSys[7]->Draw("pe5same");
+  gKappaVsEta[7]->Draw("pezsame");
+  leg_2.AddEntry(gKappaVsEta[7], Form("%s%%", classes[7]), "pe");
+
+  for (int i{0}; i < 7; ++i) {
+    gKappaVsEta[i]->Write();
+    gKappaVsEtaSys[i]->Write();
+
+    gKappaVsEtaSys[i]->Draw("pe5same");
+    gKappaVsEta[i]->Draw("pezsame");
+    leg_2.AddEntry(gKappaVsEta[i], Form("%s%%", classes[i]), "pe");
+  }
+
+  txt.DrawLatex(0.18, 0.9, "ALICE Preliminary");
+  txt.DrawLatex(0.18, 0.85, "pp, #sqrt{s} = 13 TeV INEL > 0");
+  txt.DrawLatex(0.18, 0.19, "0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
+
+  leg_2.Draw("same");
+
+  c2.Write();
+  c2.Print(Form("c%s_deta_vsacc.pdf", obs_sr[obs]));
+
+  // ---------------------------------------------- //
+  TCanvas c3("c3", "c3", 800, 600);
+  c3.SetTopMargin(0.);
+  c3.SetRightMargin(0.);
+  c3.SetLeftMargin(0.);
+  c3.SetBottomMargin(0.);
+
+  c3.Divide(3, 3);
+
+  c3.cd(1);
+  auto pad = c3.cd(1);
+  pad->SetTopMargin(0.01);
+  pad->SetRightMargin(0.01);
+  pad->SetLeftMargin(0.19);
+  pad->SetBottomMargin(0.17);
+
+  gKappaVsEta[7]->SetTitle(Form(";|#eta| < #it{x};%s", obs_ax_2[obs]));
+  gKappaVsEta[7]->GetXaxis()->SetTitleFont(45);
+  gKappaVsEta[7]->GetXaxis()->SetTitleSize(16);
+  gKappaVsEta[7]->GetXaxis()->SetLabelFont(45);
+  gKappaVsEta[7]->GetXaxis()->SetLabelSize(9);
+  gKappaVsEta[7]->GetXaxis()->SetTitleOffset(.8);
+  gKappaVsEta[7]->GetYaxis()->SetTitleFont(45);
+  gKappaVsEta[7]->GetYaxis()->SetTitleSize(16);
+  gKappaVsEta[7]->GetYaxis()->SetLabelFont(45);
+  gKappaVsEta[7]->GetYaxis()->SetLabelSize(9);
+  gKappaVsEta[7]->GetYaxis()->SetTitleOffset(1.5);
+  gKappaVsEta[7]->Draw("apez");
+  gKappaVsEtaSys[7]->Draw("pe5same");
+
+  txt.SetTextSize(18);
+  txt.DrawLatex(0.25, 0.83, Form("V0M %s%%", classes[7]));
+
+  for (int i{0}; i < 7; ++i) {
+    auto pad = c3.cd(i + 2);
+    pad->SetTopMargin(0.01);
+    pad->SetRightMargin(0.01);
+    pad->SetLeftMargin(0.19);
+    pad->SetBottomMargin(0.17);
+
+    gKappaVsEta[i]->SetTitle(Form(";|#eta| < #it{x};%s", obs_ax_2[obs]));
+    gKappaVsEta[i]->GetXaxis()->SetTitleFont(45);
+    gKappaVsEta[i]->GetXaxis()->SetTitleSize(16);
+    gKappaVsEta[i]->GetXaxis()->SetTitleOffset(.8);
+    gKappaVsEta[i]->GetXaxis()->SetLabelFont(45);
+    gKappaVsEta[i]->GetXaxis()->SetLabelSize(9);
+    gKappaVsEta[i]->GetYaxis()->SetTitleFont(45);
+    gKappaVsEta[i]->GetYaxis()->SetTitleSize(16);
+    gKappaVsEta[i]->GetYaxis()->SetLabelFont(45);
+    gKappaVsEta[i]->GetYaxis()->SetLabelSize(9);
+    gKappaVsEta[i]->GetYaxis()->SetTitleOffset(1.5);
+    gKappaVsEta[i]->Draw("apez");
+    gKappaVsEtaSys[i]->Draw("pe5same");
+
+    txt.DrawLatex(0.25, 0.83, Form("V0M %s%%", classes[i]));
+  }
+  c3.cd(9);
+  txt.DrawLatex(0.15, 0.8, "ALICE Preliminary");
+  txt.DrawLatex(0.15, 0.6, "pp, #sqrt{s} = 13 TeV INEL > 0");
+  txt.DrawLatex(0.15, 0.4, "0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
+
+  c3.Write();
+  c3.Print(Form("c%s_deta_divide.pdf", obs_sr[obs]));
+
   fout->Close();
 }
