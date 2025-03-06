@@ -3,7 +3,7 @@ const char* obs_sr[]{"k6k2", "k4k2", "k2k2sk", "k2k1", "k3k1"};
 const char* fname_ = "18";
 const char* fname_m[]{"18_278", "18_278", "18_278", "18_278", "18_278"};
 const char* fname_dat[]{"", "", "", "_singleParticleHighOrder", "_singleParticleHighOrder"};
-const double yax_lim[][2] = {{/*0.15,*/-0.65, 1.7}, {/*0.805*/0.58, 1.13}, {0.897, 0.93}, {0.88, 1.02}, {0.86, 1.05}};
+const double yax_lim[][2] = {{/*0.15,*/-0.82, 1.75}, {/*0.805*/0.54, 1.16}, {0.897, 0.93}, {0.88, 1.02}, {0.86, 1.05}};
 const double yax_lim_diff[][2] = {{-0.17, 0.17}, {-0.014, 0.014}, {-0.007, .007}, {0.95, 1.02}, {0.86, 1.05}};
 const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", ""};
 //const double xerr[]{0.16, 0.12, 0.13, 0.11, 0.085, 0.064, 0.036};
@@ -12,8 +12,8 @@ const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", ""};
 //const double pythia8_monash[][7]{{0.803634, 0.994558, 0.956312, 0.967531, 0.956223, 0.952725, 1.11756}, {0.950518, 0.991494, 0.980016, 0.981019, 0.979718, 0.977441, 1.00332}, {0.833258, 0.802092, 0.785658, 0.771072, 0.756551, 0.742023, 0.728226/*, 0.721047*/}};
 //const double pythia8_monash_err[][7]{{0.00347729, 0.00917395, 0.0125335, 0.0207804, 0.0169664, 0.0169349, 0.0255032}, {0.000502528, 0.00119946, 0.0016136, 0.00134277, 0.00159809, 0.00111598, 0.0016718}, {0.000128186, 0.000121104, 0.000301248, 0.000184409, 0.000225784, 0.000243093, 0.000224489/*, 0.00212855*/}};
 
-const double pythia8_monash[][7]{{0.975167, 1.1238, 1.18495, 0.970866, 0.923298, 0.732956, 0.874255}, {0.980042, 1.01869, 1.01709, 0.993958, 0.981557, 0.944846, 0.942709}};
-const double pythia8_monash_err[][7]{{0.0289923, 0.0302191, 0.0689715, 0.084633, 0.0963236, 0.141252, 0.192762}, {0.00274587, 0.00356392, 0.00670994, 0.00649797, 0.00777562, 0.00861608, 0.0105475}};
+const double pythia8_monash[][7]{{1.10843, 1.15523, 1.1255, 0.971975, 1.04499, 0.841491, 0.979638}, {1.01411, 1.03346, 1.02517, 1.00754, 0.999284, 0.963904, 0.941578}};
+const double pythia8_monash_err[][7]{{0.0298661, 0.0347998, 0.0471502, 0.0603198, 0.104426, 0.106083, 0.170984}, {0.00222648, 0.00359478, 0.00543346, 0.0050972, 0.00859455, 0.00801529, 0.00849801}};
 const double pythia8_monash_mult[]{2.70857, 4.74809, 6.93366, 8.87174, 11.4479, 14.8722, 20.4656};
 const double pythia8_monash_mult_err[]{0., 0., 0., 0., 0., 0., 0.};
 
@@ -38,7 +38,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulantsDiff(const int obs = 2){
+void PlotCumulantsDiff(const int obs = 1){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -156,7 +156,7 @@ void PlotCumulantsDiff(const int obs = 2){
   gPythia8Monash.Draw("samee3l");
   g_mb_m_fixv->Draw("samee3l");
   gLQCD.Draw("samee5l");
-  g_mb_m_volf->Draw("samel");
+//  g_mb_m_volf->Draw("samel");
   g_mb_s->Draw("samee5");
   g_hm_s->Draw("samee5");
   g_mb->Draw("samepez");
@@ -167,17 +167,19 @@ void PlotCumulantsDiff(const int obs = 2){
   g_ph.SetLineWidth(0);
   g_ph.SetMarkerStyle(20);
   g_ph.SetMarkerSize(0);
-  TLegend leg(0.18, 0.04, 0.35, 0.32);
+  TLegend leg(0.18, 0.03, 0.35, 0.35);
   leg.SetTextFont(45);
   leg.SetTextSize(17);
   leg.SetBorderSize(0);
   leg.AddEntry(g_mb, "Data", "pe");
   leg.AddEntry(&gLQCD, "Lattice QCD, #it{T} = 155 MeV, PRD 101 (2020) 074502", "f");
-  leg.AddEntry(g_mb_m_fixv, "Thermal-FIST ev. gen. + Blast Wave, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", "f");
-  leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from PRC 100 (2019) 054906");
-  leg.AddEntry(g_mb_m, "Thermal-FIST + vol. fluct. (PRC 88 (2013) 034911)", "f");
-  leg.AddEntry(g_mb_m_volf, "Thermal-FIST + vol. fluct. (Gaussian sampling)");
   leg.AddEntry(&gPythia8Monash, "Pythia 8.313, rope hadronization + QCD CR", "f");
+  leg.AddEntry(&g_ph, "");
+  leg.AddEntry(&g_ph, "Thermal-FIST + Blast Wave, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", "f");
+  leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from PRC 100 (2019) 054906");
+  leg.AddEntry(g_mb_m_fixv, "CE ev. gen.", "f");
+  leg.AddEntry(g_mb_m, "CE ev. gen. + vol. fluct. (PRC 88 (2013) 034911)", "f");
+//  leg.AddEntry(g_mb_m_volf, "Thermal-FIST ev. gen. + vol. fluct. (Gaussian sampling)");
   leg.Draw("same");
 
   TLatex txt;
@@ -185,17 +187,17 @@ void PlotCumulantsDiff(const int obs = 2){
   txt.SetTextFont(45);
   txt.SetTextSize(25);
   txt.DrawLatex(0.18, 0.9, "ALICE Preliminary");
-  txt.DrawLatex(0.18, 0.85, "pp, #sqrt{#it{s}} = 13 TeV, INEL > 0");
-  txt.DrawLatex(0.18, 0.8, "|#eta| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
+  txt.DrawLatex(0.18, 0.84, "pp, #sqrt{#it{s}} = 13 TeV, INEL > 0");
+  txt.DrawLatex(0.18, 0.78, "|#eta| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
 
   p2.cd();
-  TH2D hFrame2("hFrame2", ";#LTd#it{N}/d#eta#GT_{|#eta|<0.5};Dat. - Mod.", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);
+  TH2D hFrame2("hFrame2", ";#LTd#it{N}/d#eta#GT_{|#eta|<0.5};Data - (FIST + v.f.)", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);
   hFrame2.GetXaxis()->SetTitleFont(45);
   hFrame2.GetXaxis()->SetTitleSize(30);
   hFrame2.GetXaxis()->SetTitleOffset(.85);
   hFrame2.GetYaxis()->SetTitleFont(45);
-  hFrame2.GetYaxis()->SetTitleSize(30);
-  hFrame2.GetYaxis()->SetTitleOffset(1.35);
+  hFrame2.GetYaxis()->SetTitleSize(20);
+  hFrame2.GetYaxis()->SetTitleOffset(1.8);
   hFrame2.GetXaxis()->SetLabelFont(45);
   hFrame2.GetXaxis()->SetLabelSize(17);
   hFrame2.GetYaxis()->SetLabelFont(45);

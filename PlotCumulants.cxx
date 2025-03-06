@@ -30,7 +30,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulants(const int obs = 4){
+void PlotCumulants(const int obs = 3){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -154,13 +154,14 @@ void PlotCumulants(const int obs = 4){
   g_ph.SetLineWidth(0);
   g_ph.SetMarkerStyle(20);
   g_ph.SetMarkerSize(0);
-  TLegend leg(0.18, 0.72, 0.4, 0.84);
+  TLegend leg(0.18, 0.7, 0.4, 0.84);
   leg.SetTextFont(45);
   leg.SetTextSize(17);
   leg.SetBorderSize(0);
   leg.AddEntry(g_mb, "Data", "pe");
-  leg.AddEntry(g_mb_m, Form("Thermal-FIST ev. gen. + Blast Wave%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]), "f");
+  leg.AddEntry(&g_ph, Form("Thermal-FIST + Blast Wave%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]), "f");
   leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from PRC 100 (2019) 054906");
+  leg.AddEntry(g_mb_m, "CE ev. gen.", "f");
 //  leg.AddEntry(&gPythia8Monash, "Pythia 8.313 Monash", "f");
   leg.Draw("same");
 
@@ -169,7 +170,7 @@ void PlotCumulants(const int obs = 4){
   txt.SetTextFont(45);
   txt.SetTextSize(25);
   txt.DrawLatex(0.18, 0.91, "ALICE Preliminary");
-  txt.DrawLatex(0.18, 0.86, "pp, #sqrt{s} = 13 TeV, INEL > 0");
+  txt.DrawLatex(0.18, 0.86, "pp, #sqrt{#it{s}} = 13 TeV, INEL > 0");
   txt.DrawLatex(0.18, 0.18, "|#eta| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
   c.Print(Form("c%s.pdf", obs_sr[obs]));
 
