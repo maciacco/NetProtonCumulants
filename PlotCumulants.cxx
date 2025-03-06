@@ -4,7 +4,7 @@ const char* obs_sr_m[]{"k6k2", "k4k2", "k2k2sk", "k2k1_n", "k3k1_n"};
 const char* fname_ = "18";
 const char* fname_m[]{"18_278", "18_278", "18_278", "18_278", "18_278"};
 const char* fname_dat[]{"", "", "", "_singleParticleHighOrder", "_singleParticleHighOrder"};
-const double yax_lim[][2] = {{0.15, 1.2}, {0.815, 1.05}, {0.7, 1.05}, {0.94, 1.02}, {0.84, 1.05}};
+const double yax_lim[][2] = {{0.15, 1.2}, {0.815, 1.05}, {0.7, 1.05}, {0.948, 1.016}, {0.84, 1.05}};
 const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", ""};
 //const double xerr[]{0.16, 0.12, 0.13, 0.11, 0.085, 0.064, 0.036};
 //const double xerr_hm{0.26};
@@ -30,7 +30,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulants(const int obs = 3){
+void PlotCumulants(const int obs = 4){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -80,8 +80,8 @@ void PlotCumulants(const int obs = 3){
   TGraphErrors* g_hm_s_4 = new TGraphErrors();
 */
   TGraphErrors* g_mb_m = (TGraphErrors*)f_mb_m->Get("g_364");
-  g_mb_m->SetFillColor(kAzure + 1);
-  g_mb_m->SetLineColor(kAzure + 1);
+  g_mb_m->SetFillColor(kAzure - 1);
+  g_mb_m->SetLineColor(kAzure - 1);
   g_mb_m->SetLineWidth(2);
   g_mb_m->SetFillStyle(3154);
   g_mb_m->SetMarkerStyle(20);
@@ -154,13 +154,13 @@ void PlotCumulants(const int obs = 3){
   g_ph.SetLineWidth(0);
   g_ph.SetMarkerStyle(20);
   g_ph.SetMarkerSize(0);
-  TLegend leg(0.18, 0.68, 0.4, 0.84);
+  TLegend leg(0.18, 0.72, 0.4, 0.84);
   leg.SetTextFont(45);
   leg.SetTextSize(17);
   leg.SetBorderSize(0);
   leg.AddEntry(g_mb, "Data", "pe");
-  leg.AddEntry(g_mb_m, Form("Thermal-FIST ev. gen. + BW%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]), "f");
-  leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from Phys. Rev. C 100 (2019) 054906");
+  leg.AddEntry(g_mb_m, Form("Thermal-FIST ev. gen. + Blast Wave%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]), "f");
+  leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from PRC 100 (2019) 054906");
 //  leg.AddEntry(&gPythia8Monash, "Pythia 8.313 Monash", "f");
   leg.Draw("same");
 
