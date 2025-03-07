@@ -192,7 +192,7 @@ void PlotCumulantsDiff_2(const int obs = 2){
   txt.DrawLatex(0.18, 0.78, "|#eta| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
 
   p2.cd();
-  TH2D hFrame2("hFrame2", ";#LTd#it{N}/d#eta#GT_{|#eta|<0.5};Data - FIST", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);
+  TH2D hFrame2("hFrame2", ";#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5};Data - FIST", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);
   hFrame2.GetXaxis()->SetTitleFont(45);
   hFrame2.GetXaxis()->SetTitleSize(30);
   hFrame2.GetXaxis()->SetTitleOffset(.85);

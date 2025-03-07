@@ -15,6 +15,7 @@ const double yax_lim_2[][2] = {{0.15, 1.2}, {0.805, 1.05}, {0.89, 1.015}, {0.95,
 const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", "", ""};
 
 const char* classes[]{"0-10", "10-20", "20-30", "30-40", "40-50", "50-70", "70-100", "0-0.1"};
+const double classes_mult[]{18.68, 12.90, 10.03, 7.95, 6.32, 4.49, 2.54, 31.25};
 // const double scale[]{1., 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 1.};
 
 void SetGraphStyle(TGraph* g, Color_t const color = kRed){
@@ -34,7 +35,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulantsVsAcc(const int obs = 5){
+void PlotCumulantsVsAcc(const int obs = 2){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -109,22 +110,22 @@ void PlotCumulantsVsAcc(const int obs = 5){
     g_hm_s_2->AddPoint(g_hm_2->GetPointX(i), g_hm_2->GetPointY(i));
     g_hm_s_2->SetPointError(i, 0.5, hSys_2->GetStdDev());
 
-    gKappaVsEta[7]->AddPoint(0.2, g_hm_2->GetPointY(i));
+    gKappaVsEta[7]->AddPoint(0.4, g_hm_2->GetPointY(i));
     gKappaVsEta[7]->SetPointError(0, 0.0, g_hm_2->GetErrorY(i));
-    gKappaVsEta[7]->AddPoint(0.4, g_hm_4->GetPointY(i));
+    gKappaVsEta[7]->AddPoint(0.8, g_hm_4->GetPointY(i));
     gKappaVsEta[7]->SetPointError(1, 0.0, g_hm_4->GetErrorY(i));
-    gKappaVsEta[7]->AddPoint(0.6, g_hm_6->GetPointY(i));
+    gKappaVsEta[7]->AddPoint(1.2, g_hm_6->GetPointY(i));
     gKappaVsEta[7]->SetPointError(2, 0.0, g_hm_6->GetErrorY(i));
-    gKappaVsEta[7]->AddPoint(0.8, g_hm->GetPointY(i));
+    gKappaVsEta[7]->AddPoint(1.6, g_hm->GetPointY(i));
     gKappaVsEta[7]->SetPointError(3, 0.0, g_hm->GetErrorY(i));
 
-    gKappaVsEtaSys[7]->AddPoint(0.2, g_hm_2->GetPointY(i));
+    gKappaVsEtaSys[7]->AddPoint(0.4, g_hm_2->GetPointY(i));
     gKappaVsEtaSys[7]->SetPointError(0, 0.02, hSys_2->GetStdDev());
-    gKappaVsEtaSys[7]->AddPoint(0.4, g_hm_4->GetPointY(i));
+    gKappaVsEtaSys[7]->AddPoint(0.8, g_hm_4->GetPointY(i));
     gKappaVsEtaSys[7]->SetPointError(1, 0.02, hSys_4->GetStdDev());
-    gKappaVsEtaSys[7]->AddPoint(0.6, g_hm_6->GetPointY(i));
+    gKappaVsEtaSys[7]->AddPoint(1.2, g_hm_6->GetPointY(i));
     gKappaVsEtaSys[7]->SetPointError(2, 0.02, hSys_6->GetStdDev());
-    gKappaVsEtaSys[7]->AddPoint(0.8, g_hm->GetPointY(i));
+    gKappaVsEtaSys[7]->AddPoint(1.6, g_hm->GetPointY(i));
     gKappaVsEtaSys[7]->SetPointError(3, 0.02, hSys->GetStdDev());
 
     SetGraphStyle(gKappaVsEta[7], colors[0]);
@@ -154,22 +155,22 @@ void PlotCumulantsVsAcc(const int obs = 5){
 
     double scale = 1.; // g_hm_2->GetPointY(0) / g_mb_2->GetPointY(i);
 
-    gKappaVsEta[i]->AddPoint(0.2, scale * g_mb_2->GetPointY(i));
+    gKappaVsEta[i]->AddPoint(0.4, scale * g_mb_2->GetPointY(i));
     gKappaVsEta[i]->SetPointError(0, 0.0, scale * g_mb_2->GetErrorY(i));
-    gKappaVsEta[i]->AddPoint(0.4, scale * g_mb_4->GetPointY(i));
+    gKappaVsEta[i]->AddPoint(0.8, scale * g_mb_4->GetPointY(i));
     gKappaVsEta[i]->SetPointError(1, 0.0, scale * g_mb_4->GetErrorY(i));
-    gKappaVsEta[i]->AddPoint(0.6, scale * g_mb_6->GetPointY(i));
+    gKappaVsEta[i]->AddPoint(1.2, scale * g_mb_6->GetPointY(i));
     gKappaVsEta[i]->SetPointError(2, 0.0, scale * g_mb_6->GetErrorY(i));
-    gKappaVsEta[i]->AddPoint(0.8, scale * g_mb->GetPointY(i));
+    gKappaVsEta[i]->AddPoint(1.6, scale * g_mb->GetPointY(i));
     gKappaVsEta[i]->SetPointError(3, 0.0, scale * g_mb->GetErrorY(i));
 
-    gKappaVsEtaSys[i]->AddPoint(0.2, scale * g_mb_2->GetPointY(i));
+    gKappaVsEtaSys[i]->AddPoint(0.4, scale * g_mb_2->GetPointY(i));
     gKappaVsEtaSys[i]->SetPointError(0, 0.02, scale * hSys_2->GetStdDev());
-    gKappaVsEtaSys[i]->AddPoint(0.4, scale * g_mb_4->GetPointY(i));
+    gKappaVsEtaSys[i]->AddPoint(0.8, scale * g_mb_4->GetPointY(i));
     gKappaVsEtaSys[i]->SetPointError(1, 0.02, scale * hSys_4->GetStdDev());
-    gKappaVsEtaSys[i]->AddPoint(0.6, scale * g_mb_6->GetPointY(i));
+    gKappaVsEtaSys[i]->AddPoint(1.2, scale * g_mb_6->GetPointY(i));
     gKappaVsEtaSys[i]->SetPointError(2, 0.02, scale * hSys_6->GetStdDev());
-    gKappaVsEtaSys[i]->AddPoint(0.8, scale * g_mb->GetPointY(i));
+    gKappaVsEtaSys[i]->AddPoint(1.6, scale * g_mb->GetPointY(i));
     gKappaVsEtaSys[i]->SetPointError(3, 0.02, scale * hSys->GetStdDev());
 
     SetGraphStyle(gKappaVsEta[i], colors[i + 1]);
@@ -245,7 +246,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
   txt.SetTextFont(45);
   txt.SetTextSize(25);
   txt.DrawLatex(0.18, 0.9, "ALICE Preliminary");
-  txt.DrawLatex(0.18, 0.85, "pp, #sqrt{s} = 13 TeV INEL > 0");
+  txt.DrawLatex(0.18, 0.85, "pp, #sqrt{#it{s}} = 13 TeV INEL > 0");
   txt.DrawLatex(0.18, 0.8, "0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
   c.Print(Form("c%s_deta.pdf", obs_sr[obs]));
 
@@ -259,7 +260,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
   c2.SetRightMargin(0.03);
   c2.SetLeftMargin(0.14);
   c2.SetBottomMargin(0.14);
-  TH2D hFrame2("hFrame", Form(";|#eta| < #it{x};%s", obs_ax_2[obs]), 1, 0, 1.3, 100, yax_lim_2[obs][0], yax_lim_2[obs][1]);
+  TH2D hFrame2("hFrame", Form(";#Delta#eta;%s", obs_ax_2[obs]), 1, 0, 2.6, 100, yax_lim_2[obs][0], yax_lim_2[obs][1]);
   hFrame2.GetXaxis()->SetTitleFont(45);
   hFrame2.GetXaxis()->SetTitleSize(30);
   hFrame2.GetXaxis()->SetTitleOffset(1.1);
@@ -292,7 +293,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
   }
 
   txt.DrawLatex(0.18, 0.9, "ALICE Preliminary");
-  txt.DrawLatex(0.18, 0.85, "pp, #sqrt{s} = 13 TeV INEL > 0");
+  txt.DrawLatex(0.18, 0.85, "pp, #sqrt{#it{s}} = 13 TeV INEL > 0");
   txt.DrawLatex(0.18, 0.19, "0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
 
   leg_2.Draw("same");
@@ -316,7 +317,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
   pad->SetLeftMargin(0.19);
   pad->SetBottomMargin(0.17);
 
-  gKappaVsEta[7]->SetTitle(Form(";|#eta| < #it{x};%s", obs_ax_2[obs]));
+  gKappaVsEta[7]->SetTitle(Form(";#Delta#eta;%s", obs_ax_2[obs]));
   gKappaVsEta[7]->GetXaxis()->SetTitleFont(45);
   gKappaVsEta[7]->GetXaxis()->SetTitleSize(16);
   gKappaVsEta[7]->GetXaxis()->SetLabelFont(45);
@@ -332,7 +333,9 @@ void PlotCumulantsVsAcc(const int obs = 5){
 
   txt.SetTextSize(18);
   txt.SetTextAlign(obs > 4 ? 11 : 31);
-  txt.DrawLatex(obs > 4 ? 0.25 : 0.9, 0.83, Form("V0M %s%%", classes[7]));
+  txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.86, Form("V0M %s%%", classes[7]));
+  txt.SetTextSize(15);
+  txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5} = %.2f", classes_mult[7]));
 
   for (int i{0}; i < 7; ++i) {
     auto pad = c3.cd(i + 2);
@@ -341,7 +344,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
     pad->SetLeftMargin(0.19);
     pad->SetBottomMargin(0.17);
 
-    gKappaVsEta[i]->SetTitle(Form(";|#eta| < #it{x};%s", obs_ax_2[obs]));
+    gKappaVsEta[i]->SetTitle(Form(";#Delta#eta;%s", obs_ax_2[obs]));
     gKappaVsEta[i]->GetXaxis()->SetTitleFont(45);
     gKappaVsEta[i]->GetXaxis()->SetTitleSize(16);
     gKappaVsEta[i]->GetXaxis()->SetTitleOffset(.8);
@@ -355,12 +358,16 @@ void PlotCumulantsVsAcc(const int obs = 5){
     gKappaVsEta[i]->Draw("apez");
     gKappaVsEtaSys[i]->Draw("pe5same");
 
-    txt.DrawLatex(obs > 4 ? 0.25 : 0.9, 0.83, Form("V0M %s%%", classes[i]));
+    txt.SetTextSize(18);
+    txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.86, Form("V0M %s%%", classes[i]));
+    txt.SetTextSize(15);
+    txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5} = %.2f", classes_mult[i]));
   }
   c3.cd(9);
   txt.SetTextAlign(11);
+  txt.SetTextSize(18);
   txt.DrawLatex(0.15, 0.8, "ALICE Preliminary");
-  txt.DrawLatex(0.15, 0.6, "pp, #sqrt{s} = 13 TeV INEL > 0");
+  txt.DrawLatex(0.15, 0.6, "pp, #sqrt{#it{s}} = 13 TeV INEL > 0");
   txt.DrawLatex(0.15, 0.4, "0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
 
   c3.Write();

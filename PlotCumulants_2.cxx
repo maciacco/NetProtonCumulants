@@ -30,7 +30,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulants_2(const int obs = 1){
+void PlotCumulants_2(const int obs = 0){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -43,7 +43,7 @@ void PlotCumulants_2(const int obs = 1){
   c.SetRightMargin(0.03);
   c.SetLeftMargin(0.14);
   c.SetBottomMargin(0.14);
-  TH2D hFrame("hFrame", Form(";Multiplicity (%%);%s", obs_ax[obs]), 1, 0, 100., 100, yax_lim[obs][0], yax_lim[obs][1]);
+  TH2D hFrame("hFrame", Form(";V0M multiplicity (%%);%s", obs_ax[obs]), 1, 0, 100., 100, yax_lim[obs][0], yax_lim[obs][1]);
   hFrame.GetXaxis()->SetTitleFont(45);
   hFrame.GetXaxis()->SetTitleSize(30);
   hFrame.GetXaxis()->SetTitleOffset(1.1);
@@ -90,7 +90,7 @@ void PlotCumulants_2(const int obs = 1){
   leg.SetTextFont(45);
   leg.SetTextSize(17);
   leg.SetBorderSize(0);
-  leg.AddEntry(g_mb, "Data", "pe");
+  leg.AddEntry(g_mb, "Data, [0-10]%, [10-20]%,..., [40-50]%, [50-70]%, [70-100]%", "pe");
   leg.AddEntry(g_mb_5, "Data, 5% mult. bin width", "pe");
   leg.Draw("same");
 
@@ -99,7 +99,7 @@ void PlotCumulants_2(const int obs = 1){
   txt.SetTextFont(45);
   txt.SetTextSize(25);
   txt.DrawLatex(0.18, 0.91, "ALICE Preliminary");
-  txt.DrawLatex(0.18, 0.86, "pp, #sqrt{s} = 13 TeV, INEL > 0");
+  txt.DrawLatex(0.18, 0.86, "pp, #sqrt{#it{s}} = 13 TeV, INEL > 0");
   txt.DrawLatex(0.18, 0.18, "|#eta| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
   c.Print(Form("c%s_pct.pdf", obs_sr[obs]));
 

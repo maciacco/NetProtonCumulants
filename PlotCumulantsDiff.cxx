@@ -38,7 +38,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulantsDiff(const int obs = 1){
+void PlotCumulantsDiff(const int obs = 0){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -191,7 +191,7 @@ void PlotCumulantsDiff(const int obs = 1){
   txt.DrawLatex(0.18, 0.78, "|#eta| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
 
   p2.cd();
-  TH2D hFrame2("hFrame2", ";#LTd#it{N}/d#eta#GT_{|#eta|<0.5};Data - (FIST + v.f.)", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);
+  TH2D hFrame2("hFrame2", ";#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5};Data - (FIST + v.f.)", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);
   hFrame2.GetXaxis()->SetTitleFont(45);
   hFrame2.GetXaxis()->SetTitleSize(30);
   hFrame2.GetXaxis()->SetTitleOffset(.85);
