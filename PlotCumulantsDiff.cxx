@@ -12,11 +12,10 @@ const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", ""};
 //const double pythia8_monash[][7]{{0.803634, 0.994558, 0.956312, 0.967531, 0.956223, 0.952725, 1.11756}, {0.950518, 0.991494, 0.980016, 0.981019, 0.979718, 0.977441, 1.00332}, {0.833258, 0.802092, 0.785658, 0.771072, 0.756551, 0.742023, 0.728226/*, 0.721047*/}};
 //const double pythia8_monash_err[][7]{{0.00347729, 0.00917395, 0.0125335, 0.0207804, 0.0169664, 0.0169349, 0.0255032}, {0.000502528, 0.00119946, 0.0016136, 0.00134277, 0.00159809, 0.00111598, 0.0016718}, {0.000128186, 0.000121104, 0.000301248, 0.000184409, 0.000225784, 0.000243093, 0.000224489/*, 0.00212855*/}};
 
-const double pythia8_monash[][7]{{1.10843, 1.15523, 1.1255, 0.971975, 1.04499, 0.841491, 0.979638}, {1.01411, 1.03346, 1.02517, 1.00754, 0.999284, 0.963904, 0.941578}};
-const double pythia8_monash_err[][7]{{0.0298661, 0.0347998, 0.0471502, 0.0603198, 0.104426, 0.106083, 0.170984}, {0.00222648, 0.00359478, 0.00543346, 0.0050972, 0.00859455, 0.00801529, 0.00849801}};
-const double pythia8_monash_mult[]{2.70857, 4.74809, 6.93366, 8.87174, 11.4479, 14.8722, 20.4656};
+const double pythia8_monash[][7]{{1.11801, 1.18331, 1.19499, 1.10198, 0.946933, 1.03384, 0.80085}, {1.01935, 1.03588, 1.03006, 1.02021, 0.999063, 0.978622, 0.940685}, {0.909333, 0.901859, 0.896672, 0.891034, 0.885049, 0.880404, 0.873993}};
+const double pythia8_monash_err[][7]{{0.0170164, 0.0228769, 0.0403791, 0.0450693, 0.056316, 0.0728656, 0.0934018}, {0.00202211, 0.00261984, 0.00432238, 0.0038915, 0.00467066, 0.00489308, 0.00700636}, {0.000561434, 0.000967085, 0.00119496, 0.00110399, 0.00107347, 0.000858151, 0.000917528}};
+const double pythia8_monash_mult[]{3.05523, 4.85737, 6.49253, 8.3376, 10.7163, 13.8762, 18.7087};
 const double pythia8_monash_mult_err[]{0., 0., 0., 0., 0., 0., 0.};
-
 
 const double lqcd[][2]{{-2.9967e-02, 1.0936e-01}, {8.1287e-02, 1.0936e-01}, {0., 0.}, {0., 0.}, {0., 0.}};
 const double lqcd_err[][2]{{1.8776e-02, 2.7321e-04}, {2.8665e-03, 2.7321e-04}, {0., 0.}, {0., 0.}, {0., 0.}};
@@ -55,7 +54,7 @@ void PlotCumulantsDiff(const int obs = 0){
   std::cout << v_lqcd << " +/- " << e_lqcd << std::endl;
   TGraphErrors gLQCD;
   gLQCD.SetName("gLQCD");
-  gLQCD.AddPoint(31.2, v_lqcd);
+  gLQCD.AddPoint(31.53, v_lqcd);
   gLQCD.SetPointError(0, 0.5, e_lqcd);
   gLQCD.SetFillColor(kGray + 2);
   gLQCD.SetLineColor(kGray + 2);
@@ -122,6 +121,8 @@ void PlotCumulantsDiff(const int obs = 0){
   g_mb_m->SetMarkerStyle(20);
   g_mb_m->SetMarkerSize(0);
 
+  g_mb_m->SetPointX(0, 31.53);
+
   TGraphErrors* g_mb_m_fixv = (TGraphErrors*)f_mb_m_fixv->Get("g_364");
   g_mb_m_fixv->SetFillColor(kAzure - 1);
   g_mb_m_fixv->SetLineColor(kAzure - 1);
@@ -129,6 +130,8 @@ void PlotCumulantsDiff(const int obs = 0){
   g_mb_m_fixv->SetFillStyle(3154);
   g_mb_m_fixv->SetMarkerStyle(20);
   g_mb_m_fixv->SetMarkerSize(0);
+
+  g_mb_m_fixv->SetPointX(0, 31.53);
 
 //  TGraphErrors* g_hm_m = (TGraphErrors*)f_hm_m->Get("g_gen_0");
   for (int i{0}; i < 7; ++i) {
@@ -143,10 +146,16 @@ void PlotCumulantsDiff(const int obs = 0){
     g_hm_s->AddPoint(g_hm->GetPointX(i), g_hm->GetPointY(i));
     g_hm_s->SetPointError(i, 0.5, /*xerr_hm,*/ hSys->GetStdDev());
   }
+  g_hm_s->SetPointX(0, 31.53);
+  g_hm->SetPointX(0, 31.53);
+
   SetGraphStyle(g_mb);
   SetGraphStyle(g_hm);
   SetGraphStyle(g_mb_s);
   SetGraphStyle(g_hm_s);
+
+  TLine lGC(0., 1., 34., 1.);
+  lGC.SetLineStyle(kDashed);
 
 //  SetGraphStyleModel(g_mb_m);
 //  SetGraphStyleModel(g_hm_m);
@@ -161,6 +170,7 @@ void PlotCumulantsDiff(const int obs = 0){
   g_hm_s->Draw("samee5");
   g_mb->Draw("samepez");
   g_hm->Draw("samepez");
+  lGC.Draw("same");
 
 //  g_hm_m->Draw("samele");
   TGraph g_ph;
@@ -177,8 +187,8 @@ void PlotCumulantsDiff(const int obs = 0){
   leg.AddEntry(&g_ph, "");
   leg.AddEntry(&g_ph, "Thermal-FIST + Blast Wave, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", "f");
   leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from PRC 100 (2019) 054906");
-  leg.AddEntry(g_mb_m_fixv, "CE ev. gen.", "f");
-  leg.AddEntry(g_mb_m, "CE ev. gen. + vol. fluct. (PRC 88 (2013) 034911)", "f");
+  leg.AddEntry(g_mb_m_fixv, "CE SHM ev. gen.", "f");
+  leg.AddEntry(g_mb_m, "CE SHM ev. gen. + vol. fluct. (PRC 88 (2013) 034911)", "f");
 //  leg.AddEntry(g_mb_m_volf, "Thermal-FIST ev. gen. + vol. fluct. (Gaussian sampling)");
   leg.Draw("same");
 

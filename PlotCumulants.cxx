@@ -30,7 +30,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulants(const int obs = 3){
+void PlotCumulants(const int obs = 4){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -86,6 +86,8 @@ void PlotCumulants(const int obs = 3){
   g_mb_m->SetFillStyle(3154);
   g_mb_m->SetMarkerStyle(20);
   g_mb_m->SetMarkerSize(0);
+  g_mb_m->SetPointX(0, 31.53);
+
 //  TGraphErrors* g_hm_m = (TGraphErrors*)f_hm_m->Get("g_gen_0");
   for (int i{0}; i < 7; ++i) {
     auto hSys = (TH1D*)f_mb->Get(Form("hSys_%d", i));
@@ -113,6 +115,9 @@ void PlotCumulants(const int obs = 3){
     g_hm_s_4->SetPointError(i, 0.5, hSys->GetStdDev());
 */
   }
+  g_hm->SetPointX(0, 31.53);
+  g_hm_s->SetPointX(0, 31.53);
+
   SetGraphStyle(g_mb);
   SetGraphStyle(g_hm);
   SetGraphStyle(g_mb_s);
@@ -161,7 +166,7 @@ void PlotCumulants(const int obs = 3){
   leg.AddEntry(g_mb, "Data", "pe");
   leg.AddEntry(&g_ph, Form("Thermal-FIST + Blast Wave%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]), "f");
   leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from PRC 100 (2019) 054906");
-  leg.AddEntry(g_mb_m, "CE ev. gen.", "f");
+  leg.AddEntry(g_mb_m, "CE SHM ev. gen.", "f");
 //  leg.AddEntry(&gPythia8Monash, "Pythia 8.313 Monash", "f");
   leg.Draw("same");
 

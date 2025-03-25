@@ -15,7 +15,8 @@ const double yax_lim_2[][2] = {{0.15, 1.2}, {0.805, 1.05}, {0.89, 1.015}, {0.95,
 const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", "", ""};
 
 const char* classes[]{"0-10", "10-20", "20-30", "30-40", "40-50", "50-70", "70-100", "0-0.1"};
-const double classes_mult[]{18.68, 12.90, 10.03, 7.95, 6.32, 4.49, 2.54, 31.25};
+const double classes_mult[]{18.68, 12.90, 10.03, 7.95, 6.32, 4.49, 2.54, 31.53};
+const double classes_mult_err[]{0.16, 0.12, 0.13, 0.11, 0.08, 0.06, 0.04, 0.36};
 // const double scale[]{1., 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 1.};
 
 void SetGraphStyle(TGraph* g, Color_t const color = kRed){
@@ -35,7 +36,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulantsVsAcc(const int obs = 2){
+void PlotCumulantsVsAcc(const int obs = 5){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -334,8 +335,8 @@ void PlotCumulantsVsAcc(const int obs = 2){
   txt.SetTextSize(18);
   txt.SetTextAlign(obs > 4 ? 11 : 31);
   txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.86, Form("V0M %s%%", classes[7]));
-  txt.SetTextSize(15);
-  txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5} = %.2f", classes_mult[7]));
+  txt.SetTextSize(12);
+  txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5} = %.2f #pm %.2f", classes_mult[7], classes_mult_err[7]));
 
   for (int i{0}; i < 7; ++i) {
     auto pad = c3.cd(i + 2);
@@ -360,8 +361,8 @@ void PlotCumulantsVsAcc(const int obs = 2){
 
     txt.SetTextSize(18);
     txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.86, Form("V0M %s%%", classes[i]));
-    txt.SetTextSize(15);
-    txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5} = %.2f", classes_mult[i]));
+    txt.SetTextSize(12);
+    txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5} = %.2f #pm %.2f", classes_mult[i], classes_mult_err[i]));
   }
   c3.cd(9);
   txt.SetTextAlign(11);
