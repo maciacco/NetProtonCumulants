@@ -1,10 +1,10 @@
 int colors[] = {TColor::GetColor("#ff3300"), TColor::GetColor("#ec6e0a"), TColor::GetColor("#daaa14"), TColor::GetColor("#c7e51e"), TColor::GetColor("#85dd69"), TColor::GetColor("#42d6b4"),
 TColor::GetColor("#00ceff"), TColor::GetColor("#009adf"), TColor::GetColor("#0067c0"), TColor::GetColor("#595959"), TColor::GetColor("#0033a1")};
 
-const char* obs_ax[]{"#kappa_{6}/#kappa_{2}", "#kappa_{4}/#kappa_{2}", "#kappa_{2}/#kappa_{2,Sk}", "#kappa_{2}^{#bar{p}}/#kappa_{1}^{#bar{p}}",
-"#kappa_{3}^{#bar{p}}/#kappa_{1}^{#bar{p}}", "(#kappa_{2}/#kappa_{2,Sk} - 1)/#kappa_{2,Sk}"};
-const char* obs_ax_2[]{"#kappa_{6}/#kappa_{2}", "#kappa_{4}/#kappa_{2}", "#kappa_{2}/#kappa_{2,Sk}", "#kappa_{2}^{#bar{p}}/#kappa_{1}^{#bar{p}}",
-"#kappa_{3}^{#bar{p}}/#kappa_{1}^{#bar{p}}", "(#kappa_{2}/#kappa_{2,Sk} - 1)/#kappa_{2,Sk}"};
+const char* obs_ax[]{"#it{#kappa}_{6}/#it{#kappa}_{2}", "#it{#kappa}_{4}/#it{#kappa}_{2}", "#it{#kappa}_{2}/#it{#kappa}_{2,Sk}", "#it{#kappa}_{2}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}",
+"#it{#kappa}_{3}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}", "(#it{#kappa}_{2}/#it{#kappa}_{2,Sk} - 1)/#it{#kappa}_{2,Sk}"};
+const char* obs_ax_2[]{"#it{#kappa}_{6}/#it{#kappa}_{2}", "#it{#kappa}_{4}/#it{#kappa}_{2}", "#it{#kappa}_{2}/#it{#kappa}_{2,Sk}", "#it{#kappa}_{2}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}",
+"#it{#kappa}_{3}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}", "(#it{#kappa}_{2}/#it{#kappa}_{2,Sk} - 1)/#it{#kappa}_{2,Sk}"};
 
 const char* obs_sr[]{"k6k2", "k4k2", "k2k2sk", "k2k1", "k3k1", "k2k2sk-1"};
 const char* fname_ = "18";
@@ -36,7 +36,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulantsVsAcc(const int obs = 5){
+void PlotCumulantsVsAcc(const int obs = 2){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -57,7 +57,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
   c.SetRightMargin(0.03);
   c.SetLeftMargin(0.14);
   c.SetBottomMargin(0.14);
-  TH2D hFrame("hFrame", Form(";#LTd#it{N}/d#eta#GT_{|#eta|<0.5};%s", obs_ax[obs]), 1, 0, 34., 100, yax_lim[obs][0], yax_lim[obs][1]);
+  TH2D hFrame("hFrame", Form(";#LTd#it{N}/d#it{#eta}#GT_{|#it{#eta}|<0.5};%s", obs_ax[obs]), 1, 0, 34., 100, yax_lim[obs][0], yax_lim[obs][1]);
   hFrame.GetXaxis()->SetTitleFont(45);
   hFrame.GetXaxis()->SetTitleSize(30);
   hFrame.GetXaxis()->SetTitleOffset(1.1);
@@ -233,10 +233,10 @@ void PlotCumulantsVsAcc(const int obs = 5){
   leg.SetTextSize(25);
   leg.SetBorderSize(0);
 //  leg.SetNColumns(2);
-  leg.AddEntry(g_mb_2, "|#eta| < 0.2", "pe");
-  leg.AddEntry(g_mb_4, "|#eta| < 0.4", "pe");
-  leg.AddEntry(g_mb_6, "|#eta| < 0.6", "pe");
-  leg.AddEntry(g_mb, "|#eta| < 0.8", "pe");
+  leg.AddEntry(g_mb_2, "|#it{#eta}| < 0.2", "pe");
+  leg.AddEntry(g_mb_4, "|#it{#eta}| < 0.4", "pe");
+  leg.AddEntry(g_mb_6, "|#it{#eta}| < 0.6", "pe");
+  leg.AddEntry(g_mb, "|#it{#eta}| < 0.8", "pe");
 
 //  leg.AddEntry(g_mb_m, Form("Thermal-FIST ev. gen. + BW%s, #it{V}_{c} = 2.8 d#it{V}/d#it{y}", volf_str[obs]), "f");
 //  leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from Phys. Rev. C 100 (2019) 054906");
@@ -261,7 +261,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
   c2.SetRightMargin(0.03);
   c2.SetLeftMargin(0.14);
   c2.SetBottomMargin(0.14);
-  TH2D hFrame2("hFrame", Form(";#Delta#eta;%s", obs_ax_2[obs]), 1, 0, 2.6, 100, yax_lim_2[obs][0], yax_lim_2[obs][1]);
+  TH2D hFrame2("hFrame", Form(";#Delta#it{#eta};%s", obs_ax_2[obs]), 1, 0, 2.6, 100, yax_lim_2[obs][0], yax_lim_2[obs][1]);
   hFrame2.GetXaxis()->SetTitleFont(45);
   hFrame2.GetXaxis()->SetTitleSize(30);
   hFrame2.GetXaxis()->SetTitleOffset(1.1);
@@ -318,7 +318,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
   pad->SetLeftMargin(0.19);
   pad->SetBottomMargin(0.17);
 
-  gKappaVsEta[7]->SetTitle(Form(";#Delta#eta;%s", obs_ax_2[obs]));
+  gKappaVsEta[7]->SetTitle(Form(";#Delta#it{#eta};%s", obs_ax_2[obs]));
   gKappaVsEta[7]->GetXaxis()->SetTitleFont(45);
   gKappaVsEta[7]->GetXaxis()->SetTitleSize(16);
   gKappaVsEta[7]->GetXaxis()->SetLabelFont(45);
@@ -336,7 +336,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
   txt.SetTextAlign(obs > 4 ? 11 : 31);
   txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.86, Form("V0M %s%%", classes[7]));
   txt.SetTextSize(12);
-  txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5} = %.2f #pm %.2f", classes_mult[7], classes_mult_err[7]));
+  txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#it{#eta}#GT_{|#it{#eta}|<0.5} = %.2f #pm %.2f", classes_mult[7], classes_mult_err[7]));
 
   for (int i{0}; i < 7; ++i) {
     auto pad = c3.cd(i + 2);
@@ -345,7 +345,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
     pad->SetLeftMargin(0.19);
     pad->SetBottomMargin(0.17);
 
-    gKappaVsEta[i]->SetTitle(Form(";#Delta#eta;%s", obs_ax_2[obs]));
+    gKappaVsEta[i]->SetTitle(Form(";#Delta#it{#eta};%s", obs_ax_2[obs]));
     gKappaVsEta[i]->GetXaxis()->SetTitleFont(45);
     gKappaVsEta[i]->GetXaxis()->SetTitleSize(16);
     gKappaVsEta[i]->GetXaxis()->SetTitleOffset(.8);
@@ -362,7 +362,7 @@ void PlotCumulantsVsAcc(const int obs = 5){
     txt.SetTextSize(18);
     txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.86, Form("V0M %s%%", classes[i]));
     txt.SetTextSize(12);
-    txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5} = %.2f #pm %.2f", classes_mult[i], classes_mult_err[i]));
+    txt.DrawLatex(obs > 4 ? 0.25 : 0.95, 0.76, Form("#LTd#it{N}_{ch}/d#it{#eta}#GT_{|#it{#eta}|<0.5} = %.2f #pm %.2f", classes_mult[i], classes_mult_err[i]));
   }
   c3.cd(9);
   txt.SetTextAlign(11);

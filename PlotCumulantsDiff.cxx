@@ -1,4 +1,4 @@
-const char* obs_ax[]{"#kappa_{6}/#kappa_{2}", "#kappa_{4}/#kappa_{2}", "#kappa_{2}/#kappa_{2,Sk}", "#kappa_{2}^{#bar{p}}/#kappa_{1}^{#bar{p}}", "#kappa_{3}^{#bar{p}}/#kappa_{1}^{#bar{p}}"};
+const char* obs_ax[]{"#it{#kappa}_{6}/#it{#kappa}_{2}", "#it{#kappa}_{4}/#it{#kappa}_{2}", "#it{#kappa}_{2}/#it{#kappa}_{2,Sk}", "#it{#kappa}_{2}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}", "#it{#kappa}_{3}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}"};
 const char* obs_sr[]{"k6k2", "k4k2", "k2k2sk", "k2k1", "k3k1"};
 const char* fname_ = "18";
 const char* fname_m[]{"18_278", "18_278", "18_278", "18_278", "18_278"};
@@ -96,7 +96,7 @@ void PlotCumulantsDiff(const int obs = 0){
   c.cd();
   p2.Draw();
 
-  TH2D hFrame("hFrame", Form(";#LTd#it{N}/d#eta#GT_{|#eta|<0.5};%s", obs_ax[obs]), 1, 0, 34., 100, yax_lim[obs][0], yax_lim[obs][1]);
+  TH2D hFrame("hFrame", Form(";#LTd#it{N}/d#it{#eta}#GT_{|#it{#eta}|<0.5};%s", obs_ax[obs]), 1, 0, 34., 100, yax_lim[obs][0], yax_lim[obs][1]);
   hFrame.GetXaxis()->SetTitleFont(45);
   hFrame.GetXaxis()->SetTitleSize(30);
   hFrame.GetXaxis()->SetTitleOffset(1.1);
@@ -139,12 +139,12 @@ void PlotCumulantsDiff(const int obs = 0){
     g_mb_s->AddPoint(g_mb->GetPointX(i), g_mb->GetPointY(i));
     double min = hSys->GetBinCenter(hSys->FindFirstBinAbove(0));
     double max = hSys->GetBinCenter(hSys->FindLastBinAbove(0));
-    g_mb_s->SetPointError(i, 0.5, /*xerr[i],*/ /*0.5 * (max - min)*/ hSys->GetStdDev());
+    g_mb_s->SetPointError(i, 0.3, /*xerr[i],*/ /*0.5 * (max - min)*/ hSys->GetStdDev());
   }
   for (int i{0}; i < 1; ++i) {
     auto hSys = (TH1D*)f_hm->Get(Form("hSys_%d", i));
     g_hm_s->AddPoint(g_hm->GetPointX(i), g_hm->GetPointY(i));
-    g_hm_s->SetPointError(i, 0.5, /*xerr_hm,*/ hSys->GetStdDev());
+    g_hm_s->SetPointError(i, 0.3, /*xerr_hm,*/ hSys->GetStdDev());
   }
   g_hm_s->SetPointX(0, 31.53);
   g_hm->SetPointX(0, 31.53);
@@ -184,24 +184,33 @@ void PlotCumulantsDiff(const int obs = 0){
   leg.AddEntry(g_mb, "Data", "pe");
   leg.AddEntry(&gLQCD, "Lattice QCD, #it{T} = 155 MeV, PRD 101 (2020) 074502", "f");
   leg.AddEntry(&gPythia8Monash, "Pythia 8.313, rope hadronization + QCD CR", "f");
+
+  TLatex txt;
+  txt.SetNDC();
+  txt.SetTextFont(45);
+  txt.SetTextSize(17);
+
   leg.AddEntry(&g_ph, "");
-  leg.AddEntry(&g_ph, "Thermal-FIST + Blast Wave, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", "f");
-  leg.AddEntry(&g_ph, "#it{T}_{chem}, d#it{V}/d#it{y}, and #gamma_{s} from PRC 100 (2019) 054906");
+  leg.AddEntry(&g_ph, ""); //"Thermal-FIST + Blast Wave, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", "f");
+  leg.AddEntry(&g_ph, ""); //"#it{T}_{chem}, d#it{V}/d#it{y}, and #it{#gamma}_{s} from PRC 100 (2019) 054906");
   leg.AddEntry(g_mb_m_fixv, "CE SHM ev. gen.", "f");
   leg.AddEntry(g_mb_m, "CE SHM ev. gen. + vol. fluct. (PRC 88 (2013) 034911)", "f");
 //  leg.AddEntry(g_mb_m_volf, "Thermal-FIST ev. gen. + vol. fluct. (Gaussian sampling)");
   leg.Draw("same");
 
-  TLatex txt;
+  txt.DrawLatex(0.18, 0.155, "Thermal-FIST+ Blast Wave, #it{V}_{c} = 2.78 d#it{V}/d#it{y}");
+  txt.DrawLatex(0.18, 0.12, "#it{T}_{chem}, d#it{V}/d#it{y}, and #it{#gamma}_{s} from PRC 100 (2019) 054906");
+
+//  TLatex txt;
   txt.SetNDC();
   txt.SetTextFont(45);
   txt.SetTextSize(25);
   txt.DrawLatex(0.18, 0.9, "ALICE Preliminary");
   txt.DrawLatex(0.18, 0.84, "pp, #sqrt{#it{s}} = 13 TeV, INEL > 0");
-  txt.DrawLatex(0.18, 0.78, "|#eta| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
+  txt.DrawLatex(0.18, 0.78, "|#it{#eta}| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
 
   p2.cd();
-  TH2D hFrame2("hFrame2", ";#LTd#it{N}_{ch}/d#eta#GT_{|#eta|<0.5};Data - (FIST + v.f.)", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);
+  TH2D hFrame2("hFrame2", ";#LTd#it{N}_{ch}/d#it{#eta}#GT_{|#it{#eta}|<0.5};Data - (FIST + v.f.)", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);
   hFrame2.GetXaxis()->SetTitleFont(45);
   hFrame2.GetXaxis()->SetTitleSize(30);
   hFrame2.GetXaxis()->SetTitleOffset(.85);
