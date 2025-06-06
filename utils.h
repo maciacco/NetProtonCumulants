@@ -3,8 +3,36 @@
 
 #include <TObject.h>
 #include <TColor.h>
+#include <TClonesArray.h>
 
 struct miniTrack : public TObject{
+  miniTrack() :
+  fPt{-999.f},
+  fEtaMask{0},
+  fSelMask{0},
+  fOuterPID{-999.f},
+  fGenPt{-999.f},
+  fGenEtaMask{0},
+  fIsReco{false}
+  {};
+  miniTrack(const float pt, const int8_t etaMask, const int selMask, const float outerPID, const float genPt, const int8_t genEtaMask, const bool isReco) :
+  fPt{pt},
+  fEtaMask{etaMask},
+  fSelMask{selMask},
+  fOuterPID{outerPID},
+  fGenPt{genPt},
+  fGenEtaMask{genEtaMask},
+  fIsReco{isReco}
+  {};
+  miniTrack(miniTrack const& other) :
+  fPt{other.fPt},
+  fEtaMask{other.fEtaMask},
+  fSelMask{other.fSelMask},
+  fOuterPID{other.fOuterPID},
+  fGenPt{other.fGenPt},
+  fGenEtaMask{other.fGenEtaMask},
+  fIsReco{other.fIsReco}
+  {};
   float fPt;
   int8_t fEtaMask;
   int fSelMask;
@@ -13,6 +41,41 @@ struct miniTrack : public TObject{
   int8_t fGenEtaMask;
   bool fIsReco;
 };
+
+struct miniEvent : public TObject{
+  miniEvent() :
+  fZvtxMask{0},
+  fTriggerMask{0u},
+  fNtracklets{0u},
+  fV0Multiplicity{0u}
+  {};
+  miniEvent(char const zvtxMask, uint8_t const triggerMask, uint8_t const ntracklets, uint8_t const v0Multiplicity) :
+  fZvtxMask{zvtxMask},
+  fTriggerMask{triggerMask},
+  fNtracklets{ntracklets},
+  fV0Multiplicity{v0Multiplicity}
+  {};
+  miniEvent(char const zvtxMask, uint8_t const triggerMask, uint8_t const ntracklets, uint8_t const v0Multiplicity, TClonesArray* const tracks) :
+  fZvtxMask{zvtxMask},
+  fTriggerMask{triggerMask},
+  fNtracklets{ntracklets},
+  fV0Multiplicity{v0Multiplicity}
+  {
+    for (int itrk = 0; itrk < tracks->GetEntries(); ++itrk) {
+      miniTrack* trk_tmp = static_cast<miniTrack*>(tracks->At(itrk));
+      this->fTracks.emplace_back(*trk_tmp);
+    }
+  };
+  char fZvtxMask;
+  uint8_t fTriggerMask;
+  uint8_t fNtracklets;
+  uint8_t fV0Multiplicity;
+  std::vector<miniTrack> fTracks;
+};
+
+constexpr int maxDequeSize = 1000000;
+constexpr int kMixThrZvtx = 20;
+constexpr int kMixThrV0M = 10;
 
 double powI(double a, int p){
   if (p > 1)
@@ -61,7 +124,7 @@ constexpr double kCentBins[kNCentBins + 1] = {0.f, 0.1f, 100.f};
 constexpr int kNTrklBins = 10;
 constexpr double kTrklBins[kNTrklBins + 1] = /* {0, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 35.f, 40.f}; */ {0, 3, 4, 5, 7, 9, 11, 15, 19, 27, 50};
 
-constexpr uint8_t kTriggerSel = 0x2; //0x1;
+constexpr uint8_t kTriggerSel = 0x1; //0x1;
 constexpr int kNEtaBins = 1;
 constexpr int kNBinsPt = 20;
 constexpr int kNBinsPID = 50;
@@ -123,10 +186,10 @@ constexpr bool kRequireTPCPIDCut[] = {true, true, false};
 // constexpr int kNCentBinsSmall = 32;
 // constexpr float kCentBinsSmall[kNCentBinsSmall + 1] = {0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 35.f, 40.f};// {0.f, 3.f, 4.f, 5.f, 7.f, 9.f, 11.f, 15.f, 19.f, 27.f, 100.f};
 
-constexpr int kNCentBinsSmall = 2;
-constexpr double kCentBinsSmall[kNCentBinsSmall + 1] = {0.f, 0.1f, 100.f};
-//constexpr int kNCentBinsSmall = 7;
-//constexpr double kCentBinsSmall[kNCentBinsSmall + 1] = {0, 10, 20, 30, 40, 50, 70, 100};
+//constexpr int kNCentBinsSmall = 2;
+//constexpr double kCentBinsSmall[kNCentBinsSmall + 1] = {0.f, 0.1f, 100.f};
+constexpr int kNCentBinsSmall = 7;
+constexpr double kCentBinsSmall[kNCentBinsSmall + 1] = {0, 10, 20, 30, 40, 50, 70, 100};
 
 //constexpr int kNCentBinsSmall = 100;
 //constexpr double kCentBinsSmall[kNCentBinsSmall + 1] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,

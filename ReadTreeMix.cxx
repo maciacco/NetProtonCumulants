@@ -14,12 +14,19 @@
 #include <TStopwatch.h>
 #include <TClonesArray.h>
 
+#include <deque>
+
+#ifdef __CINT__
+#pragma link C++ class std::vector<miniTrack>+;
+#pragma link C++ class std::deque<miniEvent>+;
+#endif
+
 enum kSources{
   kPrim = 0,
   kWD = 1
 };
 
-void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp_noTOF", const int iVarMin = 526, const int iVarMax = 527, const bool isMC = false, const char source = kSources::kPrim)
+void ReadTreeMix(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp_noTOF", const int iVarMin = 526, const int iVarMax = 527, const bool isMC = false, const char source = kSources::kPrim)
 {
   TStopwatch w;
   w.Start();
@@ -218,40 +225,90 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
   TH1D hCentSmallTmp("hCentSmallTmp", "hCentSmallTmp", kNCentBinsSmallTmp, kCentBinsSmallTmp);
   TH1D hEtaTmp("hEtaTmp", "hEtaTmp", kNEtaBins, etaBins);
 
-  // Event loop
-  gRandom->SetSeed(42);
-  Long64_t ievStart = 0; // isMC ? 0 : 400000000;
-  for (Long64_t i = ievStart; i < nEntries; ++i){
-    // temporary cut on bad run
-    const int iS = (int)(gRandom->Rndm() * nSample);
+  std::deque<miniEvent> evq;
+  int iQ{0};
 
-    Long64_t e = i;
-    if (!(i%1000000)) std::cout << "n_ev = " << i << std::endl;
-
+  auto selEv = [&](int e){
     Long64_t tentry = t->LoadTree(e);
     t->GetEntry(tentry);
 
-    if (static_cast<int>(fV0Multiplicity) > 100) continue;
+    if (static_cast<int>(fV0Multiplicity) > 100) return false;
     double cent = hCentSmallTmp.GetBinCenter(static_cast<int>(fV0Multiplicity) + 1);
-    // std::cout << cent << std::endl;
-    if (cent > kMaxCent || cent < kMinCent) continue;
-
-    // std::cout << (int)fV0Multiplicity << "\t" << cent << std::endl;
+    if (cent > kMaxCent || cent < kMinCent) return false;
 
     if ((fTriggerMask & 0x2) == 0x2) { // high granularity
       cent = cent / 100.f;
     }
 
     if (!((fTriggerMask & kTriggerSel) == kTriggerSel) && !isMC) {
-      continue;
+      return false;
+    }
+    if (std::abs(fZvtxMask) > kZvtxCut || std::abs(fZvtxMask) < kZvtxCutMin) return false;
+
+    return true;
+  };
+
+  // Event loop
+  Long64_t jev{0};
+  gRandom->SetSeed(42);
+  Long64_t ievStart = 0; // isMC ? 0 : 400000000;
+  for (Long64_t i = ievStart; i < nEntries; ++i){
+    const int iS = static_cast<int>(gRandom->Rndm() * nSample);
+
+    if (!(i%10000)) std::cout << "n_ev = " << i << ", evq.size() = " << evq.size() << std::endl;
+
+    // fill the deque here
+    while (evq.size() < maxDequeSize && jev < nEntries) {
+      if (!selEv(jev++)) continue;
+      miniEvent ev_tmp(fZvtxMask, fTriggerMask, fNtracklets, fV0Multiplicity, tracks);
+      evq.emplace_back(ev_tmp);
     }
 
-    int ic = hCentTmp.FindBin(cent + 0.005f);
+    if (evq.empty()) break;
+
+    double cent = hCentSmallTmp.GetBinCenter(static_cast<int>(evq.front().fV0Multiplicity) + 1);
+
+    int ic = hCentTmp.FindBin(cent + 0.005f); // -> to be taken from the front of the deque
     int ic_sm = hCentSmallTmp.FindBin(cent + 0.005f);
-    if (std::abs(fZvtxMask) > kZvtxCut || std::abs(fZvtxMask) < kZvtxCutMin) continue;
 
     hCent[iS]->Fill(cent);
-    hNtrkl[iS]->Fill(fNtracklets);
+    hNtrkl[iS]->Fill(evq.front().fNtracklets);
+
+    // loop on the deque and generate the mixed event
+    long unsigned int ievSamp{1};
+    int inspectedEvents{0};
+    bool stopMix = false;
+    miniEvent evMxd(evq.front().fZvtxMask, evq.front().fTriggerMask, evq.front().fNtracklets, evq.front().fV0Multiplicity);
+    while (inspectedEvents < static_cast<int>(evMxd.fNtracklets) && !stopMix){
+      // std::cout << ievSamp << "\t" << jev << "\t" << stopMix << "\t" << static_cast<int>(evMxd.fNtracklets) << std::endl;
+      if (ievSamp >= evq.size() - 1) {
+        stopMix = (jev >= (nEntries - 1));
+        while(!selEv(jev) && !stopMix){
+          jev++;
+          stopMix = (jev >= (nEntries - 1));
+        }
+        stopMix = stopMix && (evq.size() >= maxDequeSize);
+        if (stopMix) break;
+        miniEvent ev_tmp(fZvtxMask, fTriggerMask, fNtracklets, fV0Multiplicity, tracks);
+        evq.emplace_back(ev_tmp);
+      }
+      if (std::abs(evq[ievSamp].fZvtxMask - evMxd.fZvtxMask) < kMixThrZvtx && std::abs(evq[ievSamp].fV0Multiplicity - evMxd.fV0Multiplicity) < kMixThrV0M && !stopMix && ievSamp < evq.size()) {
+        // std::cout << "filling tracks..." << std::endl;
+        double ntrk_tmp = static_cast<double>(evq[ievSamp].fNtracklets);
+        double npap_tmp = static_cast<double>(evq[ievSamp].fTracks.size());
+        double frac_pap = npap_tmp / ntrk_tmp; // fraction of protons in tracks
+        if (gRandom->Rndm() < frac_pap) {
+          int rndm_idx = gRandom->Uniform(static_cast<int>(evq[ievSamp].fTracks.size()));
+          evMxd.fTracks.emplace_back(evq[ievSamp].fTracks[rndm_idx]);
+        }
+        inspectedEvents++;
+      }
+      ievSamp++;
+    }
+    if (stopMix) {
+      std::cout << "Mixing stopped" << std::endl;
+      break;
+    }
 
     for (int const& iVar : var_vect)
     {
@@ -276,22 +333,20 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
       double qPr_6_tmp[2] = {0, 0};
       Long64_t nPr[] = {0, 0};
 
-      for (int itrk = 0; itrk < tracks->GetEntries(); ++itrk) {
-
-        miniTrack* trk_tmp = (miniTrack*)tracks->At(itrk);
+      for (auto& trk_tmp : evMxd.fTracks) {
 
         if (isMC) {
-          if ( std::abs(trk_tmp->fGenPt) < kTOFptCut + 0.1f && std::abs(trk_tmp->fGenPt) > kPtLowLimitPr &&
-               trk_tmp->fGenEtaMask < kEtaCut && trk_tmp->fGenEtaMask > -kEtaCut )
+          if ( std::abs(trk_tmp.fGenPt) < kTOFptCut + 0.1f && std::abs(trk_tmp.fGenPt) > kPtLowLimitPr &&
+               trk_tmp.fGenEtaMask < kEtaCut && trk_tmp.fGenEtaMask > -kEtaCut )
           {
-            float eta_MC = static_cast<float>(trk_tmp->fGenEtaMask) / 100.f;
+            float eta_MC = static_cast<float>(trk_tmp.fGenEtaMask) / 100.f;
             int ie_MC = hEtaTmp.FindBin(eta_MC);
-            int im_MC = trk_tmp->fGenPt > 0 ? 1 : 0;
-            if (((trk_tmp->fSelMask & BIT(20)) != BIT(20)) && (source == kSources::kWD)) continue;
-            if (((trk_tmp->fSelMask & BIT(22)) != BIT(22)) && (source == kSources::kPrim)) continue;
-            hGenProton[im_MC][iVar - iVarMin]->Fill(cent, std::abs(trk_tmp->fGenPt), eta_MC);
-            hGenProtonTrkl[im_MC][iVar - iVarMin]->Fill(fNtracklets, std::abs(trk_tmp->fGenPt), eta_MC);
-            if ( std::abs(trk_tmp->fGenPt) < kTOFptCut && std::abs(trk_tmp->fGenPt) > kPtLowLimitPr ) {
+            int im_MC = trk_tmp.fGenPt > 0 ? 1 : 0;
+            if (((trk_tmp.fSelMask & BIT(20)) != BIT(20)) && (source == kSources::kWD)) continue;
+            if (((trk_tmp.fSelMask & BIT(22)) != BIT(22)) && (source == kSources::kPrim)) continue;
+            hGenProton[im_MC][iVar - iVarMin]->Fill(cent, std::abs(trk_tmp.fGenPt), eta_MC);
+            hGenProtonTrkl[im_MC][iVar - iVarMin]->Fill(fNtracklets, std::abs(trk_tmp.fGenPt), eta_MC);
+            if ( std::abs(trk_tmp.fGenPt) < kTOFptCut && std::abs(trk_tmp.fGenPt) > kPtLowLimitPr ) {
               // std::cout << im_MC << std::endl;
               qPr_1_gen_tmp[im_MC] += 1.;
               nPr_gen[im_MC] += 1;
@@ -301,29 +356,29 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
           }
         }
         if (
-            ( ( (((trk_tmp->fSelMask & kCutTPCcls[iTPCcls]) == kCutTPCcls[iTPCcls]) || ((trk_tmp->fSelMask & kCutTPCcls2[iTPCcls]) == kCutTPCcls2[iTPCcls]) ) && kRequireTPCclsCut[iTPCcls] ) || !kRequireTPCclsCut[iTPCcls] ) &&
-            ( ( (((trk_tmp->fSelMask & kCutChi2TPC[iChi2TPC]) == kCutChi2TPC[iChi2TPC]) || ((trk_tmp->fSelMask & kCutChi2TPC2[iChi2TPC]) == kCutChi2TPC2[iChi2TPC]) ) && kRequireChi2TPCCut[iChi2TPC] ) || !kRequireChi2TPCCut[iChi2TPC] ) &&
-            ( ( ((trk_tmp->fSelMask & kCutDCAxy[iDCAxy]) == kCutDCAxy[iDCAxy] || (trk_tmp->fSelMask & kCutDCAxy2[iDCAxy]) == kCutDCAxy2[iDCAxy]) && kRequireDCAxyCut[iDCAxy] ) || !kRequireDCAxyCut[iDCAxy] ) &&
-            ( ( ((trk_tmp->fSelMask & kCutDCAz[iDCAz]) == kCutDCAz[iDCAz] || (trk_tmp->fSelMask & kCutDCAz2[iDCAz]) == kCutDCAz2[iDCAz]) && kRequireDCAzCut[iDCAz] ) || !kRequireDCAzCut[iDCAz] ) &&
-            ( ( ((trk_tmp->fSelMask & kCutITSPID[iITSPID]) == kCutITSPID[iITSPID] || (trk_tmp->fSelMask & kCutITSPID2[iITSPID]) == kCutITSPID2[iITSPID]) && kRequireDCAzCut[iITSPID] ) || !kRequireITSPIDCut[iITSPID] ) &&
-            //( ( ((trk_tmp->fSelMask & kCutTPCPID[iTPCPID]) == kCutDCAz[iTPCPID] || (trk_tmp->fSelMask & kCutTPCPID2[iTPCPID]) == kCutTPCPID2[iTPCPID]) && kRequireTPCPIDCut[iTPCPID] ) || !kRequireTPCPIDCut[iTPCPID] ) &&
-            std::abs(trk_tmp->fPt) > kPtLowLimitPr && std::abs(trk_tmp->fPt) < kTOFptCut &&
-            (trk_tmp->fEtaMask < kEtaCut && trk_tmp->fEtaMask > -kEtaCut) &&
-            (trk_tmp->fEtaMask < -kEtaCutMin || trk_tmp->fEtaMask > kEtaCutMin) &&
-            (std::abs(trk_tmp->fOuterPID) < 2.f)
+            ( ( (((trk_tmp.fSelMask & kCutTPCcls[iTPCcls]) == kCutTPCcls[iTPCcls]) || ((trk_tmp.fSelMask & kCutTPCcls2[iTPCcls]) == kCutTPCcls2[iTPCcls]) ) && kRequireTPCclsCut[iTPCcls] ) || !kRequireTPCclsCut[iTPCcls] ) &&
+            ( ( (((trk_tmp.fSelMask & kCutChi2TPC[iChi2TPC]) == kCutChi2TPC[iChi2TPC]) || ((trk_tmp.fSelMask & kCutChi2TPC2[iChi2TPC]) == kCutChi2TPC2[iChi2TPC]) ) && kRequireChi2TPCCut[iChi2TPC] ) || !kRequireChi2TPCCut[iChi2TPC] ) &&
+            ( ( ((trk_tmp.fSelMask & kCutDCAxy[iDCAxy]) == kCutDCAxy[iDCAxy] || (trk_tmp.fSelMask & kCutDCAxy2[iDCAxy]) == kCutDCAxy2[iDCAxy]) && kRequireDCAxyCut[iDCAxy] ) || !kRequireDCAxyCut[iDCAxy] ) &&
+            ( ( ((trk_tmp.fSelMask & kCutDCAz[iDCAz]) == kCutDCAz[iDCAz] || (trk_tmp.fSelMask & kCutDCAz2[iDCAz]) == kCutDCAz2[iDCAz]) && kRequireDCAzCut[iDCAz] ) || !kRequireDCAzCut[iDCAz] ) &&
+            ( ( ((trk_tmp.fSelMask & kCutITSPID[iITSPID]) == kCutITSPID[iITSPID] || (trk_tmp.fSelMask & kCutITSPID2[iITSPID]) == kCutITSPID2[iITSPID]) && kRequireDCAzCut[iITSPID] ) || !kRequireITSPIDCut[iITSPID] ) &&
+            //( ( ((trk_tmp.fSelMask & kCutTPCPID[iTPCPID]) == kCutDCAz[iTPCPID] || (trk_tmp.fSelMask & kCutTPCPID2[iTPCPID]) == kCutTPCPID2[iTPCPID]) && kRequireTPCPIDCut[iTPCPID] ) || !kRequireTPCPIDCut[iTPCPID] ) &&
+            std::abs(trk_tmp.fPt) > kPtLowLimitPr && std::abs(trk_tmp.fPt) < kTOFptCut &&
+            (trk_tmp.fEtaMask < kEtaCut && trk_tmp.fEtaMask > -kEtaCut) &&
+            (trk_tmp.fEtaMask < -kEtaCutMin || trk_tmp.fEtaMask > kEtaCutMin) &&
+            (std::abs(trk_tmp.fOuterPID) < 2.f)
           )
         {
           if (isMC) {
-            if (!trk_tmp->fIsReco || trk_tmp->fGenPt < -998.f) continue;
+            if (!trk_tmp.fIsReco || trk_tmp.fGenPt < -998.f) continue;
           }
-          int im = trk_tmp->fPt > 0 ? 1 : 0;
-          float eta_ = static_cast<float>(trk_tmp->fEtaMask) / 100.f;
+          int im = trk_tmp.fPt > 0 ? 1 : 0;
+          float eta_ = static_cast<float>(trk_tmp.fEtaMask) / 100.f;
           int ie = hEtaTmp.FindBin(eta_);
-          double eff = fEffPr ? hEffPr[im][ic - 1][ie - 1][iS][iVar - iVarMin]->GetBinContent(hEffPr[im][ic - 1][ie - 1][iS][iVar - iVarMin]->FindBin(std::abs(trk_tmp->fPt))) : kDummyEffPr;
+          double eff = fEffPr ? hEffPr[im][ic - 1][ie - 1][iS][iVar - iVarMin]->GetBinContent(hEffPr[im][ic - 1][ie - 1][iS][iVar - iVarMin]->FindBin(std::abs(trk_tmp.fPt))) : kDummyEffPr;
           if (fEffPr && eff < 1.e-12) continue;
           // if (im > 0.5 && !isMC) {eff *= 0.96;} // test systematic effect on k1
-          hRecProton[im][iVar - iVarMin]->Fill(cent, std::abs(trk_tmp->fPt), eta_, 1./eff);
-          hRecProtonTrkl[im][iVar - iVarMin]->Fill(fNtracklets, std::abs(trk_tmp->fPt), eta_, 1./eff);
+          hRecProton[im][iVar - iVarMin]->Fill(cent, std::abs(trk_tmp.fPt), eta_, 1./eff);
+          hRecProtonTrkl[im][iVar - iVarMin]->Fill(fNtracklets, std::abs(trk_tmp.fPt), eta_, 1./eff);
           qPr_1_tmp[im] += (1. / eff);
           qPr_2_tmp[im] += (1. / powI(eff, 2));
           qPr_3_tmp[im] += (1. / powI(eff, 3));
@@ -333,7 +388,7 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
           nPr[im] += 1;
 
           // histos
-          outerPID[iS][im]->Fill(cent, std::abs(trk_tmp->fPt), trk_tmp->fOuterPID);
+          outerPID[iS][im]->Fill(cent, std::abs(trk_tmp.fPt), trk_tmp.fOuterPID);
         }
       }
       if (isMC) {
@@ -346,6 +401,8 @@ void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp
 
       evtTuple[iS][iVar - iVarMin]->Fill(cent, qPr_1_tmp[1], qPr_1_tmp[0], qPr_2_tmp[1], qPr_2_tmp[0], qPr_3_tmp[1], qPr_3_tmp[0], qPr_4_tmp[1], qPr_4_tmp[0], qPr_5_tmp[1], qPr_5_tmp[0], qPr_6_tmp[1], qPr_6_tmp[0], fNtracklets);
     }
+
+    evq.pop_front();
   }
 
   // Process output
