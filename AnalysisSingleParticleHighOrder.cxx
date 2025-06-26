@@ -41,14 +41,14 @@ void cumulant_ratio(double &mean, double &rms, const double *denom, const double
   {
     if (std::abs(denom[sample]) > 1.e-9) {
 //      std::cout << num[sample] << std::endl;
-      mean = mean + (num[sample] / denom[sample]);
+      mean = mean + ((num[sample] / denom[sample] - 1.) / denom[sample]);
     }
   }
   mean = mean / ( kNSample - nSkip);
   for(int sample = 0; sample < kNSample; sample++)
   {
     if (std::abs(denom[sample]) > 1.e-9) {
-      rms = rms + powI(mean - (num[sample] / denom[sample]), 2);
+      rms = rms + powI(mean - ((num[sample] / denom[sample] - 1.) / denom[sample]), 2);
     }
   }
 }
@@ -139,7 +139,7 @@ void AnalysisSingleParticleHighOrder(const char* period = "18", const char* obs 
     for(int sample = 0; sample < kNSample; sample++)
     {
       // if (sample == 0) {nSkip++; continue;}
-      const char* triggerDir = kTriggerSel == 0x1 ? "MB_08" : "HM_08";
+      const char* triggerDir = kTriggerSel == 0x1 ? "MB" : "HM_08";
       TFile *fin = new TFile(Form("%s/%s/output_sys_singleParticle_%d_%d.root", kResDir, triggerDir, sample, iVar));
       TFile *fCent = TFile::Open(Form("%s/%s/LHC18ppTrig_HM%d_var_%d.root", kResDir, triggerDir, sample, iVar));
 

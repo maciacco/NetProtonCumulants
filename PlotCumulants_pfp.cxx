@@ -5,7 +5,7 @@ const char* obs_sr_m[]{"k6k2", "k4k2", "k2k2sk", "k2k1_n", "k3k1_n"};
 const char* fname_ = "18";
 const char* fname_m[]{"18_278", "18_278", "18_278", "18_278", "18_278"};
 const char* fname_dat[]{"", "", "", "_singleParticleHighOrder", "_singleParticleHighOrder"};
-const double yax_lim[][2] = {{0.15, 1.2}, {0.815, 1.05}, {0.7, 1.05}, {0.948, 1.016}, {0.84, 1.05}};
+const double yax_lim[][2] = {{0.15, 1.2}, {0.77, 1.02}, {0.7, 1.05}, {0.948, 1.016}, {0.84, 1.05}};
 const char* volf_str[]{" + vol. fluct.", " + vol. fluct.", "", "", ""};
 //const double xerr[]{0.16, 0.12, 0.13, 0.11, 0.085, 0.064, 0.036};
 //const double xerr_hm{0.26};
@@ -16,7 +16,7 @@ const double pythia8_monash_mult_err[]{0., 0., 0., 0., 0., 0., 0.};
 
 void SetGraphStyle(TGraph* g, Color_t const color = kRed){
   g->SetMarkerStyle(20);
-  g->SetMarkerSize(0.8);
+  g->SetMarkerSize(1.);
   g->SetMarkerColor(color);
   g->SetLineWidth(2);
   g->SetLineColor(color);
@@ -31,7 +31,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulants(const int obs = 4){
+void PlotCumulants_pfp(const int obs = 1){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -59,7 +59,7 @@ void PlotCumulants(const int obs = 4){
   c.SetRightMargin(0.03);
   c.SetLeftMargin(0.14);
   c.SetBottomMargin(0.14);
-  TH2D hFrame("hFrame", Form(";#LTd#it{N}/d#it{#eta}#GT_{|#it{#eta}|<0.5};%s", obs_ax[obs]), 1, 0, 34., 100, yax_lim[obs][0], yax_lim[obs][1]);
+  TH2D hFrame("hFrame", Form(";#LTd#it{N}_{ch}/d#it{#eta}#GT_{|#it{#eta}|<0.5};%s", obs_ax[obs]), 1, 0, 34., 100, yax_lim[obs][0], yax_lim[obs][1]);
   hFrame.GetXaxis()->SetTitleFont(45);
   hFrame.GetXaxis()->SetTitleSize(30);
   hFrame.GetXaxis()->SetTitleOffset(1.1);
@@ -138,11 +138,17 @@ void PlotCumulants(const int obs = 4){
 //  SetGraphStyleModel(g_hm_m);
   c.cd();
   hFrame.Draw();
-  g_mb_m->Draw("samee3l");
+
+  TLine lGC(0., 1., 34., 1.);
+  lGC.SetLineStyle(kDashed);
+
+//  g_mb_m->Draw("samee3l");
   g_mb_s->Draw("samee5");
   g_hm_s->Draw("samee5");
   g_mb->Draw("samepez");
   g_hm->Draw("samepez");
+
+  lGC.Draw("same");
 //  gPythia8Monash.Draw("samee3l");
 
 //  g_mb_s_6->Draw("samee5");
@@ -160,32 +166,34 @@ void PlotCumulants(const int obs = 4){
   g_ph.SetLineWidth(0);
   g_ph.SetMarkerStyle(20);
   g_ph.SetMarkerSize(0);
-  TLegend leg(0.18, 0.7, 0.4, 0.84);
+  TLegend leg(0.18, 0.2, 0.4, 0.3);
   leg.SetTextFont(45);
-  leg.SetTextSize(17);
+  leg.SetTextSize(25);
   leg.SetBorderSize(0);
-  leg.AddEntry(g_mb, "Data", "pe");
+  leg.AddEntry(g_mb, "ALICE Preliminary, pp, #sqrt{#it{s}} = 13 TeV", "pe");
+  leg.AddEntry(&g_ph, "|#it{#eta}| < 0.8, 0.5 #leq #it{p}_{T} < 1.5 GeV/#it{c}");
 
   TLatex txt;
   txt.SetNDC();
   txt.SetTextFont(45);
   txt.SetTextSize(17);
-  leg.AddEntry(&g_ph, ""); //Form("Thermal-FIST + Blast Wave%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]), "f");
-  leg.AddEntry(&g_ph, ""); //"#it{T}_{chem}, d#it{V}/d#it{y}, and #it{#gamma}_{s} from PRC 100 (2019) 054906");
-  leg.AddEntry(g_mb_m, "CE SHM ev. gen.", "f");
+
+//  leg.AddEntry(&g_ph, ""); //Form("Thermal-FIST + Blast Wave%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]), "f");
+//  leg.AddEntry(&g_ph, ""); //"#it{T}_{chem}, d#it{V}/d#it{y}, and #it{#gamma}_{s} from PRC 100 (2019) 054906");
+//  leg.AddEntry(g_mb_m, "CE SHM ev. gen.", "f");
 //  leg.AddEntry(&gPythia8Monash, "Pythia 8.313 Monash", "f");
   leg.Draw("same");
 
-  txt.DrawLatex(0.18, 0.78, Form("Thermal-FIST + Blast Wave%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]));
-  txt.DrawLatex(0.18, 0.745, "#it{T}_{chem}, d#it{V}/d#it{y}, and #it{#gamma}_{s} from PRC 100 (2019) 054906");
+//  txt.DrawLatex(0.18, 0.78, Form("Thermal-FIST + Blast Wave%s, #it{V}_{c} = 2.78 d#it{V}/d#it{y}", volf_str[obs]));
+//  txt.DrawLatex(0.18, 0.745, "#it{T}_{chem}, d#it{V}/d#it{y}, and #it{#gamma}_{s} from PRC 100 (2019) 054906");
 
   txt.SetTextSize(25);
-  txt.DrawLatex(0.18, 0.91, "ALICE Preliminary");
-  txt.DrawLatex(0.18, 0.86, "pp, #sqrt{#it{s}} = 13 TeV, INEL > 0");
-  txt.DrawLatex(0.18, 0.18, "|#it{#eta}| < 0.8, 0.5 #leq #it{p}_{T} < 1.5 GeV/#it{c}");
-  c.Print(Form("c%s.pdf", obs_sr[obs]));
+//  txt.DrawLatex(0.18, 0.91, "ALICE Preliminary");
+//  txt.DrawLatex(0.18, 0.86, "pp, #sqrt{#it{s}} = 13 TeV, INEL > 0");
+//  txt.DrawLatex(0.18, 0.18, "|#it{#eta}| < 0.8, 0.5 #leq #it{p}_{T} < 1.5 GeV/#it{c}");
+  c.Print(Form("c%s_pfp.pdf", obs_sr[obs]));
 
-  TFile *fout = TFile::Open("plot_out.root", "recreate");
+  TFile *fout = TFile::Open("plot_out_nomod.root", "recreate");
   fout->cd();
   c.Write();
   fout->Close();

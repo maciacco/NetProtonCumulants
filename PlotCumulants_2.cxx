@@ -1,4 +1,5 @@
-const char* obs_ax[]{"#it{#kappa}_{6}/#it{#kappa}_{2}", "#it{#kappa}_{4}/#it{#kappa}_{2}", "#it{#kappa}_{2}/#it{#kappa}_{2,Sk}", "#it{#kappa}_{2}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}", "#it{#kappa}_{3}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}"};
+const char* obs_ax[]{"#it{#kappa}_{6}(p - #bar{p})/#it{#kappa}_{2}(p - #bar{p})", "#it{#kappa}_{4}(p - #bar{p})/#it{#kappa}_{2}(p - #bar{p})",
+"#it{#kappa}_{2}(p - #bar{p})/#LTp + #bar{p}#GT", "#it{#kappa}_{2}(#bar{p})/#it{#kappa}_{1}(#bar{p})", "#it{#kappa}_{3}(#bar{p})/#it{#kappa}_{1}(#bar{p})"};
 const char* obs_sr[]{"k6k2", "k4k2", "k2k2sk", "k2k1", "k3k1"};
 const char* obs_sr_m[]{"k6k2", "k4k2", "k2k2sk", "k2k1_n", "k3k1_n"};
 const char* fname_ = "18";
@@ -105,7 +106,7 @@ void PlotCumulants_2(const int obs = 1){
   txt.SetTextSize(25);
   txt.DrawLatex(0.18, 0.91, "ALICE Preliminary");
   txt.DrawLatex(0.18, 0.86, "pp, #sqrt{#it{s}} = 13 TeV, INEL > 0");
-  txt.DrawLatex(0.18, 0.18, "|#it{#eta}| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
+  txt.DrawLatex(0.18, 0.18, "|#it{#eta}| < 0.8, 0.5 #leq #it{p}_{T} < 1.5 GeV/#it{c}");
   c.Print(Form("c%s_pct.pdf", obs_sr[obs]));
 
   TFile *fout = TFile::Open("plot_out.root", "recreate");

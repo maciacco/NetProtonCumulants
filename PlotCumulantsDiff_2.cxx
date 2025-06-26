@@ -1,4 +1,5 @@
-const char* obs_ax[]{"#it{#kappa}_{6}/#it{#kappa}_{2}", "#it{#kappa}_{4}/#it{#kappa}_{2}", "#it{#kappa}_{2}/#it{#kappa}_{2,Sk}", "#it{#kappa}_{2}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}", "#it{#kappa}_{3}^{#bar{p}}/#it{#kappa}_{1}^{#bar{p}}"};
+const char* obs_ax[]{"#it{#kappa}_{6}(p - #bar{p})/#it{#kappa}_{2}(p - #bar{p})", "#it{#kappa}_{4}(p - #bar{p})/#it{#kappa}_{2}(p - #bar{p})",
+"#it{#kappa}_{2}(p - #bar{p})/#LTp + #bar{p}#GT", "#it{#kappa}_{2}(#bar{p})/#it{#kappa}_{1}(#bar{p})", "#it{#kappa}_{3}(#bar{p})/#it{#kappa}_{1}(#bar{p})"};
 const char* obs_sr[]{"k6k2", "k4k2", "k2k2sk", "k2k1", "k3k1"};
 const char* fname_ = "18";
 const char* fname_m[]{"18_278", "18_278", "18_278", "18_278", "18_278"};
@@ -191,7 +192,7 @@ void PlotCumulantsDiff_2(const int obs = 2){
   g_ph.SetLineWidth(0);
   g_ph.SetMarkerStyle(20);
   g_ph.SetMarkerSize(0);
-  TLegend leg(0.18, 0.03, 0.35, 0.2983);
+  TLegend leg(0.18, 0.03, 0.35, 0.2983); //0.32);
   leg.SetTextFont(45);
   leg.SetTextSize(17);
   leg.SetBorderSize(0);
@@ -226,7 +227,7 @@ void PlotCumulantsDiff_2(const int obs = 2){
   txt.SetTextSize(25);
   txt.DrawLatex(0.18, 0.9, "ALICE Preliminary");
   txt.DrawLatex(0.18, 0.84, "pp, #sqrt{#it{s}} = 13 TeV, INEL > 0");
-  txt.DrawLatex(0.18, 0.78, "|#it{#eta}| < 0.8, 0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
+  txt.DrawLatex(0.18, 0.78, "|#it{#eta}| < 0.8, 0.5 #leq #it{p}_{T} < 1.5 GeV/#it{c}");
 
   p2.cd();
   TH2D hFrame2("hFrame2", ";#LTd#it{N}_{ch}/d#it{#eta}#GT_{|#it{#eta}|<0.5};Data - FIST", 1, 0, 34., 100, yax_lim_diff[obs][0], yax_lim_diff[obs][1]);

@@ -14,11 +14,6 @@
 #include <TStopwatch.h>
 #include <TClonesArray.h>
 
-enum kSources{
-  kPrim = 0,
-  kWD = 1
-};
-
 void ReadTree(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp_noTOF", const int iVarMin = 526, const int iVarMax = 527, const bool isMC = false, const char source = kSources::kPrim)
 {
   TStopwatch w;

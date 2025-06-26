@@ -37,7 +37,7 @@ void SetGraphStyleModel(TGraph* g, Color_t const color = kBlue){
   g->SetLineColor(color);
 };
 
-void PlotCumulantsVsAcc(const int obs = 2){
+void PlotCumulantsVsAccRatio(const int obs = 5){
   gStyle->SetOptStat(0);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -135,27 +135,44 @@ void PlotCumulantsVsAcc(const int obs = 2){
   }
 
   for (int i{0}; i < 7; ++i) {
+//    g_mb->SetPointY(i, g_mb->GetPointY(i) / g_hm->GetPointY(i));
+//    g_mb_6->SetPointY(i, g_mb_6->GetPointY(i) / g_hm_6->GetPointY(i));
+//    g_mb_4->SetPointY(i, g_mb_4->GetPointY(i) / g_hm_4->GetPointY(i));
+//    g_mb_2->SetPointY(i, g_mb_2->GetPointY(i) / g_hm_2->GetPointY(i));
+
     gKappaVsEta[i] = new TGraphErrors();
     gKappaVsEta[i]->SetName(Form("gKE_%d", i + 1));
     gKappaVsEtaSys[i] = new TGraphErrors();
     gKappaVsEtaSys[i]->SetName(Form("gKE_%d_sys", i + 1));
 
     auto hSys = (TH1D*)f_mb->Get(Form("hSys_%d", i));
-    g_mb_s->AddPoint(g_mb->GetPointX(i), g_mb->GetPointY(i));
+    auto hSys_hm = (TH1D*)f_hm->Get(Form("hSys_%d", i));
+    g_mb_s->AddPoint(g_mb->GetPointX(i), g_mb->GetPointY(i) / g_hm->GetPointY(i) / g_mb_2->GetPointY(i) * g_hm_2->GetPointY(i));
     double min = hSys->GetBinCenter(hSys->FindFirstBinAbove(0));
     double max = hSys->GetBinCenter(hSys->FindLastBinAbove(0));
-    g_mb_s->SetPointError(i, 0.5, /*0.5 * (max - min)*/ hSys->GetStdDev());
+    g_mb_s->SetPointError(i, 0.5, hypot(hSys->GetStdDev() / g_mb->GetPointY(i), hSys->GetStdDev() / g_hm->GetPointY(i)) * g_mb->GetPointY(i) / g_hm->GetPointY(i));
+
     auto hSys_6 = (TH1D*)f_mb_6->Get(Form("hSys_%d", i));
-    g_mb_s_6->AddPoint(g_mb_6->GetPointX(i), g_mb_6->GetPointY(i));
-    g_mb_s_6->SetPointError(i, 0.5, hSys_6->GetStdDev());
+    auto hSys_6_hm = (TH1D*)f_hm_6->Get(Form("hSys_%d", i));
+    g_mb_s_6->AddPoint(g_mb_6->GetPointX(i), g_mb_6->GetPointY(i) / g_hm_6->GetPointY(i) / g_mb_2->GetPointY(i) * g_hm_2->GetPointY(i));
+    g_mb_s_6->SetPointError(i, 0.5, hypot(hSys_6->GetStdDev() / g_mb_6->GetPointY(i), hSys_6->GetStdDev() / g_hm_6->GetPointY(i)) * g_mb_6->GetPointY(i) / g_hm_6->GetPointY(i));
+
     auto hSys_4 = (TH1D*)f_mb_4->Get(Form("hSys_%d", i));
-    g_mb_s_4->AddPoint(g_mb_4->GetPointX(i), g_mb_4->GetPointY(i));
-    g_mb_s_4->SetPointError(i, 0.5, hSys_4->GetStdDev());
+    auto hSys_4_hm = (TH1D*)f_hm_4->Get(Form("hSys_%d", i));
+    g_mb_s_4->AddPoint(g_mb_4->GetPointX(i), g_mb_4->GetPointY(i) / g_hm_4->GetPointY(i) / g_mb_2->GetPointY(i) * g_hm_2->GetPointY(i));
+    g_mb_s_4->SetPointError(i, 0.5, hypot(hSys_4->GetStdDev() / g_mb_4->GetPointY(i), hSys_4->GetStdDev() / g_hm_4->GetPointY(i)) * g_mb_4->GetPointY(i) / g_hm_4->GetPointY(i));
+
     auto hSys_2 = (TH1D*)f_mb_2->Get(Form("hSys_%d", i));
-    g_mb_s_2->AddPoint(g_mb_2->GetPointX(i), g_mb_2->GetPointY(i));
-    g_mb_s_2->SetPointError(i, 0.5, hSys_2->GetStdDev());
+    auto hSys_2_hm = (TH1D*)f_hm_2->Get(Form("hSys_%d", i));
+    g_mb_s_2->AddPoint(g_mb_2->GetPointX(i), g_mb_2->GetPointY(i) / g_hm_2->GetPointY(i) / g_mb_2->GetPointY(i) * g_hm_2->GetPointY(i));
+    g_mb_s_2->SetPointError(i, 0.5, hypot(hSys_2->GetStdDev() / g_mb_2->GetPointY(i), hSys_2->GetStdDev() / g_hm_2->GetPointY(i)) * g_mb_2->GetPointY(i) / g_hm_2->GetPointY(i));
 
     double scale = 1.; // g_hm_2->GetPointY(0) / g_mb_2->GetPointY(i);
+
+    g_mb->SetPointY(i, g_mb->GetPointY(i) / g_hm->GetPointY(i) / g_mb_2->GetPointY(i) * g_hm_2->GetPointY(i));
+    g_mb_6->SetPointY(i, g_mb_6->GetPointY(i) / g_hm_6->GetPointY(i) / g_mb_2->GetPointY(i) * g_hm_2->GetPointY(i));
+    g_mb_4->SetPointY(i, g_mb_4->GetPointY(i) / g_hm_4->GetPointY(i) / g_mb_2->GetPointY(i) * g_hm_2->GetPointY(i));
+    g_mb_2->SetPointY(i, g_mb_2->GetPointY(i) / g_hm_2->GetPointY(i) / g_mb_2->GetPointY(i) * g_hm_2->GetPointY(i));
 
     gKappaVsEta[i]->AddPoint(0.4, scale * g_mb_2->GetPointY(i));
     gKappaVsEta[i]->SetPointError(0, 0.0, scale * g_mb_2->GetErrorY(i));
@@ -250,9 +267,9 @@ void PlotCumulantsVsAcc(const int obs = 2){
   txt.DrawLatex(0.18, 0.9, "ALICE Preliminary");
   txt.DrawLatex(0.18, 0.85, "pp, #sqrt{#it{s}} = 13 TeV INEL > 0");
   txt.DrawLatex(0.18, 0.8, "0.5 < #it{p}_{T} < 1.5 GeV/#it{c}");
-  c.Print(Form("c%s_deta.pdf", obs_sr[obs]));
+  c.Print(Form("c%s_deta_ratio2hm.pdf", obs_sr[obs]));
 
-  TFile *fout = TFile::Open("plot_out.root", "recreate");
+  TFile *fout = TFile::Open("plot_out_ratio2hm.root", "recreate");
   fout->cd();
   c.Write();
 
@@ -301,7 +318,7 @@ void PlotCumulantsVsAcc(const int obs = 2){
   leg_2.Draw("same");
 
   c2.Write();
-  c2.Print(Form("c%s_deta_vsacc.pdf", obs_sr[obs]));
+  c2.Print(Form("c%s_deta_vsacc_ratio2hm.pdf", obs_sr[obs]));
 
   // ---------------------------------------------- //
   TCanvas c3("c3", "c3", 800, 600);
@@ -373,7 +390,7 @@ void PlotCumulantsVsAcc(const int obs = 2){
   txt.DrawLatex(0.15, 0.4, "0.5 #leq #it{p}_{T} < 1.5 GeV/#it{c}");
 
   c3.Write();
-  c3.Print(Form("c%s_deta_divide.pdf", obs_sr[obs]));
+  c3.Print(Form("c%s_deta_divide_ratio2hm.pdf", obs_sr[obs]));
 
   fout->Close();
 }

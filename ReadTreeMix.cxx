@@ -21,13 +21,17 @@
 #pragma link C++ class std::deque<miniEvent>+;
 #endif
 
-enum kSources{
-  kPrim = 0,
-  kWD = 1
-};
-
 void ReadTreeMix(const char* fname = "newTree_noTOF", const char* ofname = "LHC18pp_noTOF", const int iVarMin = 526, const int iVarMax = 527, const bool isMC = false, const char source = kSources::kPrim)
 {
+  std::array<std::vector<double>, kNCentBins> kMultBinsMix;
+  kMultBinsMix[0] = vector<double>({0., 9., 12., 13., 15., 16., 17., 18., 19., 20., 21., 22., 23., 25., 26., 27., 29., 31., 34., 38., 200.});
+  kMultBinsMix[1] = vector<double>({0., 6., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 22., 23., 26., 29., 200.});
+  kMultBinsMix[2] = vector<double>({0., 4., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 18., 19., 21., 24., 200.});
+  kMultBinsMix[3] = vector<double>({0., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 16., 18., 20., 200.});
+  kMultBinsMix[4] = vector<double>({0., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 15., 17., 200.});
+  kMultBinsMix[5] = vector<double>({0., 2., 3., 4., 5., 6., 7., 8., 9., 10., 12., 14., 200.});
+  kMultBinsMix[6] = vector<double>({0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 200.});
+
   TStopwatch w;
   w.Start();
 
@@ -180,6 +184,10 @@ void ReadTreeMix(const char* fname = "newTree_noTOF", const char* ofname = "LHC1
   for (int iB = 0; iB < kNBinsPt + 1; ++iB){
     ptBins[iB] = kMinPt + kDeltaPt * iB;
   }
+  // double vtxBins[kNVtxBins + 1];
+  // for (int iB = 0; iB < kNVtxBins + 1; ++iB){
+  //   vtxBins[iB] = kMinVtx + kDeltaVtx * iB;
+  // }
   std::cout << kNBinsPt << std::endl;
   double pidBins[kNBinsPID + 1];
   for (int iB = 0; iB < kNBinsPID + 1; ++iB){
@@ -222,8 +230,15 @@ void ReadTreeMix(const char* fname = "newTree_noTOF", const char* ofname = "LHC1
   // loop variables
   Long64_t nEntries = kLimitSample ? kLimitedSample : t->GetEntries();
   TH1D hCentTmp("hCentTmp", "hCentTmp", kNCentBins, kCentBins);
+  TH1D hTrklTmp("hTrklTmp", "hTrklTmp", kNTrklBins, kTrklBins);
+  TH1D hCentMidTmp("hCentMidTmp", "hCentMidTmp", kNCentBinsMidTmp, kCentBinsMidTmp);
   TH1D hCentSmallTmp("hCentSmallTmp", "hCentSmallTmp", kNCentBinsSmallTmp, kCentBinsSmallTmp);
   TH1D hEtaTmp("hEtaTmp", "hEtaTmp", kNEtaBins, etaBins);
+  TH1D hVtxTmp("hVtxTmp", "hVtxTmp", kNVtxBins, kVtxBins);
+  TH1D* hMultTmp[kNCentBins];
+  for (int iCB{0}; iCB < kNCentBins; ++iCB){
+    hMultTmp[iCB] = new TH1D(Form("hMultTmp_%d", iCB), ";Mult;Entries", int(kMultBinsMix[iCB].size()) - 1, kMultBinsMix[iCB].data());
+  }
 
   std::deque<miniEvent> evq;
   int iQ{0};
@@ -253,12 +268,11 @@ void ReadTreeMix(const char* fname = "newTree_noTOF", const char* ofname = "LHC1
   gRandom->SetSeed(42);
   Long64_t ievStart = 0; // isMC ? 0 : 400000000;
   for (Long64_t i = ievStart; i < nEntries; ++i){
+    // std::cout << "n_ev = " << i << std::endl;
     const int iS = static_cast<int>(gRandom->Rndm() * nSample);
 
-    if (!(i%10000)) std::cout << "n_ev = " << i << ", evq.size() = " << evq.size() << std::endl;
-
     // fill the deque here
-    while (evq.size() < maxDequeSize && jev < nEntries) {
+    while (evq.size() <= maxDequeSize && jev < nEntries) {
       if (!selEv(jev++)) continue;
       miniEvent ev_tmp(fZvtxMask, fTriggerMask, fNtracklets, fV0Multiplicity, tracks);
       evq.emplace_back(ev_tmp);
@@ -275,32 +289,43 @@ void ReadTreeMix(const char* fname = "newTree_noTOF", const char* ofname = "LHC1
     hNtrkl[iS]->Fill(evq.front().fNtracklets);
 
     // loop on the deque and generate the mixed event
-    long unsigned int ievSamp{1};
+    long unsigned int ievSamp{0};
     int inspectedEvents{0};
-    bool stopMix = false;
+    bool stopMix =  (jev >= (nEntries));
     miniEvent evMxd(evq.front().fZvtxMask, evq.front().fTriggerMask, evq.front().fNtracklets, evq.front().fV0Multiplicity);
+    evq.pop_front();
     while (inspectedEvents < static_cast<int>(evMxd.fNtracklets) && !stopMix){
       // std::cout << ievSamp << "\t" << jev << "\t" << stopMix << "\t" << static_cast<int>(evMxd.fNtracklets) << std::endl;
-      if (ievSamp >= evq.size() - 1) {
-        stopMix = (jev >= (nEntries - 1));
-        while(!selEv(jev) && !stopMix){
-          jev++;
-          stopMix = (jev >= (nEntries - 1));
+      if (ievSamp >= (evq.size() - 1) && !stopMix) {
+        while(!selEv(jev++) && !stopMix){
+          stopMix = (jev >= (nEntries));
         }
-        stopMix = stopMix && (evq.size() >= maxDequeSize);
-        if (stopMix) break;
+        // stopMix = stopMix || (evq.size() >= maxDequeSize); -> temporarily remove condition on maximum queue size
+        /* if (stopMix) {
+          std::cout << "stopMixing (> maxSize)" << std::endl;
+          break;
+        } */
         miniEvent ev_tmp(fZvtxMask, fTriggerMask, fNtracklets, fV0Multiplicity, tracks);
         evq.emplace_back(ev_tmp);
       }
-      if (std::abs(evq[ievSamp].fZvtxMask - evMxd.fZvtxMask) < kMixThrZvtx && std::abs(evq[ievSamp].fV0Multiplicity - evMxd.fV0Multiplicity) < kMixThrV0M && !stopMix && ievSamp < evq.size()) {
-        // std::cout << "filling tracks..." << std::endl;
+      // bool procThisEv = gRandom->Rndm() < 0.2;
+      int iCB = hCentTmp.FindBin(evMxd.fV0Multiplicity);
+      if ((hVtxTmp.FindBin(evq[ievSamp].fZvtxMask) == hVtxTmp.FindBin(evMxd.fZvtxMask)) && (hCentMidTmp.FindBin(evq[ievSamp].fV0Multiplicity) == hCentMidTmp.FindBin(evMxd.fV0Multiplicity)) && (hMultTmp[iCB - 1]->FindBin(evq[ievSamp].fNtracklets) == hMultTmp[iCB - 1]->FindBin(evMxd.fNtracklets)) && !stopMix && ievSamp < evq.size()){ // && procThisEv) {
+
+        if (!(i%1000)) std::cout << "n_ev = " << i << ", evq.size() = " << evq.size() << ", j_ev = " << jev << ", ievSamp = " << ievSamp << std::endl;
+
+//        std::cout << "filling tracks..." << std::endl;
         double ntrk_tmp = static_cast<double>(evq[ievSamp].fNtracklets);
         double npap_tmp = static_cast<double>(evq[ievSamp].fTracks.size());
         double frac_pap = npap_tmp / ntrk_tmp; // fraction of protons in tracks
         if (gRandom->Rndm() < frac_pap) {
           int rndm_idx = gRandom->Uniform(static_cast<int>(evq[ievSamp].fTracks.size()));
+//          std::cout << "idx = " << rndm_idx << std::endl;
           evMxd.fTracks.emplace_back(evq[ievSamp].fTracks[rndm_idx]);
+//          std::cout << "filled" << std::endl;
         }
+        // temporary fix to avoid autocorrelations (useless)
+        // evq.erase(evq.begin() + ievSamp);
         inspectedEvents++;
       }
       ievSamp++;
@@ -401,8 +426,6 @@ void ReadTreeMix(const char* fname = "newTree_noTOF", const char* ofname = "LHC1
 
       evtTuple[iS][iVar - iVarMin]->Fill(cent, qPr_1_tmp[1], qPr_1_tmp[0], qPr_2_tmp[1], qPr_2_tmp[0], qPr_3_tmp[1], qPr_3_tmp[0], qPr_4_tmp[1], qPr_4_tmp[0], qPr_5_tmp[1], qPr_5_tmp[0], qPr_6_tmp[1], qPr_6_tmp[0], fNtracklets);
     }
-
-    evq.pop_front();
   }
 
   // Process output

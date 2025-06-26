@@ -5,6 +5,11 @@
 #include <TColor.h>
 #include <TClonesArray.h>
 
+enum kSources{
+  kPrim = 0,
+  kWD = 1
+};
+
 struct miniTrack : public TObject{
   miniTrack() :
   fPt{-999.f},
@@ -73,9 +78,9 @@ struct miniEvent : public TObject{
   std::vector<miniTrack> fTracks;
 };
 
-constexpr int maxDequeSize = 1000000;
+constexpr int maxDequeSize = 10000;
 constexpr int kMixThrZvtx = 20;
-constexpr int kMixThrV0M = 10;
+constexpr int kMixThrV0M =  2;
 
 double powI(double a, int p){
   if (p > 1)
@@ -98,8 +103,8 @@ constexpr float kDummyEffPr = 1.;
 constexpr const char* kSubsampleFlag = "_";
 const bool kMultV0M = true; //false;
 
-constexpr int kLimitSample = 0;
-constexpr int kLimitedSample = 400000000;
+constexpr int kLimitSample = 1;
+constexpr int kLimitedSample = 3000000;
 const char *kDataDir = "data";
 const char *kResDir = "/home/mciacco/Code/NetProtonCumulants/results";
 //const char *kResDir = "results";
@@ -109,10 +114,10 @@ constexpr bool kUseIndex = false;
 
 constexpr int kNSample = 20;
 
-constexpr int kNCentBins = 2;
-constexpr double kCentBins[kNCentBins + 1] = {0.f, 0.1f, 100.f};
-//constexpr int kNCentBins = 7;
-//constexpr double kCentBins[kNCentBins + 1] = {0, 10, 20, 30, 40, 50, 70, 100};
+// constexpr int kNCentBins = 2;
+// constexpr double kCentBins[kNCentBins + 1] = {0.f, 0.1f, 100.f};
+constexpr int kNCentBins = 7;
+constexpr double kCentBins[kNCentBins + 1] = {0, 10, 20, 30, 40, 50, 70, 100};
 
 //constexpr int kNCentBins = 100;
 //constexpr double kCentBins[kNCentBins + 1] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
@@ -120,20 +125,28 @@ constexpr double kCentBins[kNCentBins + 1] = {0.f, 0.1f, 100.f};
 // 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92,
 //93, 94, 95, 96, 97, 98, 99, 100};
 
+constexpr int kNVtxBins = 8;
+constexpr double kVtxBins[kNVtxBins + 1]{-100., -58., -35, -16., 0., 16., 35., 58., 100.};
 
-constexpr int kNTrklBins = 10;
-constexpr double kTrklBins[kNTrklBins + 1] = /* {0, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 35.f, 40.f}; */ {0, 3, 4, 5, 7, 9, 11, 15, 19, 27, 50};
+constexpr int kNTrklBins = 11;
+constexpr double kTrklBins[kNTrklBins + 1] = /* {0, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 35.f, 40.f}; */ {0, 3, 4, 5, 7, 9, 11, 15, 19, 27, 50, 200};
 
 constexpr uint8_t kTriggerSel = 0x1; //0x1;
 constexpr int kNEtaBins = 1;
 constexpr int kNBinsPt = 20;
 constexpr int kNBinsPID = 50;
+// constexpr int kNVtxBins = 8;
+constexpr int kMultBins = 30;
 constexpr double kMinEta = -0.8f;
+constexpr double kMinMult = 0.f;
 constexpr double kDeltaEta = 1.6f;
 constexpr double kMinPt = 0.5f;
+// constexpr double kMinVtx = -100.f;
 constexpr double kDeltaPt = 0.05f;
 constexpr double kMinPID = -5.f;
 constexpr double kDeltaPID = 0.175f;
+// constexpr double kDeltaVtx = 25.f;
+constexpr double kDeltaMult = 4.f;
 
 constexpr int kNTPCcls = 3;
 constexpr int kNChi2TPC = 3;
@@ -203,10 +216,13 @@ constexpr double kCentBinsSmallTmp[kNCentBinsSmallTmp + 1] = {0, 1, 2, 3, 4, 5, 
  60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92,
 93, 94, 95, 96, 97, 98, 99, 100};
 
+constexpr int kNCentBinsMidTmp = 20;
+constexpr double kCentBinsMidTmp[kNCentBinsMidTmp + 1] = {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100.};
+
 //constexpr int kNCentBinsSmall = 50;
 //constexpr float kCentBinsSmall[kNCentBinsSmall + 1] = {0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 31.f, 32.f, 33.f, 34.f, 35.f, 36.f, 37.f, 38.f, 39.f, 40.f, 41.f, 42.f, 43.f, 44.f, 45.f, 46.f, 47.f, 48.f, 49.f, 50.f};
-constexpr int kNTrklBinsSmall = 50;
-constexpr double kTrklBinsSmall[kNTrklBinsSmall + 1] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50};
+constexpr int kNTrklBinsSmall = 51;
+constexpr double kTrklBinsSmall[kNTrklBinsSmall + 1] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 200};
 
 // systematics vars
 constexpr int kNVar = 42;
