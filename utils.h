@@ -52,19 +52,22 @@ struct miniEvent : public TObject{
   fZvtxMask{0},
   fTriggerMask{0u},
   fNtracklets{0u},
-  fV0Multiplicity{0u}
+  fV0Multiplicity{0u},
+  fNtracks{0u}
   {};
-  miniEvent(char const zvtxMask, uint8_t const triggerMask, uint8_t const ntracklets, uint8_t const v0Multiplicity) :
+  miniEvent(char const zvtxMask, uint8_t const triggerMask, uint8_t const ntracklets, uint8_t const v0Multiplicity, uint8_t const ntracks) :
   fZvtxMask{zvtxMask},
   fTriggerMask{triggerMask},
   fNtracklets{ntracklets},
-  fV0Multiplicity{v0Multiplicity}
+  fV0Multiplicity{v0Multiplicity},
+  fNtracks{ntracks}
   {};
-  miniEvent(char const zvtxMask, uint8_t const triggerMask, uint8_t const ntracklets, uint8_t const v0Multiplicity, TClonesArray* const tracks) :
+  miniEvent(char const zvtxMask, uint8_t const triggerMask, uint8_t const ntracklets, uint8_t const v0Multiplicity, uint8_t const ntracks, TClonesArray* const tracks) :
   fZvtxMask{zvtxMask},
   fTriggerMask{triggerMask},
   fNtracklets{ntracklets},
-  fV0Multiplicity{v0Multiplicity}
+  fV0Multiplicity{v0Multiplicity},
+  fNtracks{ntracks}
   {
     for (int itrk = 0; itrk < tracks->GetEntries(); ++itrk) {
       miniTrack* trk_tmp = static_cast<miniTrack*>(tracks->At(itrk));
@@ -75,10 +78,11 @@ struct miniEvent : public TObject{
   uint8_t fTriggerMask;
   uint8_t fNtracklets;
   uint8_t fV0Multiplicity;
+  uint8_t fNtracks;
   std::vector<miniTrack> fTracks;
 };
 
-constexpr int maxDequeSize = 10000;
+constexpr int maxDequeSize = 10;
 constexpr int kMixThrZvtx = 20;
 constexpr int kMixThrV0M =  2;
 
@@ -103,10 +107,10 @@ constexpr float kDummyEffPr = 1.;
 constexpr const char* kSubsampleFlag = "_";
 const bool kMultV0M = true; //false;
 
-constexpr int kLimitSample = 1;
-constexpr int kLimitedSample = 3000000;
+constexpr int kLimitSample = 0;
+constexpr int kLimitedSample = 9900000;
 const char *kDataDir = "data";
-const char *kResDir = "/home/mciacco/Code/NetProtonCumulants/results";
+const char *kResDir = "/home/mciacco/Code2/NetProtonCumulants/results";
 //const char *kResDir = "results";
 const char *kCalibDir = "calib";
 constexpr bool kUseIndex = false;
@@ -125,8 +129,8 @@ constexpr double kCentBins[kNCentBins + 1] = {0, 10, 20, 30, 40, 50, 70, 100};
 // 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92,
 //93, 94, 95, 96, 97, 98, 99, 100};
 
-constexpr int kNVtxBins = 8;
-constexpr double kVtxBins[kNVtxBins + 1]{-100., -58., -35, -16., 0., 16., 35., 58., 100.};
+//constexpr int kNVtxBins = 8;
+//constexpr double kVtxBins[kNVtxBins + 1]{-100., -75., -50, -25., 0., 25., 50., 75., 100.};
 
 constexpr int kNTrklBins = 11;
 constexpr double kTrklBins[kNTrklBins + 1] = /* {0, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f, 25.f, 26.f, 27.f, 28.f, 29.f, 30.f, 35.f, 40.f}; */ {0, 3, 4, 5, 7, 9, 11, 15, 19, 27, 50, 200};
@@ -135,17 +139,17 @@ constexpr uint8_t kTriggerSel = 0x1; //0x1;
 constexpr int kNEtaBins = 1;
 constexpr int kNBinsPt = 20;
 constexpr int kNBinsPID = 50;
-// constexpr int kNVtxBins = 8;
+constexpr int kNVtxBins = 8;
 constexpr int kMultBins = 30;
 constexpr double kMinEta = -0.8f;
 constexpr double kMinMult = 0.f;
 constexpr double kDeltaEta = 1.6f;
 constexpr double kMinPt = 0.5f;
-// constexpr double kMinVtx = -100.f;
+constexpr double kMinVtx = -100.f;
 constexpr double kDeltaPt = 0.05f;
 constexpr double kMinPID = -5.f;
 constexpr double kDeltaPID = 0.175f;
-// constexpr double kDeltaVtx = 25.f;
+constexpr double kDeltaVtx = 25.f;
 constexpr double kDeltaMult = 4.f;
 
 constexpr int kNTPCcls = 3;

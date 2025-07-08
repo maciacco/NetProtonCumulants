@@ -1,7 +1,7 @@
 #include <TFile.h>
 #include <ROOT/RDataFrame.hxx>
 
-void PlotMults(const char* fname = "results/newTree_LHC18pp_20250611.root", const char* tname = "newtree"){
+void PlotMults(const char* fname = "results/newTree_LHC17pp_20250628.root", const char* tname = "newtree"){
   ROOT::EnableImplicitMT(4);
   ROOT::RDataFrame df(tname, fname);
   TFile *out = TFile::Open("mulPlotsOut.root", "recreate");
@@ -11,3 +11,4 @@ void PlotMults(const char* fname = "results/newTree_LHC18pp_20250611.root", cons
   h2->Write();
   out->Close();
 }
+

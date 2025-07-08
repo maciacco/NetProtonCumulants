@@ -1,7 +1,10 @@
+#include <iostream>
+
+#include <TTree.h>
 #include <TFile.h>
 #include "utils.h"
 
-void AOD2TTree(const char *inFile = "AO2D_20250618_smalleta_merged", const char *outFile = "newTree_20250618_smalleta", const bool isMC = false){
+void AOD2TTree(const char *inFile = "AO2D2017merged", const char *outFile = "newTree_LHC17pp_20250628", const bool isMC = false){
   TFile *fout = TFile::Open(Form("%s/%s.root", kResDir, outFile), "recreate");
 
   TTree *new_tree = new TTree("newtree", "new tree");
@@ -11,10 +14,12 @@ void AOD2TTree(const char *inFile = "AO2D_20250618_smalleta_merged", const char 
   uint8_t triggerMask = 0u;
   uint8_t ntracklets = 0u;
   uint8_t v0Multiplicity = 0u;
+  uint8_t ntracks = 0u;
   new_tree->Branch("fZvtxMask", &zvtxMask);
   new_tree->Branch("fTriggerMask", &triggerMask);
   new_tree->Branch("fNtracklets", &ntracklets);
   new_tree->Branch("fV0Multiplicity", &v0Multiplicity);
+  new_tree->Branch("fNtracks", &ntracks);
   new_tree->Branch("fTracks", &tracks);
 
   // track table (w/ MC info)
@@ -33,6 +38,7 @@ void AOD2TTree(const char *inFile = "AO2D_20250618_smalleta_merged", const char 
   uint8_t fTriggerMask = 0;
   uint8_t fNtracklets = 0u;
   uint8_t fV0Multiplicity = 0u;
+  uint8_t fNtracks = 0u;
 
   TFile *_file0 = TFile::Open(Form("%s/%s.root", kDataDir, inFile));
   auto _list_keys = _file0->GetListOfKeys();
@@ -62,6 +68,7 @@ void AOD2TTree(const char *inFile = "AO2D_20250618_smalleta_merged", const char 
     _tree_coll->SetBranchAddress("fTriggerMask", &fTriggerMask);
     _tree_coll->SetBranchAddress("fNtracklets", &fNtracklets);
     _tree_coll->SetBranchAddress("fV0Multiplicity", &fV0Multiplicity);
+    _tree_coll->SetBranchAddress("fNtracks", &fNtracks);
 
     int64_t itrk = 0;
     for (int64_t ic = 0; ic < ncoll; ++ic) {
@@ -74,6 +81,7 @@ void AOD2TTree(const char *inFile = "AO2D_20250618_smalleta_merged", const char 
       triggerMask = fTriggerMask;
       ntracklets = fNtracklets;
       v0Multiplicity = fV0Multiplicity;
+      ntracks = fNtracks;
 
       // fill tracks array
       for (; itrk < ntrk; ++itrk) {

@@ -20,7 +20,7 @@ root -b -l <<EOF
 
 
 .L ReadTreeMix.cxx
-ReadTreeMix("newTree_LHC18pp_20250611", "LHC18ppTrig_HM", ${min}, ${max}, false)
+ReadTreeMix("newTree_LHC17pp_20250628", "LHC18ppTrig_HM", ${min}, ${max}, false)
 
 //.L ProcessTuple.cxx+
 //.L ProcessTupleSingleParticleHighOrder.cxx+

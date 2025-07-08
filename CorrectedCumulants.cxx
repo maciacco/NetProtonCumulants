@@ -7,15 +7,15 @@ const double v2TheFIST[]{0.0528284, 0.0637202, 0.0875567, 0.120773, 0.147558, 0.
 const double nch[]{18.68, 12.90, 10.03, 7.95, 6.32, 4.49, 2.54};
 
 void CorrectedCumulants(){
-  TFile *f_k4k2 = TFile::Open(Form("%s/out_sys_MB_18_08_finalBinning_k4k2.root", dir));
-  TFile *f_k2 = TFile::Open(Form("%s/out_sys_MB_18_08_finalBinning_k2.root", dir));
-  TFile *f_k2k1_ap = TFile::Open("out_sys_18_binning_mix_finalBinning_singleParticleHighOrder_k2k1.root");
+  TFile *f_k4k2 = TFile::Open(Form("%s/out_sys_MB_18_08_finalBinning_singleParticleHighOrder_k2k1.root", dir));
+  TFile *f_k2 = TFile::Open(Form("%s/out_sys_MB_18_08_finalBinning_singleParticleHighOrder_k1.root", dir));
+  TFile *f_k2k1_ap = TFile::Open("/home/mciacco/out_sys_18_binning_fine_3_mix_finalBinning_singleParticleHighOrder_k2k1.root");
   TFile *f_k1_ap = TFile::Open("out_sys_18_binning_mix_finalBinning_singleParticleHighOrder_k1.root");
 
   TFile *f_k4k2_m = TFile::Open("out_sys_18_HM_mix_finalBinning_k4k2.root");
   TFile *f_k2sk_m = TFile::Open("out_sys_18_HM_mix_finalBinning_k2sk.root");
 
-  TGraphErrors* k4k2 = static_cast<TGraphErrors*>(f_k4k2->Get("g_81"));
+  TGraphErrors* k4k2 = static_cast<TGraphErrors*>(f_k4k2->Get("g_364"));
   TGraphErrors* k2 = static_cast<TGraphErrors*>(f_k2->Get("g_81"));
   TGraphErrors* k2k1_ap = static_cast<TGraphErrors*>(f_k2k1_ap->Get("g_81"));
   TGraphErrors* k1_ap = static_cast<TGraphErrors*>(f_k1_ap->Get("g_81"));
@@ -39,7 +39,7 @@ void CorrectedCumulants(){
     double k4k2_m_tmp = k4k2_m->GetPointY(iP);
     double k2sk_m_tmp = k2sk_m->GetPointY(iP);
 
-    k4k2->SetPointY(iP,  k4k2_tmp - 3 *  k2_tmp *  (k2k1_ap_tmp));
+    k4k2->SetPointY(iP,  k4k2_tmp -  k2_tmp *  (2. * k2k1_ap_tmp));
 //    k4k2->SetPointError(iP, 0., k2k1_ap_tmp_err / k1_ap_tmp);
 //    k4k2->SetPointY(iP, (k4k2_m_tmp - 1.) / k2sk_m_tmp / 3.);
   }
